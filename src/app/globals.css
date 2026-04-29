@@ -70,3 +70,23 @@ body {
   position: fixed; width: auto; height: auto; padding: 0.5rem 1rem;
   margin: 0; overflow: visible; clip: auto; white-space: normal;
 }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 80s linear infinite;
+  will-change: transform;
+}
+.animate-marquee-reverse {
+  animation: marquee 80s linear infinite reverse;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee-reverse {
+    animation: none;
+  }
+}

@@ -236,10 +236,9 @@ export default function HubScene({
     <Canvas
       camera={{ position: [0, 0, 4.6], fov: 45 }}
       dpr={[1, 1.5]}
-      gl={{ antialias: true, powerPreference: 'high-performance' }}
+      gl={{ antialias: true, powerPreference: 'high-performance', alpha: true }}
       performance={{ min: 0.5 }}
     >
-      <color attach="background" args={['#08070C']} />
       <fog attach="fog" args={['#08070C', 3.6, 11]} />
 
       <ambientLight intensity={0.2} color="#F4D8E2" />

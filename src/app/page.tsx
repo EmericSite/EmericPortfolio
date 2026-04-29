@@ -6,13 +6,16 @@ import ContactPanel from '@/components/ContactPanel';
 import Loader from '@/components/Loader';
 import ScrollNav from '@/components/ScrollNav';
 import AccessibleProjectList from '@/components/AccessibleProjectList';
+import MarqueeBackground from '@/components/MarqueeBackground';
 
 export default function Home() {
   return (
     <main id="main" className="relative h-screen min-h-[700px] w-full overflow-hidden bg-ink text-chrome">
       <Loader />
 
-      <div className="absolute inset-0">
+      <MarqueeBackground />
+
+      <div className="absolute inset-0 z-10">
         <HomeHub />
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-ink/20 via-transparent to-ink/70 pointer-events-none" />
