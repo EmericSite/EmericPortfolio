@@ -10,11 +10,7 @@ export type Project = {
   role: string;
   credits: { label: string; value: string }[];
   posterUrl: string;
-  externalUrl: string;
 };
-
-const FRAMER = 'https://framerusercontent.com/images';
-const SITE = 'https://emericressy.com';
 
 export const projects: Project[] = [
   {
@@ -34,8 +30,7 @@ export const projects: Project[] = [
       { label: 'Direction artistique', value: 'Emeric Ressy' },
       { label: 'Motion 3D', value: 'Emeric Ressy' },
     ],
-    posterUrl: `${FRAMER}/B0ZQUmnLcPZeVG7qfiSU9pOaRAY.png`,
-    externalUrl: `${SITE}/work/gentlezzz`,
+    posterUrl: '/posters/gentle-mates.png',
   },
   {
     id: 'dofus',
@@ -53,8 +48,7 @@ export const projects: Project[] = [
       { label: 'Client', value: 'Ankama' },
       { label: 'Direction artistique', value: 'Emeric Ressy' },
     ],
-    posterUrl: `${FRAMER}/fVKnxUJI4HJJOveJhIiqRvrp7k.png`,
-    externalUrl: `${SITE}/work/dofus`,
+    posterUrl: '/posters/dofus.png',
   },
   {
     id: 'douce-melancolie',
@@ -72,8 +66,7 @@ export const projects: Project[] = [
       { label: 'Auteur', value: 'Emeric Ressy' },
       { label: 'Année', value: '2025' },
     ],
-    posterUrl: `${FRAMER}/ln2DZTcV0fkdUMlPK4Zg03ZqFA.png`,
-    externalUrl: `${SITE}/work/dmdc`,
+    posterUrl: '/posters/douce-melancolie.png',
   },
   {
     id: 'come-torment',
@@ -91,7 +84,6 @@ export const projects: Project[] = [
       { label: 'Auteur', value: 'Emeric Ressy' },
       { label: 'Année', value: '2024' },
     ],
-    posterUrl: `${FRAMER}/X7GbluTZa37Nxfu3FQhuPYtseK8.png`,
-    externalUrl: `${SITE}/work/torment`,
+    posterUrl: '/posters/come-torment.png',
   },
 ];

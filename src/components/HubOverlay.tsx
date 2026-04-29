@@ -118,7 +118,6 @@ export default function HubOverlay() {
                 fill
                 sizes="(max-width: 768px) 100vw, 480px"
                 className="object-cover"
-                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent pointer-events-none" />
               <div
@@ -170,29 +169,16 @@ export default function HubOverlay() {
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <a
-                href={active.externalUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-3 border border-fog rounded-full px-6 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome bg-chrome/5 hover:border-cyanglitch hover:text-cyanglitch transition-colors"
-              >
-                Voir sur emericressy.com
-                <span className="transition-transform group-hover:translate-x-1">
-                  ↗
-                </span>
-              </a>
-              <button
-                type="button"
-                onClick={() => setMode('hub')}
-                className="group inline-flex items-center gap-3 border border-fog rounded-full px-6 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-mist hover:border-magentaglitch hover:text-magentaglitch transition-colors"
-              >
-                <span className="transition-transform group-hover:-translate-x-1">
-                  ←
-                </span>
-                retour
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setMode('hub')}
+              className="group inline-flex items-center gap-3 border border-fog rounded-full px-6 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome hover:border-cyanglitch hover:text-cyanglitch transition-colors"
+            >
+              <span className="transition-transform group-hover:-translate-x-1">
+                ←
+              </span>
+              retour au hub
+            </button>
           </div>
         )}
 

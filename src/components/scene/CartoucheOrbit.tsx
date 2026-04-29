@@ -1,11 +1,12 @@
 'use client';
 
 import { useFrame } from '@react-three/fiber';
-import { Float, RoundedBox, Text } from '@react-three/drei';
-import { useRef } from 'react';
+import { Float, RoundedBox, Text, useTexture } from '@react-three/drei';
+import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import type {
   Group,
+  Mesh,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
 } from 'three';
@@ -40,6 +41,17 @@ function Cartouche({
   const angleOffset = (index / total) * Math.PI * 2;
   const orbitTarget = useRef(new THREE.Vector3());
 
+  // Load poster texture and apply imperatively (avoids RSC serialization)
+  const tex = useTexture(project.posterUrl);
+  useEffect(() => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 16;
+    if (accentMatRef.current) {
+      accentMatRef.current.map = tex;
+      accentMatRef.current.needsUpdate = true;
+    }
+  }, [tex]);
+
   useFrame(({ clock }) => {
     if (!groupRef.current || !innerRef.current) return;
 
@@ -70,28 +82,26 @@ function Cartouche({
     const s = THREE.MathUtils.lerp(innerRef.current.scale.x, targetScale, 0.08);
     innerRef.current.scale.setScalar(s);
 
-    const targetEmissive = isFocused || isActive ? 0.55 : 0.16;
-    const targetOpacity = isDimmed ? 0.05 : isOffstage ? 0.35 : 1;
-
+    const targetEmissive = isFocused || isActive ? 0.32 : 0.0;
     if (accentMatRef.current) {
       accentMatRef.current.emissiveIntensity = THREE.MathUtils.lerp(
         accentMatRef.current.emissiveIntensity,
         targetEmissive,
         0.1,
       );
-      accentMatRef.current.opacity = THREE.MathUtils.lerp(
-        accentMatRef.current.opacity,
-        targetOpacity,
-        0.08,
-      );
     }
-    if (chromeMatRef.current) {
-      chromeMatRef.current.opacity = THREE.MathUtils.lerp(
-        chromeMatRef.current.opacity,
-        targetOpacity,
-        0.08,
-      );
-    }
+
+    const targetOpacity = isDimmed ? 0.05 : isOffstage ? 0.4 : 1;
+    innerRef.current.traverse((obj) => {
+      const m = obj as Mesh;
+      if (m.isMesh && m.material) {
+        const mat = m.material as MeshStandardMaterial;
+        if ('opacity' in mat) {
+          mat.transparent = true;
+          mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.08);
+        }
+      }
+    });
   });
 
   return (
@@ -141,7 +151,7 @@ function Cartouche({
             />
           </RoundedBox>
 
-          {/* Corner rivets — sit on the chrome border, between accent and outer edge */}
+          {/* Corner rivets */}
           {(
             [
               [-0.4, 0.59],
@@ -159,11 +169,13 @@ function Cartouche({
                 clearcoat={1}
                 clearcoatRoughness={0.05}
                 envMapIntensity={2.2}
+                transparent
+                opacity={1}
               />
             </mesh>
           ))}
 
-          {/* Accent body */}
+          {/* Poster panel — accent body with project image as map */}
           <RoundedBox
             args={[0.84, 1.22, 0.04]}
             radius={0.05}
@@ -172,71 +184,77 @@ function Cartouche({
           >
             <meshStandardMaterial
               ref={accentMatRef}
-              color={project.accent}
+              color="#ffffff"
               emissive={project.accent}
-              emissiveIntensity={0.18}
-              metalness={0.45}
-              roughness={0.4}
+              emissiveIntensity={0}
+              metalness={0.15}
+              roughness={0.55}
               transparent
               opacity={1}
             />
           </RoundedBox>
 
-          {/* Mini-halo crest — echoes the main relic's halo */}
-          <mesh position={[0, 0.5, 0.05]}>
-            <torusGeometry args={[0.045, 0.008, 14, 36]} />
-            <meshStandardMaterial
-              color="#E8E6EC"
-              metalness={1}
-              roughness={0.05}
-              envMapIntensity={2}
+          {/* Top index chip */}
+          <mesh position={[-0.3, 0.5, 0.038]}>
+            <planeGeometry args={[0.14, 0.075]} />
+            <meshBasicMaterial
+              color="#08070C"
+              transparent
+              opacity={0.78}
+              toneMapped={false}
             />
           </mesh>
-
-          {/* Top divider */}
-          <mesh position={[0, 0.32, 0.032]}>
-            <planeGeometry args={[0.62, 0.005]} />
-            <meshBasicMaterial color="#08070C" toneMapped={false} />
-          </mesh>
-
-          {/* Bottom divider */}
-          <mesh position={[0, -0.36, 0.032]}>
-            <planeGeometry args={[0.62, 0.005]} />
-            <meshBasicMaterial color="#08070C" toneMapped={false} />
-          </mesh>
-
-          {/* Index — top left, bigger */}
           <Text
-            position={[-0.3, 0.41, 0.034]}
-            fontSize={0.08}
-            color="#08070C"
-            anchorX="left"
+            position={[-0.3, 0.5, 0.04]}
+            fontSize={0.06}
+            color="#E8E6EC"
+            anchorX="center"
             anchorY="middle"
             letterSpacing={0.06}
           >
             {`0${index + 1}`}
           </Text>
 
-          {/* Year — top right */}
+          {/* Top year chip */}
+          <mesh position={[0.3, 0.5, 0.038]}>
+            <planeGeometry args={[0.18, 0.075]} />
+            <meshBasicMaterial
+              color="#08070C"
+              transparent
+              opacity={0.78}
+              toneMapped={false}
+            />
+          </mesh>
           <Text
-            position={[0.3, 0.41, 0.034]}
-            fontSize={0.06}
-            color="#08070C"
-            anchorX="right"
+            position={[0.3, 0.5, 0.04]}
+            fontSize={0.05}
+            color="#E8E6EC"
+            anchorX="center"
             anchorY="middle"
             letterSpacing={0.08}
           >
             {project.year}
           </Text>
 
-          {/* Title — center, dramatic */}
+          {/* Bottom info banner — dark gradient overlay for legibility */}
+          <mesh position={[0, -0.36, 0.038]}>
+            <planeGeometry args={[0.84, 0.5]} />
+            <meshBasicMaterial
+              color="#08070C"
+              transparent
+              opacity={0.82}
+              toneMapped={false}
+            />
+          </mesh>
+
+          {/* Title in banner */}
           <Text
-            position={[0, 0, 0.034]}
-            fontSize={0.13}
-            color="#08070C"
+            position={[0, -0.22, 0.04]}
+            fontSize={0.105}
+            color="#F4D8E2"
             anchorX="center"
             anchorY="middle"
-            maxWidth={0.7}
+            maxWidth={0.74}
             textAlign="center"
             lineHeight={1.0}
             letterSpacing={-0.005}
@@ -244,11 +262,11 @@ function Cartouche({
             {project.shortTitle}
           </Text>
 
-          {/* Tag — bottom center */}
+          {/* Tag in banner */}
           <Text
-            position={[0, -0.46, 0.034]}
-            fontSize={0.044}
-            color="#08070C"
+            position={[0, -0.4, 0.04]}
+            fontSize={0.038}
+            color="#B8B0BE"
             anchorX="center"
             anchorY="middle"
             letterSpacing={0.18}
@@ -256,23 +274,28 @@ function Cartouche({
             {project.tag.toUpperCase()}
           </Text>
 
-          {/* Bottom emblem — chrome ring framing an emissive accent rune */}
-          <mesh position={[0, -0.56, 0.05]}>
-            <torusGeometry args={[0.025, 0.005, 10, 28]} />
-            <meshStandardMaterial
+          {/* Bottom emblem — chrome ring with emissive accent gem */}
+          <mesh position={[0, -0.55, 0.05]}>
+            <torusGeometry args={[0.022, 0.005, 10, 28]} />
+            <meshPhysicalMaterial
               color="#E8E6EC"
               metalness={1}
               roughness={0.06}
+              clearcoat={1}
               envMapIntensity={1.8}
+              transparent
+              opacity={1}
             />
           </mesh>
-          <mesh position={[0, -0.56, 0.05]}>
-            <circleGeometry args={[0.013, 32]} />
+          <mesh position={[0, -0.55, 0.05]}>
+            <circleGeometry args={[0.012, 32]} />
             <meshStandardMaterial
               color={project.accent}
               emissive={project.accent}
               emissiveIntensity={1.6}
               toneMapped={false}
+              transparent
+              opacity={1}
             />
           </mesh>
         </group>
