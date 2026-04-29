@@ -14,7 +14,7 @@ const ORBIT_SPEED = 0.06;
 const ORBIT_CENTER_Z = 0.8;
 const ACTIVE_TARGET = new THREE.Vector3(0, 0.1, 1.8);
 const ACTIVE_LOOK = new THREE.Vector3(0, 0.1, 4.6);
-const LOOK_AT = new THREE.Vector3(0, 0, 3);
+const LOOK_AT = new THREE.Vector3(0, 0, 1.2);
 
 function Cartouche({
   project,
