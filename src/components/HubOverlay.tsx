@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useHubStore } from '@/store/hub';
 import { projects } from '@/data/projects';
+import ProjectVideoPlayer from '@/components/ProjectVideoPlayer';
 
 const TOTAL = projects.length;
 const pad2 = (n: number) => n.toString().padStart(2, '0');
@@ -110,6 +111,10 @@ export default function HubOverlay() {
       >
         {active && (
           <div className="h-full overflow-y-auto bg-ink/85 backdrop-blur-md border-l border-fog px-8 md:px-12 py-28 md:py-32">
+            <div className="mb-8">
+              <ProjectVideoPlayer project={active} />
+            </div>
+
             <div className="flex items-center gap-3 mb-6 font-mono text-[10px] uppercase tracking-[0.25em] text-mist">
               <span
                 className="h-1.5 w-1.5 rounded-full"
