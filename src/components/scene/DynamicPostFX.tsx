@@ -4,10 +4,11 @@ import { useFrame } from '@react-three/fiber';
 import {
   Bloom,
   ChromaticAberration,
+  DepthOfField,
   EffectComposer,
   Vignette,
 } from '@react-three/postprocessing';
-import { KernelSize } from 'postprocessing';
+import { type DepthOfFieldEffect, KernelSize } from 'postprocessing';
 import { useRef } from 'react';
 import * as THREE from 'three';
 import { useHubStore, type HubMode } from '@/store/hub';
@@ -16,6 +17,7 @@ type BloomLike = { intensity: number };
 type CALike = {
   offset: { x: number; y: number; set: (x: number, y: number) => unknown };
 };
+type DoFLike = { bokehScale: number };
 
 const ZERO_OFFSET = new THREE.Vector2(0, 0);
 
@@ -35,6 +37,14 @@ const CA_BY_MODE: Record<HubMode, number> = {
   contact: 0,
 };
 
+const DOF_BY_MODE: Record<HubMode, number> = {
+  hub: 0,
+  hover: 0,
+  project: 4,
+  about: 1.5,
+  contact: 1.5,
+};
+
 // Glitch CA spike envelope — 350ms, ease-out
 const GLITCH_PEAK = 0.0065;
 const GLITCH_DURATION_MS = 350;
@@ -42,6 +52,7 @@ const GLITCH_DURATION_MS = 350;
 export default function DynamicPostFX() {
   const bloomRef = useRef<BloomLike>(null);
   const caRef = useRef<CALike>(null);
+  const dofRef = useRef<DepthOfFieldEffect>(null);
   const prevMode = useRef<HubMode>('hub');
   const modeChangedAt = useRef(0);
 
@@ -54,6 +65,7 @@ export default function DynamicPostFX() {
 
     const targetBloom = BLOOM_BY_MODE[mode];
     const baseCA = CA_BY_MODE[mode];
+    const targetDoF = DOF_BY_MODE[mode];
 
     // Glitch spike on mode transition: CA briefly jumps then decays
     const elapsed = performance.now() - modeChangedAt.current;
@@ -79,6 +91,14 @@ export default function DynamicPostFX() {
       const next = THREE.MathUtils.lerp(cur, targetCA, lerp);
       caRef.current.offset.set(next, next);
     }
+    if (dofRef.current) {
+      const dof = dofRef.current as unknown as DoFLike;
+      dof.bokehScale = THREE.MathUtils.lerp(
+        dof.bokehScale,
+        targetDoF,
+        0.06,
+      );
+    }
   });
 
   return (
@@ -94,6 +114,12 @@ export default function DynamicPostFX() {
       <ChromaticAberration
         ref={caRef as React.Ref<CALike>}
         offset={ZERO_OFFSET}
+      />
+      <DepthOfField
+        ref={dofRef}
+        focusDistance={0.003}
+        focalLength={0.04}
+        bokehScale={0}
       />
       <Vignette eskil={false} offset={0.15} darkness={0.85} />
     </EffectComposer>
