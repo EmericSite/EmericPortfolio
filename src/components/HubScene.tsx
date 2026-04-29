@@ -132,7 +132,7 @@ function Relic() {
   });
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} position={[0, 0, -1.2]}>
       <Float speed={0.85} rotationIntensity={0.15} floatIntensity={0.55}>
         <OuterHalo />
         <InnerRing />

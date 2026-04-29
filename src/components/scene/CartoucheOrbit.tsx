@@ -11,9 +11,10 @@ import { useHubStore } from '@/store/hub';
 const ORBIT_RADIUS = 2.95;
 const ORBIT_TILT = 0.42;
 const ORBIT_SPEED = 0.06;
-const ACTIVE_TARGET = new THREE.Vector3(0, 0.1, 1.5);
-const ACTIVE_LOOK = new THREE.Vector3(0, 0.1, 4);
-const CENTER = new THREE.Vector3(0, 0, 0);
+const ORBIT_CENTER_Z = 0.8;
+const ACTIVE_TARGET = new THREE.Vector3(0, 0.1, 1.8);
+const ACTIVE_LOOK = new THREE.Vector3(0, 0.1, 4.6);
+const LOOK_AT = new THREE.Vector3(0, 0, 3);
 
 function Cartouche({
   project,
@@ -55,10 +56,10 @@ function Cartouche({
       orbitTarget.current.set(
         Math.cos(angle) * ORBIT_RADIUS,
         Math.sin(angle) * ORBIT_RADIUS * ORBIT_TILT,
-        Math.sin(angle * 1.4) * 0.45,
+        ORBIT_CENTER_Z + Math.sin(angle * 1.4) * 0.45,
       );
       groupRef.current.position.lerp(orbitTarget.current, 0.08);
-      groupRef.current.lookAt(CENTER);
+      groupRef.current.lookAt(LOOK_AT);
     }
 
     const targetScale = isActive ? 2.0 : isFocused ? 1.18 : 0.95;
