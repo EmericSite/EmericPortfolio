@@ -29,8 +29,8 @@ export default function CameraRig() {
   const prevMode = useRef<HubMode>('hub');
   const modeChangedAt = useRef(0);
 
-  useFrame(() => {
-    const mode = useHubStore.getState().mode;
+  useFrame(({ clock }) => {
+    const { mode, hoveredId, activeId } = useHubStore.getState();
     if (mode !== prevMode.current) {
       modeChangedAt.current = performance.now();
       prevMode.current = mode;
@@ -50,11 +50,31 @@ export default function CameraRig() {
     const t = TARGETS[mode];
     camera.position.lerp(t.pos, lerpFactor);
 
+    // Camera lens shake on hover — high-frequency multi-axis jitter applied
+    // AFTER the lerp so it sits as an oscillation around the target pose
+    const isHovering = hoveredId !== null && !activeId;
+    if (isHovering) {
+      const ct = clock.elapsedTime;
+      const shakeX =
+        Math.sin(ct * 67) * 0.012 + Math.sin(ct * 23) * 0.008;
+      const shakeY =
+        Math.cos(ct * 53) * 0.01 + Math.sin(ct * 41) * 0.007;
+      // Occasional kick — pseudo-glitch lens punch
+      const kick = Math.sin(ct * 3.1) > 0.92 ? 0.04 : 0;
+      camera.position.x += shakeX + kick * Math.sin(ct * 91);
+      camera.position.y += shakeY + kick * Math.cos(ct * 73);
+    }
+
     const persp = camera as PerspectiveCamera;
     if (persp.isPerspectiveCamera) {
-      const next = THREE.MathUtils.lerp(persp.fov, t.fov, lerpFactor);
-      if (Math.abs(persp.fov - next) > 0.01) {
-        persp.fov = next;
+      let nextFov = THREE.MathUtils.lerp(persp.fov, t.fov, lerpFactor);
+      // FOV breathing on hover — tiny push/pull to feel like the lens
+      // is reframing
+      if (isHovering) {
+        nextFov += Math.sin(clock.elapsedTime * 7) * 0.25;
+      }
+      if (Math.abs(persp.fov - nextFov) > 0.01) {
+        persp.fov = nextFov;
         persp.updateProjectionMatrix();
       }
     }

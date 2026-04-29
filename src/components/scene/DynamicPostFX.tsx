@@ -31,7 +31,7 @@ const BLOOM_BY_MODE: Record<HubMode, number> = {
 
 const CA_BY_MODE: Record<HubMode, number> = {
   hub: 0,
-  hover: 0.0028,
+  hover: 0.005,
   project: 0.0012,
   about: 0,
   contact: 0,
@@ -56,7 +56,7 @@ export default function DynamicPostFX() {
   const prevMode = useRef<HubMode>('hub');
   const modeChangedAt = useRef(0);
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     const mode = useHubStore.getState().mode;
     if (mode !== prevMode.current) {
       modeChangedAt.current = performance.now();
@@ -75,7 +75,16 @@ export default function DynamicPostFX() {
       // ease-out cubic — peak at start, decays to 0
       glitchAdd = GLITCH_PEAK * Math.pow(1 - t, 3);
     }
-    const targetCA = baseCA + glitchAdd;
+    // Hover-state CA jitter — small high-freq noise on the base level so
+    // chromatic fringing feels alive (lens "looking" at the cartouche)
+    let hoverJitter = 0;
+    if (mode === 'hover') {
+      const ct = clock.elapsedTime;
+      hoverJitter =
+        Math.abs(Math.sin(ct * 19)) * 0.0015 +
+        (Math.sin(ct * 4.7) > 0.85 ? 0.003 : 0);
+    }
+    const targetCA = baseCA + glitchAdd + hoverJitter;
 
     if (bloomRef.current) {
       bloomRef.current.intensity = THREE.MathUtils.lerp(
