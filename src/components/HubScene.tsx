@@ -9,7 +9,7 @@ import {
   Sparkles,
   useTexture,
 } from '@react-three/drei';
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import type {
   Mesh,
@@ -48,52 +48,22 @@ function HaloA() {
   );
 }
 
-function HaloB() {
-  // Vertical ring (rotated 90° around Y so we see its edge mostly)
+function MidRing() {
+  // Concentric front-facing ring between outer halo and inner ring
   const ref = useRef<Mesh>(null);
   useFrame((_, dt) => {
-    if (ref.current) ref.current.rotation.y += dt * 0.07;
+    if (ref.current) ref.current.rotation.z += dt * 0.09;
   });
   return (
-    <mesh
-      ref={ref}
-      position={[0, 0, -0.7]}
-      rotation={[0, Math.PI / 2, 0]}
-    >
-      <torusGeometry args={[2.35, 0.022, 24, 200]} />
+    <mesh ref={ref} position={[0, 0, -0.32]}>
+      <torusGeometry args={[2.22, 0.018, 18, 220]} />
       <meshPhysicalMaterial
         color="#F4D8E2"
         metalness={1}
-        roughness={0.07}
+        roughness={0.08}
         clearcoat={1}
         clearcoatRoughness={0.08}
-        envMapIntensity={2.2}
-      />
-    </mesh>
-  );
-}
-
-function HaloC() {
-  // Diagonal ring
-  const ref = useRef<Mesh>(null);
-  useFrame((_, dt) => {
-    if (ref.current) {
-      ref.current.rotation.x += dt * 0.04;
-      ref.current.rotation.z += dt * 0.06;
-    }
-  });
-  return (
-    <mesh
-      ref={ref}
-      position={[0, 0, -0.45]}
-      rotation={[Math.PI / 3, Math.PI / 6, 0]}
-    >
-      <torusGeometry args={[2.45, 0.014, 18, 220]} />
-      <meshStandardMaterial
-        color="#E8E6EC"
-        metalness={1}
-        roughness={0.12}
-        envMapIntensity={1.7}
+        envMapIntensity={2}
       />
     </mesh>
   );
@@ -114,42 +84,6 @@ function InnerRing() {
         envMapIntensity={2.4}
       />
     </mesh>
-  );
-}
-
-function Satellites() {
-  const groupRef = useRef<Group>(null);
-  useFrame((_, dt) => {
-    if (groupRef.current) groupRef.current.rotation.z += dt * 0.04;
-  });
-
-  const positions = useMemo<[number, number, number][]>(
-    () => [
-      [2.55, 0, -0.4],
-      [-2.55, 0, -0.4],
-      [0, 1.95, -0.18],
-      [0.8, -1.78, -0.3],
-      [-1.05, 1.55, -0.5],
-    ],
-    [],
-  );
-
-  return (
-    <group ref={groupRef}>
-      {positions.map((p, i) => (
-        <mesh key={i} position={p} rotation={[0, 0, i * 0.4]}>
-          <octahedronGeometry args={[0.06, 0]} />
-          <meshPhysicalMaterial
-            color="#E8E6EC"
-            metalness={1}
-            roughness={0.04}
-            clearcoat={1}
-            clearcoatRoughness={0.06}
-            envMapIntensity={2.2}
-          />
-        </mesh>
-      ))}
-    </group>
   );
 }
 
@@ -184,18 +118,32 @@ function LogoDisk() {
 }
 
 function LogoBackplate() {
-  // Subtle dark chrome disk slightly larger behind the logo for contrast.
+  // Dark chromed disk behind the logo with engraved concentric chrome rings
   return (
-    <mesh position={[0, 0, -0.06]}>
-      <circleGeometry args={[1.92, 96]} />
-      <meshPhysicalMaterial
-        color="#13111A"
-        metalness={0.9}
-        roughness={0.4}
-        clearcoat={0.6}
-        envMapIntensity={0.8}
-      />
-    </mesh>
+    <group position={[0, 0, -0.06]}>
+      <mesh>
+        <circleGeometry args={[1.92, 96]} />
+        <meshPhysicalMaterial
+          color="#13111A"
+          metalness={0.9}
+          roughness={0.4}
+          clearcoat={0.6}
+          envMapIntensity={0.8}
+        />
+      </mesh>
+      {/* Engraved concentric chrome rings on the backplate */}
+      {[1.86, 1.82, 1.78].map((r, i) => (
+        <mesh key={i} position={[0, 0, 0.001 + i * 0.001]}>
+          <torusGeometry args={[r, 0.004, 8, 180]} />
+          <meshStandardMaterial
+            color="#E8E6EC"
+            metalness={1}
+            roughness={0.15}
+            envMapIntensity={1.4}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
@@ -238,10 +186,8 @@ function Relic() {
     <group ref={groupRef} position={[0, 0, -1.2]}>
       <Float speed={0.85} rotationIntensity={0.15} floatIntensity={0.55}>
         <HaloA />
-        <HaloB />
-        <HaloC />
+        <MidRing />
         <InnerRing />
-        <Satellites />
         <LogoBackplate />
         <LogoDisk />
       </Float>
