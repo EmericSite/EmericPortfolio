@@ -72,23 +72,14 @@ body {
 }
 
 @keyframes marquee-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 .marquee-track {
-  animation-name: marquee-scroll;
-  animation-duration: var(--marquee-d, 100s);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-fill-mode: none;
+  animation: marquee-scroll var(--marquee-d, 100s) linear infinite;
   will-change: transform;
+  transform: translate3d(0, 0, 0);
 }
 .marquee-track-reverse {
   animation-direction: reverse;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track {
-    animation: none;
-  }
 }
