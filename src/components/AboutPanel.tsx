@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useHubStore } from '@/store/hub';
 import { useFocusTrap } from '@/lib/useFocusTrap';
+import { useSwipeToClose } from '@/lib/useSwipeToClose';
 
 const STATS = [
   { value: '04', label: 'Projets phares\n2024 — 2026' },
@@ -23,6 +24,7 @@ export default function AboutPanel() {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useFocusTrap(sectionRef, isOpen);
+  useSwipeToClose(sectionRef, isOpen, 'right', () => setMode('hub'));
 
   useEffect(() => {
     if (isOpen) {

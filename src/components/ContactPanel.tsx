@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useHubStore } from '@/store/hub';
 import { useFocusTrap } from '@/lib/useFocusTrap';
+import { useSwipeToClose } from '@/lib/useSwipeToClose';
 
 const EMAIL = 'hello@emericressy.com';
 
@@ -28,6 +29,7 @@ export default function ContactPanel() {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useFocusTrap(sectionRef, isOpen);
+  useSwipeToClose(sectionRef, isOpen, 'left', () => setMode('hub'));
 
   useEffect(() => {
     if (isOpen) {
