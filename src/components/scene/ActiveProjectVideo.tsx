@@ -7,13 +7,14 @@ import { useHubStore } from '@/store/hub';
 // World-space anchor where the active cartouche flies to.
 // Must mirror ACTIVE_TARGET in CartoucheOrbit.tsx.
 const ANCHOR: [number, number, number] = [0, 0.1, 1.5];
-// drei Html transform maps 1 CSS px → 1 world unit, then we multiply by `scale`.
-// We render a 16:9 panel sized to roughly match the active cartouche's height
-// (1.83 world). 480 × 0.004 = 1.92 wide ≈ 1.08 tall — video fills the frame
-// with no letterboxing.
+// drei Html transform internally divides the CSS matrix by 40 (default
+// distanceFactor=10 → factor = 400/10 = 40). So world size = DOM × scale / 40.
+// Target world size ≈ 2.4 × 1.35 (16:9, slightly wider than the active
+// cartouche so the video reads as the dominant element).
+// 480 × 0.2 / 40 = 2.4 wide, 270 × 0.2 / 40 = 1.35 tall.
 const VIDEO_W = 480;
 const VIDEO_H = 270;
-const HTML_SCALE = 0.004;
+const HTML_SCALE = 0.2;
 
 export default function ActiveProjectVideo() {
   const activeId = useHubStore((s) => s.activeId);
