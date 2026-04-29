@@ -24,7 +24,7 @@ function OuterHalo() {
   });
   return (
     <mesh ref={ref} position={[0, 0, -0.5]}>
-      <torusGeometry args={[1.7, 0.035, 32, 220]} />
+      <torusGeometry args={[2.5, 0.045, 32, 240]} />
       <meshStandardMaterial
         color="#E8E6EC"
         metalness={1}
@@ -42,7 +42,7 @@ function InnerRing() {
   });
   return (
     <mesh ref={ref} position={[0, 0, -0.2]}>
-      <torusGeometry args={[1.32, 0.012, 16, 180]} />
+      <torusGeometry args={[1.95, 0.016, 16, 200]} />
       <meshStandardMaterial
         color="#F4D8E2"
         metalness={1}
@@ -68,7 +68,7 @@ function LogoDisk() {
 
   return (
     <mesh>
-      <circleGeometry args={[1.18, 96]} />
+      <circleGeometry args={[1.75, 96]} />
       <meshStandardMaterial
         ref={matRef}
         color="#ffffff"
@@ -76,21 +76,6 @@ function LogoDisk() {
         roughness={0.32}
         envMapIntensity={1.1}
         transparent
-      />
-    </mesh>
-  );
-}
-
-function BackdropOrb() {
-  return (
-    <mesh position={[0, 0, -2.2]}>
-      <sphereGeometry args={[1.1, 48, 48]} />
-      <meshStandardMaterial
-        color="#FF2D9C"
-        emissive="#FF2D9C"
-        emissiveIntensity={0.45}
-        roughness={1}
-        metalness={0}
       />
     </mesh>
   );
@@ -164,7 +149,6 @@ export default function HubScene({
       <pointLight position={[0, -3, 4]} intensity={0.4} color="#E8E6EC" />
 
       <Suspense fallback={null}>
-        <BackdropOrb />
         <Relic />
         {showCartouches && <CartoucheOrbit />}
       </Suspense>
