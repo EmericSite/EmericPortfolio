@@ -17,7 +17,7 @@ const ORBIT_RADIUS = 2.3;
 const ORBIT_TILT = 0.4;
 const ORBIT_SPEED = 0.06;
 const ORBIT_CENTER_Z = 0.8;
-const ACTIVE_TARGET = new THREE.Vector3(0, 0.1, 1.8);
+const ACTIVE_TARGET = new THREE.Vector3(0, 0.1, 1.5);
 const ACTIVE_LOOK = new THREE.Vector3(0, 0.1, 4.6);
 const LOOK_AT = new THREE.Vector3(0, 0, 1.2);
 
@@ -78,7 +78,7 @@ function Cartouche({
       groupRef.current.lookAt(LOOK_AT);
     }
 
-    const targetScale = isActive ? 2.0 : isFocused ? 1.18 : 0.95;
+    const targetScale = isActive ? 1.5 : isFocused ? 1.18 : 0.95;
     const s = THREE.MathUtils.lerp(innerRef.current.scale.x, targetScale, 0.08);
     innerRef.current.scale.setScalar(s);
 

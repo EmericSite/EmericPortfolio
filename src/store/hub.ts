@@ -36,6 +36,10 @@ export const useHubStore = create<HubStore>((set) => ({
   setActive: (id) =>
     set((s) => {
       if (!inProjectFlow(s.mode)) return {};
+      // Toggle off when re-clicking the active card
+      if (id !== null && id === s.activeId) {
+        return { activeId: null, hoveredId: null, mode: 'hub' };
+      }
       const idx =
         id !== null ? projects.findIndex((p) => p.id === id) : s.scrollIndex;
       return {

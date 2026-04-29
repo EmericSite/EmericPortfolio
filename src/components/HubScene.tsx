@@ -20,6 +20,7 @@ import type {
 import CartoucheOrbit from './scene/CartoucheOrbit';
 import CameraRig from './scene/CameraRig';
 import DynamicPostFX from './scene/DynamicPostFX';
+import ActiveProjectVideo from './scene/ActiveProjectVideo';
 import { useHubStore } from '@/store/hub';
 
 // === Armillary halo system ===
@@ -220,6 +221,7 @@ export default function HubScene({
       <Suspense fallback={null}>
         <Relic />
         {showCartouches && <CartoucheOrbit />}
+        {showCartouches && <ActiveProjectVideo />}
       </Suspense>
 
       {/* Pearl pink — main dense field */}

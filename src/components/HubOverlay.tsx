@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import Image from 'next/image';
 import { useHubStore } from '@/store/hub';
 import { projects } from '@/data/projects';
 
@@ -111,21 +110,6 @@ export default function HubOverlay() {
       >
         {active && (
           <div className="h-full overflow-y-auto bg-ink/85 backdrop-blur-md border-l border-fog px-8 md:px-12 py-28 md:py-32">
-            <div className="relative aspect-[16/10] mb-8 overflow-hidden rounded-sm border border-fog">
-              <Image
-                src={active.posterUrl}
-                alt={active.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 480px"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent pointer-events-none" />
-              <div
-                className="absolute top-3 left-3 h-2 w-2 rounded-full"
-                style={{ background: active.accent }}
-              />
-            </div>
-
             <div className="flex items-center gap-3 mb-6 font-mono text-[10px] uppercase tracking-[0.25em] text-mist">
               <span
                 className="h-1.5 w-1.5 rounded-full"

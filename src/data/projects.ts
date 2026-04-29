@@ -10,6 +10,7 @@ export type Project = {
   role: string;
   credits: { label: string; value: string }[];
   posterUrl: string;
+  vimeoId: string;
 };
 
 export const projects: Project[] = [
@@ -31,6 +32,7 @@ export const projects: Project[] = [
       { label: 'Motion 3D', value: 'Emeric Ressy' },
     ],
     posterUrl: '/posters/gentle-mates.png',
+    vimeoId: '1170721004',
   },
   {
     id: 'dofus',
@@ -49,6 +51,7 @@ export const projects: Project[] = [
       { label: 'Direction artistique', value: 'Emeric Ressy' },
     ],
     posterUrl: '/posters/dofus.png',
+    vimeoId: '1169640652',
   },
   {
     id: 'douce-melancolie',
@@ -67,6 +70,7 @@ export const projects: Project[] = [
       { label: 'Année', value: '2025' },
     ],
     posterUrl: '/posters/douce-melancolie.png',
+    vimeoId: '1168061777',
   },
   {
     id: 'come-torment',
@@ -85,5 +89,6 @@ export const projects: Project[] = [
       { label: 'Année', value: '2024' },
     ],
     posterUrl: '/posters/come-torment.png',
+    vimeoId: '932641794',
   },
 ];
