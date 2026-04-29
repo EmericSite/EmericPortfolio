@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import HubScene from '@/components/HubScene';
+import HomeHub from '@/components/HomeHub';
 
 export const metadata = {
   title: 'Brief — Mélancolie électrique · Emeric Ressy',
@@ -198,7 +198,7 @@ export default function BriefPage() {
       {/* HERO */}
       <section className="relative h-screen min-h-[700px] w-full overflow-hidden">
         <div className="absolute inset-0">
-          <HubScene showCartouches={false} />
+          <HomeHub showCartouches={false} />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-transparent to-ink pointer-events-none" />
         <div className="relative z-10 flex h-full flex-col justify-between p-6 md:p-12">
