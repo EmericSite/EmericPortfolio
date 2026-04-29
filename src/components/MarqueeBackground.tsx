@@ -19,12 +19,12 @@ export default function MarqueeBackground() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-0 overflow-hidden flex flex-col select-none font-mono font-bold tracking-widest text-chrome opacity-15 leading-none"
-      style={{ fontSize: 'clamp(0.6rem, 0.95vw, 1.05rem)' }}
+      className="pointer-events-none absolute inset-0 z-0 overflow-hidden flex flex-col select-none font-mono font-bold tracking-widest text-chrome leading-none"
+      style={{ fontSize: 'clamp(0.6rem, 0.95vw, 1.05rem)', opacity: 0.15 }}
     >
       {Array.from({ length: LINE_COUNT }, (_, i) => {
         const reverse = i % 2 === 1;
-        const duration = 220 + ((i * 17) % 90);
+        const duration = 95 + ((i * 13) % 50);
         return (
           <div
             key={i}
