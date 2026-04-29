@@ -8,6 +8,7 @@ export default function Loader() {
   const { progress, active } = useProgress();
   const [hidden, setHidden] = useState(false);
   const [bootProgress, setBootProgress] = useState(8);
+  const [showSkip, setShowSkip] = useState(false);
 
   useEffect(() => {
     setBootProgress((prev) => Math.max(prev, progress));
@@ -19,6 +20,18 @@ export default function Loader() {
       return () => clearTimeout(timeout);
     }
   }, [active, progress]);
+
+  // Show "entrer quand même" button after 12s as a safety net
+  useEffect(() => {
+    const timeout = setTimeout(() => setShowSkip(true), 12000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  // Hard cap: auto-hide after 25s no matter what
+  useEffect(() => {
+    const timeout = setTimeout(() => setHidden(true), 25000);
+    return () => clearTimeout(timeout);
+  }, []);
 
   if (hidden) return null;
 
@@ -55,6 +68,18 @@ export default function Loader() {
             style={{ width: `${bootProgress}%` }}
           />
         </div>
+
+        <button
+          type="button"
+          onClick={() => setHidden(true)}
+          aria-hidden={!showSkip}
+          tabIndex={showSkip ? 0 : -1}
+          className={`font-mono text-[10px] uppercase tracking-[0.25em] text-mist border border-fog rounded-full px-5 py-2 transition-opacity duration-500 hover:border-cyanglitch hover:text-cyanglitch ${
+            showSkip ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        >
+          entrer quand même
+        </button>
       </div>
     </div>
   );
