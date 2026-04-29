@@ -82,7 +82,8 @@ function Cartouche({
     const s = THREE.MathUtils.lerp(innerRef.current.scale.x, targetScale, 0.08);
     innerRef.current.scale.setScalar(s);
 
-    const targetEmissive = isFocused || isActive ? 0.32 : 0.0;
+    // Active = clean image (no emissive wash). Focused = subtle accent halo.
+    const targetEmissive = isActive ? 0.0 : isFocused ? 0.22 : 0.0;
     if (accentMatRef.current) {
       accentMatRef.current.emissiveIntensity = THREE.MathUtils.lerp(
         accentMatRef.current.emissiveIntensity,
@@ -187,8 +188,8 @@ function Cartouche({
               color="#ffffff"
               emissive={project.accent}
               emissiveIntensity={0}
-              metalness={0.15}
-              roughness={0.55}
+              metalness={0.05}
+              roughness={0.6}
               transparent
               opacity={1}
             />

@@ -19,11 +19,11 @@ type CALike = {
 const ZERO_OFFSET = new THREE.Vector2(0, 0);
 
 const BLOOM_BY_MODE: Record<HubMode, number> = {
-  hub: 0.75,
-  hover: 1.5,
-  project: 1.05,
-  about: 0.6,
-  contact: 0.6,
+  hub: 0.7,
+  hover: 1.3,
+  project: 0.55,
+  about: 0.55,
+  contact: 0.55,
 };
 
 const CA_BY_MODE: Record<HubMode, number> = {

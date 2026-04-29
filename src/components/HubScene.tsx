@@ -210,40 +210,63 @@ export default function HubScene({
       <color attach="background" args={['#08070C']} />
       <fog attach="fog" args={['#08070C', 3.6, 11]} />
 
-      <ambientLight intensity={0.18} />
-      <pointLight position={[5, 4, 5]} intensity={1.5} color="#FF2D9C" />
-      <pointLight position={[-5, -2, 3]} intensity={1} color="#00F0FF" />
-      <pointLight position={[0, 6, -4]} intensity={0.55} color="#F4D8E2" />
-      <pointLight position={[0, -3, 4]} intensity={0.4} color="#E8E6EC" />
+      <ambientLight intensity={0.2} color="#F4D8E2" />
+      <pointLight position={[5, 4, 5]} intensity={2} color="#FF2D9C" />
+      <pointLight position={[-5, -2, 3]} intensity={0.55} color="#00F0FF" />
+      <pointLight position={[0, 6, -4]} intensity={1.3} color="#F4D8E2" />
+      <pointLight position={[0, -3, 4]} intensity={0.5} color="#E8E6EC" />
+      <pointLight position={[2.5, 0, 3]} intensity={0.65} color="#FFB6CB" />
 
       <Suspense fallback={null}>
         <Relic />
         {showCartouches && <CartoucheOrbit />}
       </Suspense>
 
+      {/* Pearl pink — main dense field */}
       <Sparkles
-        count={140}
-        scale={10}
-        size={2.6}
+        count={200}
+        scale={11}
+        size={2.8}
         speed={0.22}
         color="#F4D8E2"
-        opacity={0.75}
+        opacity={0.8}
       />
+      {/* Soft pink mist — broad and slow */}
       <Sparkles
-        count={70}
-        scale={6}
-        size={1.6}
+        count={90}
+        scale={14}
+        size={3.6}
+        speed={0.1}
+        color="#FFB6CB"
+        opacity={0.32}
+      />
+      {/* Magenta acid — closer, faster, denser */}
+      <Sparkles
+        count={110}
+        scale={7}
+        size={1.8}
         speed={0.45}
-        color="#00F0FF"
-        opacity={0.35}
+        color="#FF2D9C"
+        opacity={0.42}
       />
+      {/* Cyan glitch — accent only, recedes */}
       <Sparkles
-        count={40}
+        count={28}
         scale={5}
         size={1.4}
-        speed={0.55}
-        color="#FF2D9C"
-        opacity={0.32}
+        speed={0.5}
+        color="#00F0FF"
+        opacity={0.22}
+      />
+      {/* Tight aura around the relic, pearl */}
+      <Sparkles
+        count={80}
+        scale={[5, 4, 2.5]}
+        position={[0, 0, -1.2]}
+        size={2.2}
+        speed={0.35}
+        color="#F4D8E2"
+        opacity={0.6}
       />
 
       <Suspense fallback={null}>
