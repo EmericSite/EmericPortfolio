@@ -1,19 +1,7 @@
-'use client';
-
 const PHRASE = '·EMERIC.RESSY';
-const REPEATS_PER_TRACK = 36;
+const PHRASE_REPEATS = 40;
 const LINE_COUNT = 48;
-
-function Track({ ariaHidden }: { ariaHidden?: boolean }) {
-  return (
-    <span
-      aria-hidden={ariaHidden ? 'true' : undefined}
-      className="shrink-0 whitespace-nowrap"
-    >
-      {PHRASE.repeat(REPEATS_PER_TRACK)}
-    </span>
-  );
-}
+const TRACK = PHRASE.repeat(PHRASE_REPEATS);
 
 export default function MarqueeBackground() {
   return (
@@ -22,28 +10,19 @@ export default function MarqueeBackground() {
       className="pointer-events-none absolute inset-0 z-0 overflow-hidden flex flex-col select-none font-mono font-bold tracking-widest text-chrome leading-none"
       style={{ fontSize: 'clamp(0.6rem, 0.95vw, 1.05rem)', opacity: 0.15 }}
     >
-      {Array.from({ length: LINE_COUNT }, (_, i) => {
-        const reverse = i % 2 === 1;
-        const duration = 220 + ((i * 17) % 100);
-        return (
+      {Array.from({ length: LINE_COUNT }, (_, i) => (
+        <div
+          key={i}
+          className="flex-1 flex items-center overflow-hidden"
+        >
           <div
-            key={i}
-            className="flex-1 flex items-center overflow-hidden"
+            className={`marquee-track ${i % 2 === 1 ? 'marquee-track-reverse' : ''}`}
           >
-            <div
-              className={`flex shrink-0 marquee-track ${reverse ? 'marquee-track-reverse' : ''}`}
-              style={
-                {
-                  '--marquee-d': `${duration}s`,
-                } as React.CSSProperties
-              }
-            >
-              <Track />
-              <Track ariaHidden />
-            </div>
+            <span className="shrink-0 whitespace-nowrap">{TRACK}</span>
+            <span aria-hidden className="shrink-0 whitespace-nowrap">{TRACK}</span>
           </div>
-        );
-      })}
+        </div>
+      ))}
     </div>
   );
 }

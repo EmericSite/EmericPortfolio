@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useHubStore, type HubMode } from '@/store/hub';
 
 const NAV_ITEMS: { label: string; mode: HubMode }[] = [
@@ -59,12 +58,6 @@ export default function NavBar() {
             </button>
           );
         })}
-        <Link
-          href="/brief"
-          className="px-4 py-2 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] text-mist hover:text-cyanglitch transition-colors"
-        >
-          Brief ↗
-        </Link>
       </nav>
     </header>
   );
