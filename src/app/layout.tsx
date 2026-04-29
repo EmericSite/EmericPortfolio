@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
+import { projects } from "@/data/projects";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -96,6 +97,44 @@ export default function RootLayout({
         >
           Aller au contenu
         </a>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Person",
+                  name: "Emeric Ressy",
+                  jobTitle: "Motion Designer 3D & Art Direction",
+                  address: {
+                    "@type": "PostalAddress",
+                    addressLocality: "Paris",
+                  },
+                  email: "hello@emericressy.com",
+                  sameAs: [
+                    "https://www.instagram.com/fumir._o/?hl=fr",
+                    "https://x.com/fumir_o",
+                    "https://www.linkedin.com/in/emeric-ressy-a05b0a194/",
+                  ],
+                  image: `${SITE_URL}/logo.png`,
+                  url: SITE_URL,
+                },
+                ...projects.map((p) => ({
+                  "@type": "CreativeWork",
+                  name: p.title,
+                  dateCreated: p.year,
+                  creator: {
+                    "@type": "Person",
+                    name: "Emeric Ressy",
+                  },
+                  image: `${SITE_URL}${p.posterUrl}`,
+                  description: p.description,
+                })),
+              ],
+            }),
+          }}
+        />
         {children}
       </body>
     </html>

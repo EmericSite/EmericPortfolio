@@ -5,6 +5,7 @@ import AboutPanel from '@/components/AboutPanel';
 import ContactPanel from '@/components/ContactPanel';
 import Loader from '@/components/Loader';
 import ScrollNav from '@/components/ScrollNav';
+import AccessibleProjectList from '@/components/AccessibleProjectList';
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
       <AboutPanel />
       <ContactPanel />
       <ScrollNav />
+      <AccessibleProjectList />
 
       <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-12 pointer-events-none">
         <div className="max-w-3xl animate-fade-up">
