@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useHubStore } from '@/store/hub';
+import { useFocusTrap } from '@/lib/useFocusTrap';
 
 const STATS = [
   { value: '04', label: 'Projets phares\n2024 — 2026' },
@@ -17,9 +19,26 @@ export default function AboutPanel() {
   const mode = useHubStore((s) => s.mode);
   const setMode = useHubStore((s) => s.setMode);
   const isOpen = mode === 'about';
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useFocusTrap(sectionRef, isOpen);
+
+  useEffect(() => {
+    if (isOpen) {
+      const id = window.setTimeout(() => {
+        closeButtonRef.current?.focus();
+      }, 0);
+      return () => window.clearTimeout(id);
+    }
+  }, [isOpen]);
 
   return (
     <section
+      ref={sectionRef}
+      role="dialog"
+      aria-modal={isOpen}
+      aria-labelledby="about-title"
       aria-hidden={!isOpen}
       className={`absolute inset-y-0 right-0 z-25 w-full md:w-[560px] bg-ink/90 backdrop-blur-md border-l border-fog transition-all duration-700 ease-out ${
         isOpen
@@ -33,7 +52,10 @@ export default function AboutPanel() {
           About
         </div>
 
-        <h2 className="font-display text-5xl md:text-6xl leading-[0.95] mb-10">
+        <h2
+          id="about-title"
+          className="font-display text-5xl md:text-6xl leading-[0.95] mb-10"
+        >
           Motion Designer,
           <br />
           <span className="italic text-pearl">based in Paris.</span>
@@ -92,6 +114,7 @@ export default function AboutPanel() {
       </div>
 
       <button
+        ref={closeButtonRef}
         type="button"
         onClick={() => setMode('hub')}
         aria-label="Fermer"

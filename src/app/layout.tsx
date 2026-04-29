@@ -90,6 +90,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ink text-chrome">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only fixed top-4 left-4 z-[100] bg-ink text-chrome border border-cyanglitch rounded-full px-4 py-2 font-mono text-xs uppercase tracking-[0.25em]"
+        >
+          Aller au contenu
+        </a>
         {children}
       </body>
     </html>

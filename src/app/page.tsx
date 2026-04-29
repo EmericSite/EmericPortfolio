@@ -1,4 +1,4 @@
-import HubScene from '@/components/HubScene';
+import HomeHub from '@/components/HomeHub';
 import HubOverlay from '@/components/HubOverlay';
 import NavBar from '@/components/NavBar';
 import AboutPanel from '@/components/AboutPanel';
@@ -8,11 +8,11 @@ import ScrollNav from '@/components/ScrollNav';
 
 export default function Home() {
   return (
-    <main className="relative h-screen min-h-[700px] w-full overflow-hidden bg-ink text-chrome">
+    <main id="main" className="relative h-screen min-h-[700px] w-full overflow-hidden bg-ink text-chrome">
       <Loader />
 
       <div className="absolute inset-0">
-        <HubScene />
+        <HomeHub />
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-ink/20 via-transparent to-ink/70 pointer-events-none" />
 

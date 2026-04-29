@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useHubStore } from '@/store/hub';
+import { useFocusTrap } from '@/lib/useFocusTrap';
 
 const EMAIL = 'hello@emericressy.com';
 
@@ -22,9 +24,26 @@ export default function ContactPanel() {
   const mode = useHubStore((s) => s.mode);
   const setMode = useHubStore((s) => s.setMode);
   const isOpen = mode === 'contact';
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useFocusTrap(sectionRef, isOpen);
+
+  useEffect(() => {
+    if (isOpen) {
+      const id = window.setTimeout(() => {
+        closeButtonRef.current?.focus();
+      }, 0);
+      return () => window.clearTimeout(id);
+    }
+  }, [isOpen]);
 
   return (
     <section
+      ref={sectionRef}
+      role="dialog"
+      aria-modal={isOpen}
+      aria-labelledby="contact-title"
       aria-hidden={!isOpen}
       className={`absolute inset-y-0 left-0 z-25 w-full md:w-[560px] bg-ink/90 backdrop-blur-md border-r border-fog transition-all duration-700 ease-out ${
         isOpen
@@ -43,7 +62,10 @@ export default function ContactPanel() {
           Disponible · 2026
         </div>
 
-        <h2 className="font-display text-5xl md:text-6xl leading-[0.95] mb-10">
+        <h2
+          id="contact-title"
+          className="font-display text-5xl md:text-6xl leading-[0.95] mb-10"
+        >
           Parlons d&rsquo;un
           <br />
           <span className="italic text-pearl">projet.</span>
@@ -97,6 +119,7 @@ export default function ContactPanel() {
       </div>
 
       <button
+        ref={closeButtonRef}
         type="button"
         onClick={() => setMode('hub')}
         aria-label="Fermer"

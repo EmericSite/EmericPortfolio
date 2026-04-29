@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useHubStore } from '@/store/hub';
 import { projects } from '@/data/projects';
 import ProjectVideoPlayer from '@/components/ProjectVideoPlayer';
+import { useFocusTrap } from '@/lib/useFocusTrap';
 
 const TOTAL = projects.length;
 const pad2 = (n: number) => n.toString().padStart(2, '0');
@@ -29,6 +30,11 @@ export default function HubOverlay() {
   const focused = active ?? hovered ?? scrollFocused;
   const inHubFlow = mode === 'hub' || mode === 'hover';
 
+  const projectPanelRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useFocusTrap(projectPanelRef, !!active);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setMode('hub');
@@ -36,6 +42,15 @@ export default function HubOverlay() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [setMode]);
+
+  useEffect(() => {
+    if (active) {
+      const id = window.setTimeout(() => {
+        closeButtonRef.current?.focus();
+      }, 0);
+      return () => window.clearTimeout(id);
+    }
+  }, [active]);
 
   return (
     <>
@@ -103,6 +118,10 @@ export default function HubOverlay() {
 
       {/* Project full content (when active) */}
       <div
+        ref={projectPanelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="project-title"
         className={`absolute inset-y-0 right-0 z-20 w-full md:w-[480px] transition-all duration-700 ease-out ${
           active
             ? 'translate-x-0 opacity-100'
@@ -125,7 +144,10 @@ export default function HubOverlay() {
               <span>{active.tag}</span>
             </div>
 
-            <h2 className="font-display text-4xl md:text-5xl leading-[1.05] text-pearl mb-8">
+            <h2
+              id="project-title"
+              className="font-display text-4xl md:text-5xl leading-[1.05] text-pearl mb-8"
+            >
               {active.title}
             </h2>
 
@@ -173,6 +195,7 @@ export default function HubOverlay() {
 
         {active && (
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={() => setMode('hub')}
             aria-label="Fermer"
