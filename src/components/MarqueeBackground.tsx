@@ -2,7 +2,7 @@
 
 const PHRASE = '·EMERIC.RESSY';
 const REPEATS_PER_TRACK = 24;
-const LINE_COUNT = 16;
+const LINE_COUNT = 24;
 
 function Track({ ariaHidden }: { ariaHidden?: boolean }) {
   return (
@@ -19,12 +19,12 @@ export default function MarqueeBackground() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-0 overflow-hidden flex flex-col select-none font-mono font-bold tracking-widest text-chrome opacity-30"
-      style={{ fontSize: 'clamp(1.1rem, 2.2vw, 2.5rem)' }}
+      className="pointer-events-none absolute inset-0 z-0 overflow-hidden flex flex-col select-none font-mono font-bold tracking-widest text-chrome opacity-15 leading-none"
+      style={{ fontSize: 'clamp(0.9rem, 1.7vw, 1.85rem)' }}
     >
       {Array.from({ length: LINE_COUNT }, (_, i) => {
         const reverse = i % 2 === 1;
-        const duration = 110 + ((i * 13) % 50);
+        const duration = 220 + ((i * 17) % 90);
         return (
           <div
             key={i}
