@@ -151,27 +151,44 @@ function Cartouche({
             />
           </RoundedBox>
 
-          <mesh position={[0, 0.5, 0.032]}>
-            <planeGeometry args={[0.7, 0.008]} />
-            <meshBasicMaterial color="#08070C" toneMapped={false} />
+          {/* Mini-halo crest — echoes the main relic's halo */}
+          <mesh position={[0, 0.5, 0.05]}>
+            <torusGeometry args={[0.045, 0.008, 14, 36]} />
+            <meshStandardMaterial
+              color="#E8E6EC"
+              metalness={1}
+              roughness={0.05}
+              envMapIntensity={2}
+            />
           </mesh>
-          <mesh position={[0, -0.45, 0.032]}>
-            <planeGeometry args={[0.7, 0.008]} />
+
+          {/* Top divider */}
+          <mesh position={[0, 0.32, 0.032]}>
+            <planeGeometry args={[0.62, 0.005]} />
             <meshBasicMaterial color="#08070C" toneMapped={false} />
           </mesh>
 
+          {/* Bottom divider */}
+          <mesh position={[0, -0.36, 0.032]}>
+            <planeGeometry args={[0.62, 0.005]} />
+            <meshBasicMaterial color="#08070C" toneMapped={false} />
+          </mesh>
+
+          {/* Index — top left, bigger */}
           <Text
-            position={[-0.32, 0.41, 0.033]}
-            fontSize={0.07}
+            position={[-0.3, 0.41, 0.034]}
+            fontSize={0.08}
             color="#08070C"
             anchorX="left"
             anchorY="middle"
-            letterSpacing={0.08}
+            letterSpacing={0.06}
           >
             {`0${index + 1}`}
           </Text>
+
+          {/* Year — top right */}
           <Text
-            position={[0.32, 0.41, 0.033]}
+            position={[0.3, 0.41, 0.034]}
             fontSize={0.06}
             color="#08070C"
             anchorX="right"
@@ -180,28 +197,53 @@ function Cartouche({
           >
             {project.year}
           </Text>
+
+          {/* Title — center, dramatic */}
           <Text
-            position={[0, 0.02, 0.033]}
-            fontSize={0.11}
+            position={[0, 0, 0.034]}
+            fontSize={0.13}
             color="#08070C"
             anchorX="center"
             anchorY="middle"
-            maxWidth={0.72}
+            maxWidth={0.7}
             textAlign="center"
-            lineHeight={1.05}
+            lineHeight={1.0}
+            letterSpacing={-0.005}
           >
             {project.shortTitle}
           </Text>
+
+          {/* Tag — bottom center */}
           <Text
-            position={[0, -0.36, 0.033]}
-            fontSize={0.045}
+            position={[0, -0.46, 0.034]}
+            fontSize={0.044}
             color="#08070C"
             anchorX="center"
             anchorY="middle"
-            letterSpacing={0.16}
+            letterSpacing={0.18}
           >
             {project.tag.toUpperCase()}
           </Text>
+
+          {/* Bottom emblem — chrome ring framing an emissive accent rune */}
+          <mesh position={[0, -0.56, 0.05]}>
+            <torusGeometry args={[0.025, 0.005, 10, 28]} />
+            <meshStandardMaterial
+              color="#E8E6EC"
+              metalness={1}
+              roughness={0.06}
+              envMapIntensity={1.8}
+            />
+          </mesh>
+          <mesh position={[0, -0.56, 0.05]}>
+            <circleGeometry args={[0.013, 32]} />
+            <meshStandardMaterial
+              color={project.accent}
+              emissive={project.accent}
+              emissiveIntensity={1.6}
+              toneMapped={false}
+            />
+          </mesh>
         </group>
       </Float>
     </group>
