@@ -23,31 +23,19 @@ const ACTIVE_LOOK = new THREE.Vector3(0, 0.1, 4.6);
 const LOOK_AT = new THREE.Vector3(0, 0, 1.2);
 
 function LensFlare({ accent }: { accent: string }) {
-  // Lens flare attached to the cartouche, fades in on hover. Behind the card
-  // so the chrome backplate occludes the inner part — the halo only spills
-  // past the card edges, additively glowing through the bloom pass.
-  const haloMatRef = useRef<MeshBasicMaterial>(null);
+  // Glitchy lens cut on hover — sharp horizontal streak + scanline that
+  // sweeps the card. No halo around the card; the chrome border itself
+  // shines via emissive (handled in the parent Cartouche).
+  const streakRef = useRef<Mesh>(null);
   const streakMatRef = useRef<MeshBasicMaterial>(null);
-  const auxStreakRef = useRef<MeshBasicMaterial>(null);
+  const scanRef = useRef<Mesh>(null);
+  const scanMatRef = useRef<MeshBasicMaterial>(null);
 
   return (
-    <group position={[0, 0, -0.08]}>
-      {/* Soft circular halo */}
-      <mesh>
-        <circleGeometry args={[1.3, 64]} />
-        <meshBasicMaterial
-          ref={haloMatRef}
-          color={accent}
-          transparent
-          opacity={0}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-      {/* Anamorphic horizontal streak */}
-      <mesh position={[0, 0, 0.001]}>
-        <planeGeometry args={[3.6, 0.07]} />
+    <group position={[0, 0, 0.045]}>
+      {/* Horizontal anamorphic streak — sharp lens cut */}
+      <mesh ref={streakRef}>
+        <planeGeometry args={[2.6, 0.038]} />
         <meshBasicMaterial
           ref={streakMatRef}
           color={accent}
@@ -58,11 +46,11 @@ function LensFlare({ accent }: { accent: string }) {
           toneMapped={false}
         />
       </mesh>
-      {/* Diagonal cross streak */}
-      <mesh position={[0, 0, 0.002]} rotation={[0, 0, Math.PI / 4]}>
-        <planeGeometry args={[2.4, 0.04]} />
+      {/* Scanline that sweeps vertically across the cartouche face */}
+      <mesh ref={scanRef} position={[0, 0, 0.001]}>
+        <planeGeometry args={[0.82, 0.012]} />
         <meshBasicMaterial
-          ref={auxStreakRef}
+          ref={scanMatRef}
           color={accent}
           transparent
           opacity={0}
@@ -72,9 +60,10 @@ function LensFlare({ accent }: { accent: string }) {
         />
       </mesh>
       <FlareDriver
-        haloMatRef={haloMatRef}
+        streakRef={streakRef}
         streakMatRef={streakMatRef}
-        auxStreakRef={auxStreakRef}
+        scanRef={scanRef}
+        scanMatRef={scanMatRef}
         accent={accent}
       />
     </group>
@@ -82,51 +71,59 @@ function LensFlare({ accent }: { accent: string }) {
 }
 
 function FlareDriver({
-  haloMatRef,
+  streakRef,
   streakMatRef,
-  auxStreakRef,
+  scanRef,
+  scanMatRef,
   accent,
 }: {
-  haloMatRef: React.RefObject<MeshBasicMaterial | null>;
+  streakRef: React.RefObject<Mesh | null>;
   streakMatRef: React.RefObject<MeshBasicMaterial | null>;
-  auxStreakRef: React.RefObject<MeshBasicMaterial | null>;
+  scanRef: React.RefObject<Mesh | null>;
+  scanMatRef: React.RefObject<MeshBasicMaterial | null>;
   accent: string;
 }) {
   useFrame(({ clock }) => {
     const { hoveredId, activeId } = useHubStore.getState();
-    // Light up only when the cartouche is hovered AND no project is active.
-    // We resolve "this cartouche" by looking up the accent of the hovered
-    // project — cheaper than threading id through, and accents are unique.
     const hovered = hoveredId
       ? projects.find((p) => p.id === hoveredId)
       : null;
     const isLit = !activeId && hovered?.accent === accent;
+    const t = clock.elapsedTime;
 
-    const target = isLit ? 1 : 0;
-    // Subtle breathing on the lit state so the flare feels alive
-    const breath = isLit
-      ? 0.85 + Math.sin(clock.elapsedTime * 2.4) * 0.15
-      : 0;
-
-    if (haloMatRef.current) {
-      haloMatRef.current.opacity = THREE.MathUtils.lerp(
-        haloMatRef.current.opacity,
-        target * 0.55 * breath,
-        0.12,
-      );
-    }
-    if (streakMatRef.current) {
+    // Streak — glitchy flicker + Y jitter + scaleX stutter
+    if (streakMatRef.current && streakRef.current) {
+      const flicker =
+        0.55 +
+        Math.sin(t * 41.3) * 0.18 +
+        Math.sin(t * 13.7) * 0.12 +
+        Math.sin(t * 91.1) * 0.08;
+      // Pseudo-glitch dropout — brief deep dim every ~2s
+      const dropout = Math.sin(t * 2.7) > 0.93 ? 0.15 : 1.0;
+      const target = isLit ? Math.max(0, flicker) * dropout : 0;
       streakMatRef.current.opacity = THREE.MathUtils.lerp(
         streakMatRef.current.opacity,
-        target * 0.65 * breath,
-        0.12,
+        target,
+        isLit ? 0.45 : 0.12,
       );
+
+      // Vertical jitter and horizontal stretch glitch
+      streakRef.current.position.y = isLit
+        ? Math.sin(t * 79) * 0.006 + Math.sin(t * 23) * 0.012
+        : 0;
+      streakRef.current.scale.x = isLit
+        ? 1 + Math.sin(t * 8.1) * 0.08 + (Math.sin(t * 33) > 0.96 ? 0.3 : 0)
+        : 1;
     }
-    if (auxStreakRef.current) {
-      auxStreakRef.current.opacity = THREE.MathUtils.lerp(
-        auxStreakRef.current.opacity,
-        target * 0.4 * breath,
-        0.12,
+
+    // Scanline — sweeps top-to-bottom every ~1.4s when lit
+    if (scanMatRef.current && scanRef.current) {
+      const cycle = ((t * 0.7) % 1) * 1.22 - 0.61; // -0.61 → +0.61
+      scanRef.current.position.y = isLit ? cycle : -2; // off-screen when not lit
+      scanMatRef.current.opacity = THREE.MathUtils.lerp(
+        scanMatRef.current.opacity,
+        isLit ? 0.85 : 0,
+        0.25,
       );
     }
   });
@@ -223,6 +220,17 @@ function Cartouche({
       );
     }
 
+    // Chrome contour shine on hover — emissive accent boost gives the
+    // border a glowing edge in the project's color
+    if (chromeMatRef.current) {
+      const targetChromeEmissive = isHovered ? 0.55 : 0.0;
+      chromeMatRef.current.emissiveIntensity = THREE.MathUtils.lerp(
+        chromeMatRef.current.emissiveIntensity,
+        targetChromeEmissive,
+        0.12,
+      );
+    }
+
     // Breathing pulse on the gem (subtle, desynced per cartouche)
     if (gemMatRef.current && !reducedMotion.current) {
       const base = isFocused || isActive ? 1.9 : 1.4;
@@ -290,6 +298,8 @@ function Cartouche({
             <meshPhysicalMaterial
               ref={chromeMatRef}
               color="#E8E6EC"
+              emissive={project.accent}
+              emissiveIntensity={0}
               metalness={1}
               roughness={0.05}
               clearcoat={1}
