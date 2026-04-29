@@ -24,7 +24,7 @@ export default function MarqueeBackground() {
     >
       {Array.from({ length: LINE_COUNT }, (_, i) => {
         const reverse = i % 2 === 1;
-        const duration = 95 + ((i * 13) % 50);
+        const duration = 220 + ((i * 17) % 100);
         return (
           <div
             key={i}
