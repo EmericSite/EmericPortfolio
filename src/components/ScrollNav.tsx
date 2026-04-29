@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 import { useHubStore } from '@/store/hub';
 
 const WHEEL_THRESHOLD = 60;
-const COOLDOWN_MS = 220;
+const TOUCH_THRESHOLD = 60;
+const COOLDOWN_MS = 350;
 
 export default function ScrollNav() {
   useEffect(() => {
@@ -47,11 +48,35 @@ export default function ScrollNav() {
       }
     };
 
+    let touchStartY: number | null = null;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (!isHubFlow()) return;
+      if (e.touches.length === 0) return;
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (touchStartY === null) return;
+      const startY = touchStartY;
+      touchStartY = null;
+      if (!isHubFlow()) return;
+      const endY = e.changedTouches[0]?.clientY;
+      if (endY === undefined) return;
+      const deltaY = startY - endY;
+      if (Math.abs(deltaY) < TOUCH_THRESHOLD) return;
+      advance(deltaY > 0 ? 1 : -1);
+    };
+
     window.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('keydown', onKey);
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
     return () => {
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('keydown', onKey);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchend', onTouchEnd);
     };
   }, []);
 
