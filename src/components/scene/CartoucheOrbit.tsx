@@ -23,21 +23,22 @@ const ACTIVE_LOOK = new THREE.Vector3(0, 0.1, 4.6);
 const LOOK_AT = new THREE.Vector3(0, 0, 1.2);
 
 function LensFlare({ accent }: { accent: string }) {
-  // Glitchy lens cut on hover — sharp horizontal streak + scanline that
-  // sweeps the card. No halo around the card; the chrome border itself
-  // shines via emissive (handled in the parent Cartouche).
-  const streakRef = useRef<Mesh>(null);
-  const streakMatRef = useRef<MeshBasicMaterial>(null);
-  const scanRef = useRef<Mesh>(null);
-  const scanMatRef = useRef<MeshBasicMaterial>(null);
+  // Stacked scanlines that sweep the card vertically + glitchy effects.
+  // No halo, no middle streak; chrome contour glow handled in parent.
+  const scanARef = useRef<Mesh>(null);
+  const scanAMatRef = useRef<MeshBasicMaterial>(null);
+  const scanBRef = useRef<Mesh>(null);
+  const scanBMatRef = useRef<MeshBasicMaterial>(null);
+  const scanCRef = useRef<Mesh>(null);
+  const scanCMatRef = useRef<MeshBasicMaterial>(null);
 
   return (
     <group position={[0, 0, 0.045]}>
-      {/* Horizontal anamorphic streak — sharp lens cut */}
-      <mesh ref={streakRef}>
-        <planeGeometry args={[2.6, 0.038]} />
+      {/* Primary thick scanline — fast sweep */}
+      <mesh ref={scanARef}>
+        <planeGeometry args={[0.82, 0.012]} />
         <meshBasicMaterial
-          ref={streakMatRef}
+          ref={scanAMatRef}
           color={accent}
           transparent
           opacity={0}
@@ -46,12 +47,25 @@ function LensFlare({ accent }: { accent: string }) {
           toneMapped={false}
         />
       </mesh>
-      {/* Scanline that sweeps vertically across the cartouche face */}
-      <mesh ref={scanRef} position={[0, 0, 0.001]}>
-        <planeGeometry args={[0.82, 0.012]} />
+      {/* Secondary thinner scanline — slower, phase-offset */}
+      <mesh ref={scanBRef} position={[0, 0, 0.001]}>
+        <planeGeometry args={[0.82, 0.005]} />
         <meshBasicMaterial
-          ref={scanMatRef}
+          ref={scanBMatRef}
           color={accent}
+          transparent
+          opacity={0}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Tertiary very-thin glitch line — fast erratic */}
+      <mesh ref={scanCRef} position={[0, 0, 0.002]}>
+        <planeGeometry args={[0.82, 0.003]} />
+        <meshBasicMaterial
+          ref={scanCMatRef}
+          color="#ffffff"
           transparent
           opacity={0}
           blending={THREE.AdditiveBlending}
@@ -60,10 +74,12 @@ function LensFlare({ accent }: { accent: string }) {
         />
       </mesh>
       <FlareDriver
-        streakRef={streakRef}
-        streakMatRef={streakMatRef}
-        scanRef={scanRef}
-        scanMatRef={scanMatRef}
+        scanARef={scanARef}
+        scanAMatRef={scanAMatRef}
+        scanBRef={scanBRef}
+        scanBMatRef={scanBMatRef}
+        scanCRef={scanCRef}
+        scanCMatRef={scanCMatRef}
         accent={accent}
       />
     </group>
@@ -71,16 +87,20 @@ function LensFlare({ accent }: { accent: string }) {
 }
 
 function FlareDriver({
-  streakRef,
-  streakMatRef,
-  scanRef,
-  scanMatRef,
+  scanARef,
+  scanAMatRef,
+  scanBRef,
+  scanBMatRef,
+  scanCRef,
+  scanCMatRef,
   accent,
 }: {
-  streakRef: React.RefObject<Mesh | null>;
-  streakMatRef: React.RefObject<MeshBasicMaterial | null>;
-  scanRef: React.RefObject<Mesh | null>;
-  scanMatRef: React.RefObject<MeshBasicMaterial | null>;
+  scanARef: React.RefObject<Mesh | null>;
+  scanAMatRef: React.RefObject<MeshBasicMaterial | null>;
+  scanBRef: React.RefObject<Mesh | null>;
+  scanBMatRef: React.RefObject<MeshBasicMaterial | null>;
+  scanCRef: React.RefObject<Mesh | null>;
+  scanCMatRef: React.RefObject<MeshBasicMaterial | null>;
   accent: string;
 }) {
   useFrame(({ clock }) => {
@@ -91,39 +111,39 @@ function FlareDriver({
     const isLit = !activeId && hovered?.accent === accent;
     const t = clock.elapsedTime;
 
-    // Streak — glitchy flicker + Y jitter + scaleX stutter
-    if (streakMatRef.current && streakRef.current) {
-      const flicker =
-        0.55 +
-        Math.sin(t * 41.3) * 0.18 +
-        Math.sin(t * 13.7) * 0.12 +
-        Math.sin(t * 91.1) * 0.08;
-      // Pseudo-glitch dropout — brief deep dim every ~2s
-      const dropout = Math.sin(t * 2.7) > 0.93 ? 0.15 : 1.0;
-      const target = isLit ? Math.max(0, flicker) * dropout : 0;
-      streakMatRef.current.opacity = THREE.MathUtils.lerp(
-        streakMatRef.current.opacity,
-        target,
-        isLit ? 0.45 : 0.12,
-      );
-
-      // Vertical jitter and horizontal stretch glitch
-      streakRef.current.position.y = isLit
-        ? Math.sin(t * 79) * 0.006 + Math.sin(t * 23) * 0.012
-        : 0;
-      streakRef.current.scale.x = isLit
-        ? 1 + Math.sin(t * 8.1) * 0.08 + (Math.sin(t * 33) > 0.96 ? 0.3 : 0)
-        : 1;
-    }
-
-    // Scanline — sweeps top-to-bottom every ~1.4s when lit
-    if (scanMatRef.current && scanRef.current) {
-      const cycle = ((t * 0.7) % 1) * 1.22 - 0.61; // -0.61 → +0.61
-      scanRef.current.position.y = isLit ? cycle : -2; // off-screen when not lit
-      scanMatRef.current.opacity = THREE.MathUtils.lerp(
-        scanMatRef.current.opacity,
+    // Primary scanline — bottom→top sweep every ~1.4s when lit
+    if (scanAMatRef.current && scanARef.current) {
+      const cycle = ((t * 0.7) % 1) * 1.22 - 0.61;
+      scanARef.current.position.y = isLit ? cycle : -2;
+      scanAMatRef.current.opacity = THREE.MathUtils.lerp(
+        scanAMatRef.current.opacity,
         isLit ? 0.85 : 0,
         0.25,
+      );
+    }
+
+    // Secondary scanline — slower (~3.5s), phase-offset by 0.5
+    if (scanBMatRef.current && scanBRef.current) {
+      const cycle = ((t * 0.28 + 0.5) % 1) * 1.22 - 0.61;
+      scanBRef.current.position.y = isLit ? cycle : -2;
+      scanBMatRef.current.opacity = THREE.MathUtils.lerp(
+        scanBMatRef.current.opacity,
+        isLit ? 0.5 : 0,
+        0.25,
+      );
+    }
+
+    // Tertiary glitch line — erratic jumps, white core, occasional brief flash
+    if (scanCMatRef.current && scanCRef.current) {
+      // Random-ish vertical position via two desynced sins
+      const jumpY = Math.sin(t * 1.7 + Math.sin(t * 0.4) * 5) * 0.55;
+      // Visibility flickers — only flashes briefly, then hides
+      const flashWindow = Math.sin(t * 5.3) > 0.7 ? 1 : 0;
+      scanCRef.current.position.y = isLit ? jumpY : -2;
+      scanCMatRef.current.opacity = THREE.MathUtils.lerp(
+        scanCMatRef.current.opacity,
+        isLit ? 0.95 * flashWindow : 0,
+        0.55,
       );
     }
   });
