@@ -9,27 +9,91 @@ import {
   Sparkles,
   useTexture,
 } from '@react-three/drei';
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import type { Mesh, Group, MeshStandardMaterial } from 'three';
+import type {
+  Mesh,
+  Group,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+} from 'three';
 import CartoucheOrbit from './scene/CartoucheOrbit';
 import CameraRig from './scene/CameraRig';
 import DynamicPostFX from './scene/DynamicPostFX';
 import { useHubStore } from '@/store/hub';
 
-function OuterHalo() {
+// === Armillary halo system ===
+
+function HaloA() {
+  // Front-facing main ring (largest, iridescent)
   const ref = useRef<Mesh>(null);
   useFrame((_, dt) => {
-    if (ref.current) ref.current.rotation.z += dt * 0.06;
+    if (ref.current) ref.current.rotation.z += dt * 0.05;
   });
   return (
     <mesh ref={ref} position={[0, 0, -0.5]}>
-      <torusGeometry args={[2.5, 0.045, 32, 240]} />
-      <meshStandardMaterial
+      <torusGeometry args={[2.55, 0.04, 32, 256]} />
+      <meshPhysicalMaterial
         color="#E8E6EC"
         metalness={1}
         roughness={0.04}
-        envMapIntensity={1.8}
+        clearcoat={1}
+        clearcoatRoughness={0.05}
+        iridescence={0.8}
+        iridescenceIOR={1.85}
+        iridescenceThicknessRange={[120, 720]}
+        envMapIntensity={1.9}
+      />
+    </mesh>
+  );
+}
+
+function HaloB() {
+  // Vertical ring (rotated 90° around Y so we see its edge mostly)
+  const ref = useRef<Mesh>(null);
+  useFrame((_, dt) => {
+    if (ref.current) ref.current.rotation.y += dt * 0.07;
+  });
+  return (
+    <mesh
+      ref={ref}
+      position={[0, 0, -0.7]}
+      rotation={[0, Math.PI / 2, 0]}
+    >
+      <torusGeometry args={[2.35, 0.022, 24, 200]} />
+      <meshPhysicalMaterial
+        color="#F4D8E2"
+        metalness={1}
+        roughness={0.07}
+        clearcoat={1}
+        clearcoatRoughness={0.08}
+        envMapIntensity={2.2}
+      />
+    </mesh>
+  );
+}
+
+function HaloC() {
+  // Diagonal ring
+  const ref = useRef<Mesh>(null);
+  useFrame((_, dt) => {
+    if (ref.current) {
+      ref.current.rotation.x += dt * 0.04;
+      ref.current.rotation.z += dt * 0.06;
+    }
+  });
+  return (
+    <mesh
+      ref={ref}
+      position={[0, 0, -0.45]}
+      rotation={[Math.PI / 3, Math.PI / 6, 0]}
+    >
+      <torusGeometry args={[2.45, 0.014, 18, 220]} />
+      <meshStandardMaterial
+        color="#E8E6EC"
+        metalness={1}
+        roughness={0.12}
+        envMapIntensity={1.7}
       />
     </mesh>
   );
@@ -38,23 +102,59 @@ function OuterHalo() {
 function InnerRing() {
   const ref = useRef<Mesh>(null);
   useFrame((_, dt) => {
-    if (ref.current) ref.current.rotation.z -= dt * 0.13;
+    if (ref.current) ref.current.rotation.z -= dt * 0.16;
   });
   return (
-    <mesh ref={ref} position={[0, 0, -0.2]}>
-      <torusGeometry args={[1.95, 0.016, 16, 200]} />
+    <mesh ref={ref} position={[0, 0, -0.18]}>
+      <torusGeometry args={[1.95, 0.013, 16, 220]} />
       <meshStandardMaterial
         color="#F4D8E2"
         metalness={1}
-        roughness={0.1}
-        envMapIntensity={2.2}
+        roughness={0.08}
+        envMapIntensity={2.4}
       />
     </mesh>
   );
 }
 
+function Satellites() {
+  const groupRef = useRef<Group>(null);
+  useFrame((_, dt) => {
+    if (groupRef.current) groupRef.current.rotation.z += dt * 0.04;
+  });
+
+  const positions = useMemo<[number, number, number][]>(
+    () => [
+      [2.55, 0, -0.4],
+      [-2.55, 0, -0.4],
+      [0, 1.95, -0.18],
+      [0.8, -1.78, -0.3],
+      [-1.05, 1.55, -0.5],
+    ],
+    [],
+  );
+
+  return (
+    <group ref={groupRef}>
+      {positions.map((p, i) => (
+        <mesh key={i} position={p} rotation={[0, 0, i * 0.4]}>
+          <octahedronGeometry args={[0.06, 0]} />
+          <meshPhysicalMaterial
+            color="#E8E6EC"
+            metalness={1}
+            roughness={0.04}
+            clearcoat={1}
+            clearcoatRoughness={0.06}
+            envMapIntensity={2.2}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 function LogoDisk() {
-  const matRef = useRef<MeshStandardMaterial>(null);
+  const matRef = useRef<MeshPhysicalMaterial>(null);
   const tex = useTexture('/logo.png');
 
   useEffect(() => {
@@ -68,14 +168,32 @@ function LogoDisk() {
 
   return (
     <mesh>
-      <circleGeometry args={[1.75, 96]} />
-      <meshStandardMaterial
+      <circleGeometry args={[1.75, 128]} />
+      <meshPhysicalMaterial
         ref={matRef}
         color="#ffffff"
         metalness={0.55}
-        roughness={0.32}
-        envMapIntensity={1.1}
+        roughness={0.28}
+        clearcoat={1}
+        clearcoatRoughness={0.12}
+        envMapIntensity={1.5}
         transparent
+      />
+    </mesh>
+  );
+}
+
+function LogoBackplate() {
+  // Subtle dark chrome disk slightly larger behind the logo for contrast.
+  return (
+    <mesh position={[0, 0, -0.06]}>
+      <circleGeometry args={[1.92, 96]} />
+      <meshPhysicalMaterial
+        color="#13111A"
+        metalness={0.9}
+        roughness={0.4}
+        clearcoat={0.6}
+        envMapIntensity={0.8}
       />
     </mesh>
   );
@@ -107,7 +225,7 @@ function Relic() {
     groupRef.current.traverse((obj) => {
       const m = obj as Mesh;
       if (m.isMesh) {
-        const mat = m.material as THREE.MeshStandardMaterial;
+        const mat = m.material as MeshStandardMaterial;
         if (mat && 'opacity' in mat) {
           mat.transparent = true;
           mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.05);
@@ -119,8 +237,12 @@ function Relic() {
   return (
     <group ref={groupRef} position={[0, 0, -1.2]}>
       <Float speed={0.85} rotationIntensity={0.15} floatIntensity={0.55}>
-        <OuterHalo />
+        <HaloA />
+        <HaloB />
+        <HaloC />
         <InnerRing />
+        <Satellites />
+        <LogoBackplate />
         <LogoDisk />
       </Float>
     </group>

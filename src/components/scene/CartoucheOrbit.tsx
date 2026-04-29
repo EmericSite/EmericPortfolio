@@ -4,7 +4,11 @@ import { useFrame } from '@react-three/fiber';
 import { Float, RoundedBox, Text } from '@react-three/drei';
 import { useRef } from 'react';
 import * as THREE from 'three';
-import type { Group, MeshStandardMaterial } from 'three';
+import type {
+  Group,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+} from 'three';
 import { projects, type Project } from '@/data/projects';
 import { useHubStore } from '@/store/hub';
 
@@ -28,7 +32,7 @@ function Cartouche({
   const groupRef = useRef<Group>(null);
   const innerRef = useRef<Group>(null);
   const accentMatRef = useRef<MeshStandardMaterial>(null);
-  const chromeMatRef = useRef<MeshStandardMaterial>(null);
+  const chromeMatRef = useRef<MeshPhysicalMaterial>(null);
 
   const setHovered = useHubStore((s) => s.setHovered);
   const setActive = useHubStore((s) => s.setActive);
@@ -121,16 +125,43 @@ function Cartouche({
             smoothness={5}
             position={[0, 0, -0.025]}
           >
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               ref={chromeMatRef}
               color="#E8E6EC"
               metalness={1}
-              roughness={0.06}
-              envMapIntensity={1.6}
+              roughness={0.05}
+              clearcoat={1}
+              clearcoatRoughness={0.06}
+              iridescence={0.25}
+              iridescenceIOR={1.7}
+              iridescenceThicknessRange={[100, 600]}
+              envMapIntensity={1.8}
               transparent
               opacity={1}
             />
           </RoundedBox>
+
+          {/* Corner rivets — sit on the chrome border, between accent and outer edge */}
+          {(
+            [
+              [-0.4, 0.59],
+              [0.4, 0.59],
+              [-0.4, -0.59],
+              [0.4, -0.59],
+            ] as [number, number][]
+          ).map(([rx, ry], i) => (
+            <mesh key={`rivet-${i}`} position={[rx, ry, 0.005]}>
+              <sphereGeometry args={[0.011, 14, 14]} />
+              <meshPhysicalMaterial
+                color="#E8E6EC"
+                metalness={1}
+                roughness={0.04}
+                clearcoat={1}
+                clearcoatRoughness={0.05}
+                envMapIntensity={2.2}
+              />
+            </mesh>
+          ))}
 
           {/* Accent body */}
           <RoundedBox
