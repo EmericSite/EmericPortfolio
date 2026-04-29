@@ -31,7 +31,7 @@ export const projects: Project[] = [
       { label: 'Direction artistique', value: 'Emeric Ressy' },
       { label: 'Motion 3D', value: 'Emeric Ressy' },
     ],
-    posterUrl: '/posters/gentle-mates.png',
+    posterUrl: '/posters/gentle-mates.webp',
     vimeoId: '1170721004',
   },
   {
@@ -50,7 +50,7 @@ export const projects: Project[] = [
       { label: 'Client', value: 'Ankama' },
       { label: 'Direction artistique', value: 'Emeric Ressy' },
     ],
-    posterUrl: '/posters/dofus.png',
+    posterUrl: '/posters/dofus.webp',
     vimeoId: '1169640652',
   },
   {
@@ -69,7 +69,7 @@ export const projects: Project[] = [
       { label: 'Auteur', value: 'Emeric Ressy' },
       { label: 'Année', value: '2025' },
     ],
-    posterUrl: '/posters/douce-melancolie.png',
+    posterUrl: '/posters/douce-melancolie.webp',
     vimeoId: '1168061777',
   },
   {
@@ -88,7 +88,7 @@ export const projects: Project[] = [
       { label: 'Auteur', value: 'Emeric Ressy' },
       { label: 'Année', value: '2024' },
     ],
-    posterUrl: '/posters/come-torment.png',
+    posterUrl: '/posters/come-torment.webp',
     vimeoId: '932641794',
   },
 ];
