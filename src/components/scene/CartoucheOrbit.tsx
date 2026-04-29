@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import type {
   Group,
   Mesh,
+  MeshBasicMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
 } from 'three';
@@ -20,6 +21,118 @@ const ORBIT_CENTER_Z = 0.8;
 const ACTIVE_TARGET = new THREE.Vector3(0, 0.1, 1.5);
 const ACTIVE_LOOK = new THREE.Vector3(0, 0.1, 4.6);
 const LOOK_AT = new THREE.Vector3(0, 0, 1.2);
+
+function LensFlare({ accent }: { accent: string }) {
+  // Lens flare attached to the cartouche, fades in on hover. Behind the card
+  // so the chrome backplate occludes the inner part — the halo only spills
+  // past the card edges, additively glowing through the bloom pass.
+  const haloMatRef = useRef<MeshBasicMaterial>(null);
+  const streakMatRef = useRef<MeshBasicMaterial>(null);
+  const auxStreakRef = useRef<MeshBasicMaterial>(null);
+
+  return (
+    <group position={[0, 0, -0.08]}>
+      {/* Soft circular halo */}
+      <mesh>
+        <circleGeometry args={[1.3, 64]} />
+        <meshBasicMaterial
+          ref={haloMatRef}
+          color={accent}
+          transparent
+          opacity={0}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Anamorphic horizontal streak */}
+      <mesh position={[0, 0, 0.001]}>
+        <planeGeometry args={[3.6, 0.07]} />
+        <meshBasicMaterial
+          ref={streakMatRef}
+          color={accent}
+          transparent
+          opacity={0}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Diagonal cross streak */}
+      <mesh position={[0, 0, 0.002]} rotation={[0, 0, Math.PI / 4]}>
+        <planeGeometry args={[2.4, 0.04]} />
+        <meshBasicMaterial
+          ref={auxStreakRef}
+          color={accent}
+          transparent
+          opacity={0}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      <FlareDriver
+        haloMatRef={haloMatRef}
+        streakMatRef={streakMatRef}
+        auxStreakRef={auxStreakRef}
+        accent={accent}
+      />
+    </group>
+  );
+}
+
+function FlareDriver({
+  haloMatRef,
+  streakMatRef,
+  auxStreakRef,
+  accent,
+}: {
+  haloMatRef: React.RefObject<MeshBasicMaterial | null>;
+  streakMatRef: React.RefObject<MeshBasicMaterial | null>;
+  auxStreakRef: React.RefObject<MeshBasicMaterial | null>;
+  accent: string;
+}) {
+  useFrame(({ clock }) => {
+    const { hoveredId, activeId } = useHubStore.getState();
+    // Light up only when the cartouche is hovered AND no project is active.
+    // We resolve "this cartouche" by looking up the accent of the hovered
+    // project — cheaper than threading id through, and accents are unique.
+    const hovered = hoveredId
+      ? projects.find((p) => p.id === hoveredId)
+      : null;
+    const isLit = !activeId && hovered?.accent === accent;
+
+    const target = isLit ? 1 : 0;
+    // Subtle breathing on the lit state so the flare feels alive
+    const breath = isLit
+      ? 0.85 + Math.sin(clock.elapsedTime * 2.4) * 0.15
+      : 0;
+
+    if (haloMatRef.current) {
+      haloMatRef.current.opacity = THREE.MathUtils.lerp(
+        haloMatRef.current.opacity,
+        target * 0.55 * breath,
+        0.12,
+      );
+    }
+    if (streakMatRef.current) {
+      streakMatRef.current.opacity = THREE.MathUtils.lerp(
+        streakMatRef.current.opacity,
+        target * 0.65 * breath,
+        0.12,
+      );
+    }
+    if (auxStreakRef.current) {
+      auxStreakRef.current.opacity = THREE.MathUtils.lerp(
+        auxStreakRef.current.opacity,
+        target * 0.4 * breath,
+        0.12,
+      );
+    }
+  });
+
+  return null;
+}
 
 function Cartouche({
   project,
@@ -145,6 +258,7 @@ function Cartouche({
         rotationIntensity={0.05}
         floatIntensity={0.2}
       >
+        <LensFlare accent={project.accent} />
         <group
           ref={innerRef}
           onPointerOver={(e) => {
