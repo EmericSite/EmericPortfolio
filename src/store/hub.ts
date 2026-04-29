@@ -31,7 +31,16 @@ export const useHubStore = create<HubStore>((set) => ({
     set((s) => {
       if (!inProjectFlow(s.mode)) return {};
       if (s.activeId) return { hoveredId: id };
-      return { hoveredId: id, mode: id ? 'hover' : 'hub' };
+      if (id !== null) {
+        // Sync scrollIndex so the focused project sticks after pointer-out
+        const idx = projects.findIndex((p) => p.id === id);
+        return {
+          hoveredId: id,
+          mode: 'hover',
+          scrollIndex: idx >= 0 ? idx : s.scrollIndex,
+        };
+      }
+      return { hoveredId: null, mode: 'hub' };
     }),
   setActive: (id) =>
     set((s) => {
