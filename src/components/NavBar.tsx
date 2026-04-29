@@ -1,0 +1,71 @@
+'use client';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { useHubStore, type HubMode } from '@/store/hub';
+
+const NAV_ITEMS: { label: string; mode: HubMode }[] = [
+  { label: 'Work', mode: 'hub' },
+  { label: 'About', mode: 'about' },
+  { label: 'Contact', mode: 'contact' },
+];
+
+export default function NavBar() {
+  const mode = useHubStore((s) => s.mode);
+  const setMode = useHubStore((s) => s.setMode);
+
+  const activeNav: HubMode =
+    mode === 'hover' || mode === 'project' ? 'hub' : mode;
+
+  return (
+    <header className="absolute top-0 inset-x-0 z-30 flex items-center justify-between p-6 md:px-12 md:py-8 pointer-events-none">
+      <button
+        type="button"
+        onClick={() => setMode('hub')}
+        className="pointer-events-auto flex items-center gap-3 group"
+      >
+        <div className="relative h-10 w-10 transition-transform group-hover:rotate-12">
+          <Image
+            src="/logo.png"
+            alt="Emeric Ressy"
+            fill
+            className="object-contain"
+            sizes="40px"
+            priority
+          />
+        </div>
+        <div className="text-left font-mono text-xs uppercase tracking-[0.18em] text-mist">
+          Emeric Ressy
+          <br />
+          <span className="text-chrome/50">Motion Designer · Paris</span>
+        </div>
+      </button>
+
+      <nav className="pointer-events-auto flex items-center gap-1 border border-fog rounded-full p-1 bg-ink/40 backdrop-blur">
+        {NAV_ITEMS.map((item) => {
+          const isActive = activeNav === item.mode;
+          return (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => setMode(item.mode)}
+              className={`px-4 py-2 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                isActive
+                  ? 'bg-chrome text-ink'
+                  : 'text-mist hover:text-chrome'
+              }`}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+        <Link
+          href="/brief"
+          className="px-4 py-2 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] text-mist hover:text-cyanglitch transition-colors"
+        >
+          Brief ↗
+        </Link>
+      </nav>
+    </header>
+  );
+}
