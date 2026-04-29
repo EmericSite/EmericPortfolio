@@ -31,11 +31,12 @@ export default function MarqueeBackground() {
             className="flex-1 flex items-center overflow-hidden"
           >
             <div
-              className="flex shrink-0"
-              style={{
-                animation: `marquee ${duration}s linear infinite${reverse ? ' reverse' : ''}`,
-                willChange: 'transform',
-              }}
+              className={`flex shrink-0 marquee-track ${reverse ? 'marquee-track-reverse' : ''}`}
+              style={
+                {
+                  '--marquee-d': `${duration}s`,
+                } as React.CSSProperties
+              }
             >
               <Track />
               <Track ariaHidden />

@@ -71,22 +71,24 @@ body {
   margin: 0; overflow: visible; clip: auto; white-space: normal;
 }
 
-@keyframes marquee {
+@keyframes marquee-scroll {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
-.animate-marquee {
-  animation: marquee 80s linear infinite;
+.marquee-track {
+  animation-name: marquee-scroll;
+  animation-duration: var(--marquee-d, 100s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: none;
   will-change: transform;
 }
-.animate-marquee-reverse {
-  animation: marquee 80s linear infinite reverse;
-  will-change: transform;
+.marquee-track-reverse {
+  animation-direction: reverse;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee,
-  .animate-marquee-reverse {
+  .marquee-track {
     animation: none;
   }
 }
