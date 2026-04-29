@@ -71,14 +71,23 @@ function MidRing() {
 
 function InnerRing() {
   const ref = useRef<Mesh>(null);
-  useFrame((_, dt) => {
+  const matRef = useRef<MeshStandardMaterial>(null);
+  useFrame(({ clock }, dt) => {
     if (ref.current) ref.current.rotation.z -= dt * 0.16;
+    if (matRef.current) {
+      // Subtle breathing pulse — pearl emissive desynced from MidRing
+      matRef.current.emissiveIntensity =
+        0.08 + Math.sin(clock.elapsedTime * 0.55) * 0.06;
+    }
   });
   return (
     <mesh ref={ref} position={[0, 0, -0.18]}>
       <torusGeometry args={[1.95, 0.013, 8, 96]} />
       <meshStandardMaterial
+        ref={matRef}
         color="#F4D8E2"
+        emissive="#F4D8E2"
+        emissiveIntensity={0.08}
         metalness={1}
         roughness={0.08}
         envMapIntensity={2.4}

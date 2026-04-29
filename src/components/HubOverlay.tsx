@@ -86,7 +86,9 @@ export default function HubOverlay() {
       {/* Bottom-right: project counter + scroll nav */}
       <div
         className={`absolute bottom-6 right-6 md:bottom-12 md:right-12 z-20 transition-opacity duration-500 ${
-          inHubFlow ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          mode === 'about' || mode === 'contact'
+            ? 'opacity-0 pointer-events-none'
+            : 'opacity-100'
         }`}
       >
         <div className="flex items-center gap-4 border border-fog rounded-full bg-ink/40 backdrop-blur px-2 py-2 pointer-events-auto">

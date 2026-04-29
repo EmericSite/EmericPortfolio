@@ -34,10 +34,17 @@ function Cartouche({
   const innerRef = useRef<Group>(null);
   const accentMatRef = useRef<MeshStandardMaterial>(null);
   const chromeMatRef = useRef<MeshPhysicalMaterial>(null);
+  const gemMatRef = useRef<MeshStandardMaterial>(null);
   const reducedMotion = useRef(
     typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
+
+  // Fly-in: cartouches start far behind the camera (Z negative) and lerp to
+  // their orbital position. Each one starts a bit further back than the next
+  // so they arrive staggered.
+  const FLY_IN_OFFSET_Z = -8 - index * 4;
+  const breathPhase = (index / total) * Math.PI * 2;
 
   const setHovered = useHubStore((s) => s.setHovered);
   const setActive = useHubStore((s) => s.setActive);
@@ -103,6 +110,13 @@ function Cartouche({
       );
     }
 
+    // Breathing pulse on the gem (subtle, desynced per cartouche)
+    if (gemMatRef.current && !reducedMotion.current) {
+      const base = isFocused || isActive ? 1.9 : 1.4;
+      gemMatRef.current.emissiveIntensity =
+        base + Math.sin(clock.elapsedTime * 1.4 + breathPhase) * 0.35;
+    }
+
     const targetOpacity = isDimmed ? 0.05 : isOffstage ? 0.4 : 1;
     const opacityLerp = reducedMotion.current ? 0.015 : 0.08;
     innerRef.current.traverse((obj) => {
@@ -125,7 +139,7 @@ function Cartouche({
   });
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} position={[0, 0, FLY_IN_OFFSET_Z]}>
       <Float
         speed={reducedMotion.current ? 0 : 0.85}
         rotationIntensity={0.05}
@@ -311,6 +325,7 @@ function Cartouche({
           <mesh position={[0, -0.55, 0.05]}>
             <circleGeometry args={[0.012, 32]} />
             <meshStandardMaterial
+              ref={gemMatRef}
               color={project.accent}
               emissive={project.accent}
               emissiveIntensity={1.6}

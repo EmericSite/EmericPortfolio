@@ -7,6 +7,7 @@ import {
   EffectComposer,
   Vignette,
 } from '@react-three/postprocessing';
+import { KernelSize } from 'postprocessing';
 import { useRef } from 'react';
 import * as THREE from 'three';
 import { useHubStore, type HubMode } from '@/store/hub';
@@ -34,14 +35,35 @@ const CA_BY_MODE: Record<HubMode, number> = {
   contact: 0,
 };
 
+// Glitch CA spike envelope — 350ms, ease-out
+const GLITCH_PEAK = 0.0065;
+const GLITCH_DURATION_MS = 350;
+
 export default function DynamicPostFX() {
   const bloomRef = useRef<BloomLike>(null);
   const caRef = useRef<CALike>(null);
+  const prevMode = useRef<HubMode>('hub');
+  const modeChangedAt = useRef(0);
 
   useFrame(() => {
     const mode = useHubStore.getState().mode;
+    if (mode !== prevMode.current) {
+      modeChangedAt.current = performance.now();
+      prevMode.current = mode;
+    }
+
     const targetBloom = BLOOM_BY_MODE[mode];
-    const targetCA = CA_BY_MODE[mode];
+    const baseCA = CA_BY_MODE[mode];
+
+    // Glitch spike on mode transition: CA briefly jumps then decays
+    const elapsed = performance.now() - modeChangedAt.current;
+    let glitchAdd = 0;
+    if (elapsed < GLITCH_DURATION_MS) {
+      const t = elapsed / GLITCH_DURATION_MS;
+      // ease-out cubic — peak at start, decays to 0
+      glitchAdd = GLITCH_PEAK * Math.pow(1 - t, 3);
+    }
+    const targetCA = baseCA + glitchAdd;
 
     if (bloomRef.current) {
       bloomRef.current.intensity = THREE.MathUtils.lerp(
@@ -52,7 +74,9 @@ export default function DynamicPostFX() {
     }
     if (caRef.current?.offset) {
       const cur = caRef.current.offset.x;
-      const next = THREE.MathUtils.lerp(cur, targetCA, 0.06);
+      // Faster lerp during the spike so the glitch reads instantly
+      const lerp = elapsed < GLITCH_DURATION_MS ? 0.35 : 0.06;
+      const next = THREE.MathUtils.lerp(cur, targetCA, lerp);
       caRef.current.offset.set(next, next);
     }
   });
@@ -64,6 +88,7 @@ export default function DynamicPostFX() {
         intensity={0.75}
         luminanceThreshold={0.55}
         luminanceSmoothing={0.3}
+        kernelSize={KernelSize.MEDIUM}
         mipmapBlur
       />
       <ChromaticAberration
