@@ -78,9 +78,13 @@ body {
 .marquee-track {
   display: flex;
   flex-shrink: 0;
-  animation: marquee-scroll 240s linear infinite;
+  animation-name: marquee-scroll;
+  animation-duration: 240s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: normal;
   will-change: transform;
 }
-.marquee-track-reverse {
+.marquee-track.marquee-track-reverse {
   animation-direction: reverse;
 }
