@@ -34,6 +34,10 @@ function Cartouche({
   const innerRef = useRef<Group>(null);
   const accentMatRef = useRef<MeshStandardMaterial>(null);
   const chromeMatRef = useRef<MeshPhysicalMaterial>(null);
+  const reducedMotion = useRef(
+    typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
 
   const setHovered = useHubStore((s) => s.setHovered);
   const setActive = useHubStore((s) => s.setActive);
@@ -64,8 +68,10 @@ function Cartouche({
     const isDimmed = activeId !== null && !isActive;
     const isOffstage = mode === 'about' || mode === 'contact';
 
+    const positionLerp = reducedMotion.current ? 0.015 : 0.08;
+    const activeLerp = reducedMotion.current ? 0.015 : 0.06;
     if (isActive) {
-      groupRef.current.position.lerp(ACTIVE_TARGET, 0.06);
+      groupRef.current.position.lerp(ACTIVE_TARGET, activeLerp);
       groupRef.current.lookAt(ACTIVE_LOOK);
     } else {
       const angle = angleOffset + clock.elapsedTime * ORBIT_SPEED;
@@ -74,12 +80,17 @@ function Cartouche({
         Math.sin(angle) * ORBIT_RADIUS * ORBIT_TILT,
         ORBIT_CENTER_Z + Math.sin(angle * 1.4) * 0.45,
       );
-      groupRef.current.position.lerp(orbitTarget.current, 0.08);
+      groupRef.current.position.lerp(orbitTarget.current, positionLerp);
       groupRef.current.lookAt(LOOK_AT);
     }
 
     const targetScale = isActive ? 1.5 : isFocused ? 1.18 : 0.95;
-    const s = THREE.MathUtils.lerp(innerRef.current.scale.x, targetScale, 0.08);
+    const scaleLerp = reducedMotion.current ? 0.015 : 0.08;
+    const s = THREE.MathUtils.lerp(
+      innerRef.current.scale.x,
+      targetScale,
+      scaleLerp,
+    );
     innerRef.current.scale.setScalar(s);
 
     // Active = clean image (no emissive wash). Focused = subtle accent halo.
@@ -93,13 +104,21 @@ function Cartouche({
     }
 
     const targetOpacity = isDimmed ? 0.05 : isOffstage ? 0.4 : 1;
+    const opacityLerp = reducedMotion.current ? 0.015 : 0.08;
     innerRef.current.traverse((obj) => {
       const m = obj as Mesh;
       if (m.isMesh && m.material) {
         const mat = m.material as MeshStandardMaterial;
         if ('opacity' in mat) {
-          mat.transparent = true;
-          mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.08);
+          const next = THREE.MathUtils.lerp(
+            mat.opacity,
+            targetOpacity,
+            opacityLerp,
+          );
+          if (Math.abs(mat.opacity - next) > 0.001) {
+            if (!mat.transparent) mat.transparent = true;
+            mat.opacity = next;
+          }
         }
       }
     });
@@ -107,7 +126,11 @@ function Cartouche({
 
   return (
     <group ref={groupRef}>
-      <Float speed={1.2} rotationIntensity={0.05} floatIntensity={0.2}>
+      <Float
+        speed={reducedMotion.current ? 0 : 0.85}
+        rotationIntensity={0.05}
+        floatIntensity={0.2}
+      >
         <group
           ref={innerRef}
           onPointerOver={(e) => {
@@ -163,12 +186,10 @@ function Cartouche({
           ).map(([rx, ry], i) => (
             <mesh key={`rivet-${i}`} position={[rx, ry, 0.005]}>
               <sphereGeometry args={[0.011, 14, 14]} />
-              <meshPhysicalMaterial
+              <meshStandardMaterial
                 color="#E8E6EC"
                 metalness={1}
                 roughness={0.04}
-                clearcoat={1}
-                clearcoatRoughness={0.05}
                 envMapIntensity={2.2}
                 transparent
                 opacity={1}
@@ -278,11 +299,10 @@ function Cartouche({
           {/* Bottom emblem — chrome ring with emissive accent gem */}
           <mesh position={[0, -0.55, 0.05]}>
             <torusGeometry args={[0.022, 0.005, 10, 28]} />
-            <meshPhysicalMaterial
+            <meshStandardMaterial
               color="#E8E6EC"
               metalness={1}
               roughness={0.06}
-              clearcoat={1}
               envMapIntensity={1.8}
               transparent
               opacity={1}

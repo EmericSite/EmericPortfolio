@@ -32,7 +32,7 @@ function HaloA() {
   });
   return (
     <mesh ref={ref} position={[0, 0, -0.5]}>
-      <torusGeometry args={[2.55, 0.04, 32, 256]} />
+      <torusGeometry args={[2.55, 0.04, 16, 128]} />
       <meshPhysicalMaterial
         color="#E8E6EC"
         metalness={1}
@@ -56,7 +56,7 @@ function MidRing() {
   });
   return (
     <mesh ref={ref} position={[0, 0, -0.32]}>
-      <torusGeometry args={[2.22, 0.018, 18, 220]} />
+      <torusGeometry args={[2.22, 0.018, 10, 96]} />
       <meshPhysicalMaterial
         color="#F4D8E2"
         metalness={1}
@@ -76,7 +76,7 @@ function InnerRing() {
   });
   return (
     <mesh ref={ref} position={[0, 0, -0.18]}>
-      <torusGeometry args={[1.95, 0.013, 16, 220]} />
+      <torusGeometry args={[1.95, 0.013, 8, 96]} />
       <meshStandardMaterial
         color="#F4D8E2"
         metalness={1}
@@ -134,7 +134,7 @@ function LogoBackplate() {
       {/* Engraved concentric chrome rings on the backplate */}
       {[1.86, 1.82, 1.78].map((r, i) => (
         <mesh key={i} position={[0, 0, 0.001 + i * 0.001]}>
-          <torusGeometry args={[r, 0.004, 8, 180]} />
+          <torusGeometry args={[r, 0.004, 6, 64]} />
           <meshStandardMaterial
             color="#E8E6EC"
             metalness={1}
@@ -151,32 +151,51 @@ function Relic() {
   const groupRef = useRef<Group>(null);
   const mode = useHubStore((s) => s.mode);
   const { mouse } = useThree();
+  const reducedMotion = useRef(
+    typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
 
   useFrame(() => {
     if (!groupRef.current) return;
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(
-      groupRef.current.rotation.y,
-      mouse.x * 0.18,
-      0.045,
-    );
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(
-      groupRef.current.rotation.x,
-      -mouse.y * 0.12,
-      0.045,
-    );
+    if (!reducedMotion.current) {
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(
+        groupRef.current.rotation.y,
+        mouse.x * 0.18,
+        0.045,
+      );
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(
+        groupRef.current.rotation.x,
+        -mouse.y * 0.12,
+        0.045,
+      );
+    }
 
     const targetScale = mode === 'project' ? 0.55 : 1;
-    const s = THREE.MathUtils.lerp(groupRef.current.scale.x, targetScale, 0.05);
+    const scaleLerp = reducedMotion.current ? 0.015 : 0.05;
+    const s = THREE.MathUtils.lerp(
+      groupRef.current.scale.x,
+      targetScale,
+      scaleLerp,
+    );
     groupRef.current.scale.setScalar(s);
 
     const targetOpacity = mode === 'project' ? 0.25 : 1;
+    const opacityLerp = reducedMotion.current ? 0.015 : 0.05;
     groupRef.current.traverse((obj) => {
       const m = obj as Mesh;
-      if (m.isMesh) {
+      if (m.isMesh && m.material) {
         const mat = m.material as MeshStandardMaterial;
-        if (mat && 'opacity' in mat) {
-          mat.transparent = true;
-          mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.05);
+        if ('opacity' in mat) {
+          const next = THREE.MathUtils.lerp(
+            mat.opacity,
+            targetOpacity,
+            opacityLerp,
+          );
+          if (Math.abs(mat.opacity - next) > 0.001) {
+            if (!mat.transparent) mat.transparent = true;
+            mat.opacity = next;
+          }
         }
       }
     });
@@ -184,7 +203,11 @@ function Relic() {
 
   return (
     <group ref={groupRef} position={[0, 0, -1.2]}>
-      <Float speed={0.85} rotationIntensity={0.15} floatIntensity={0.55}>
+      <Float
+        speed={reducedMotion.current ? 0 : 0.85}
+        rotationIntensity={0.15}
+        floatIntensity={0.55}
+      >
         <HaloA />
         <MidRing />
         <InnerRing />
