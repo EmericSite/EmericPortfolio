@@ -8,8 +8,8 @@ import type { Group, MeshStandardMaterial } from 'three';
 import { projects, type Project } from '@/data/projects';
 import { useHubStore } from '@/store/hub';
 
-const ORBIT_RADIUS = 2.95;
-const ORBIT_TILT = 0.42;
+const ORBIT_RADIUS = 2.3;
+const ORBIT_TILT = 0.4;
 const ORBIT_SPEED = 0.06;
 const ORBIT_CENTER_Z = 0.8;
 const ACTIVE_TARGET = new THREE.Vector3(0, 0.1, 1.8);
