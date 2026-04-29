@@ -1,8 +1,8 @@
 'use client';
 
 const PHRASE = '·EMERIC.RESSY';
-const REPEATS_PER_TRACK = 24;
-const LINE_COUNT = 18;
+const REPEATS_PER_TRACK = 36;
+const LINE_COUNT = 48;
 
 function Track({ ariaHidden }: { ariaHidden?: boolean }) {
   return (
@@ -20,7 +20,7 @@ export default function MarqueeBackground() {
     <div
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 z-0 overflow-hidden flex flex-col select-none font-mono font-bold tracking-widest text-chrome opacity-15 leading-none"
-      style={{ fontSize: 'clamp(1.4rem, 2.5vw, 2.8rem)' }}
+      style={{ fontSize: 'clamp(0.6rem, 0.95vw, 1.05rem)' }}
     >
       {Array.from({ length: LINE_COUNT }, (_, i) => {
         const reverse = i % 2 === 1;

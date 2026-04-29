@@ -156,6 +156,48 @@ function LogoBackplate() {
   );
 }
 
+function FloatingGlyphs() {
+  // Small chrome relics scattered around the scene volume — drift, rotate,
+  // catch the magenta/cyan lights. Adds life behind the cartouches.
+  const positions: [number, number, number][] = [
+    [3.4, 1.6, -1.0],
+    [-3.0, -1.4, 0.4],
+    [2.0, 2.2, -1.8],
+    [-3.2, 0.9, -0.5],
+    [2.7, -1.7, -1.3],
+    [-1.6, 2.0, -2.2],
+    [0.8, -2.2, -0.8],
+    [-2.4, -0.4, -1.6],
+  ];
+
+  return (
+    <group>
+      {positions.map((p, i) => (
+        <Float
+          key={i}
+          speed={0.4 + (i % 3) * 0.15}
+          rotationIntensity={0.6}
+          floatIntensity={0.8}
+        >
+          <mesh position={p} rotation={[i * 0.7, i * 0.4, i * 0.5]}>
+            {i % 2 === 0 ? (
+              <octahedronGeometry args={[0.05 + (i % 3) * 0.015, 0]} />
+            ) : (
+              <torusGeometry args={[0.05 + (i % 2) * 0.02, 0.012, 8, 24]} />
+            )}
+            <meshStandardMaterial
+              color="#E8E6EC"
+              metalness={1}
+              roughness={0.08}
+              envMapIntensity={2.2}
+            />
+          </mesh>
+        </Float>
+      ))}
+    </group>
+  );
+}
+
 function Relic() {
   const groupRef = useRef<Group>(null);
   const mode = useHubStore((s) => s.mode);
@@ -250,12 +292,22 @@ export default function HubScene({
 
       <Suspense fallback={null}>
         <Relic />
+        <FloatingGlyphs />
         {showCartouches && <CartoucheOrbit />}
       </Suspense>
 
+      {/* Fine pearl dust — very dense, very small, very slow */}
+      <Sparkles
+        count={350}
+        scale={18}
+        size={1}
+        speed={0.06}
+        color="#F4D8E2"
+        opacity={0.5}
+      />
       {/* Pearl pink — main dense field */}
       <Sparkles
-        count={200}
+        count={240}
         scale={11}
         size={2.8}
         speed={0.22}
@@ -264,7 +316,7 @@ export default function HubScene({
       />
       {/* Soft pink mist — broad and slow */}
       <Sparkles
-        count={90}
+        count={120}
         scale={14}
         size={3.6}
         speed={0.1}
@@ -273,31 +325,40 @@ export default function HubScene({
       />
       {/* Magenta acid — closer, faster, denser */}
       <Sparkles
-        count={110}
+        count={140}
         scale={7}
         size={1.8}
         speed={0.45}
         color="#FF2D9C"
         opacity={0.42}
       />
-      {/* Cyan glitch — accent only, recedes */}
+      {/* Cyan glitch — accent dust */}
       <Sparkles
-        count={28}
+        count={50}
         scale={5}
         size={1.4}
         speed={0.5}
         color="#00F0FF"
-        opacity={0.22}
+        opacity={0.28}
       />
       {/* Tight aura around the relic, pearl */}
       <Sparkles
-        count={80}
+        count={100}
         scale={[5, 4, 2.5]}
         position={[0, 0, -1.2]}
         size={2.2}
         speed={0.35}
         color="#F4D8E2"
         opacity={0.6}
+      />
+      {/* Bright pinpricks — tiny but high opacity, drift fast */}
+      <Sparkles
+        count={70}
+        scale={9}
+        size={0.7}
+        speed={0.55}
+        color="#FFFFFF"
+        opacity={0.7}
       />
 
       <Suspense fallback={null}>
