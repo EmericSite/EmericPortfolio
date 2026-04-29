@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import { useHubStore } from '@/store/hub';
 import { projects } from '@/data/projects';
 
@@ -110,6 +111,22 @@ export default function HubOverlay() {
       >
         {active && (
           <div className="h-full overflow-y-auto bg-ink/85 backdrop-blur-md border-l border-fog px-8 md:px-12 py-28 md:py-32">
+            <div className="relative aspect-[16/10] mb-8 overflow-hidden rounded-sm border border-fog">
+              <Image
+                src={active.posterUrl}
+                alt={active.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 480px"
+                className="object-cover"
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent pointer-events-none" />
+              <div
+                className="absolute top-3 left-3 h-2 w-2 rounded-full"
+                style={{ background: active.accent }}
+              />
+            </div>
+
             <div className="flex items-center gap-3 mb-6 font-mono text-[10px] uppercase tracking-[0.25em] text-mist">
               <span
                 className="h-1.5 w-1.5 rounded-full"
@@ -153,16 +170,29 @@ export default function HubOverlay() {
               ))}
             </div>
 
-            <button
-              type="button"
-              onClick={() => setMode('hub')}
-              className="group inline-flex items-center gap-3 border border-fog rounded-full px-6 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome hover:border-cyanglitch hover:text-cyanglitch transition-colors"
-            >
-              <span className="transition-transform group-hover:-translate-x-1">
-                ←
-              </span>
-              retour au hub
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href={active.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-3 border border-fog rounded-full px-6 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome bg-chrome/5 hover:border-cyanglitch hover:text-cyanglitch transition-colors"
+              >
+                Voir sur emericressy.com
+                <span className="transition-transform group-hover:translate-x-1">
+                  ↗
+                </span>
+              </a>
+              <button
+                type="button"
+                onClick={() => setMode('hub')}
+                className="group inline-flex items-center gap-3 border border-fog rounded-full px-6 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-mist hover:border-magentaglitch hover:text-magentaglitch transition-colors"
+              >
+                <span className="transition-transform group-hover:-translate-x-1">
+                  ←
+                </span>
+                retour
+              </button>
+            </div>
           </div>
         )}
 

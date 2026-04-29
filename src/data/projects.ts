@@ -9,7 +9,12 @@ export type Project = {
   description: string;
   role: string;
   credits: { label: string; value: string }[];
+  posterUrl: string;
+  externalUrl: string;
 };
+
+const FRAMER = 'https://framerusercontent.com/images';
+const SITE = 'https://emericressy.com';
 
 export const projects: Project[] = [
   {
@@ -22,13 +27,15 @@ export const projects: Project[] = [
     blurb:
       'Identité motion pour le team-up Gentle Mates × HoYoverse. Énergie urbaine anime, rythme esport.',
     description:
-      'Direction artistique du teaser officiel marquant le partenariat entre Gentle Mates et HoYoverse pour Zenless Zone Zero. La trame visuelle mélange l\'agressivité urbaine de l\'esport avec la grammaire anime du jeu — chrome, néons, montages saccadés, vitesse.',
+      "Direction artistique du teaser officiel marquant le partenariat entre Gentle Mates et HoYoverse pour Zenless Zone Zero. La trame visuelle mélange l'agressivité urbaine de l'esport avec la grammaire anime du jeu — chrome, néons, montages saccadés, vitesse.",
     role: 'Direction artistique · Motion 3D',
     credits: [
       { label: 'Client', value: 'Gentle Mates × HoYoverse' },
       { label: 'Direction artistique', value: 'Emeric Ressy' },
       { label: 'Motion 3D', value: 'Emeric Ressy' },
     ],
+    posterUrl: `${FRAMER}/B0ZQUmnLcPZeVG7qfiSU9pOaRAY.png`,
+    externalUrl: `${SITE}/work/gentlezzz`,
   },
   {
     id: 'dofus',
@@ -38,15 +45,16 @@ export const projects: Project[] = [
     tag: 'Animation · Ankama',
     accent: '#00F0FF',
     blurb:
-      'Direction artistique sur le lancement Ankama. Univers chaleureux, narration française.',
+      "Direction artistique sur le lancement Ankama. Univers chaleureux, narration française.",
     description:
-      'Pièce de lancement pour Ankama autour de DOFUS. Le défi : raconter un univers familier à une nouvelle génération, sans trahir ses racines. Le motion s\'appuie sur la palette chaude du jeu, les volumes simples et un rythme narratif qui laisse respirer.',
+      "Pièce de lancement pour Ankama autour de DOFUS. Le défi : raconter un univers familier à une nouvelle génération, sans trahir ses racines. Le motion s'appuie sur la palette chaude du jeu, les volumes simples et un rythme narratif qui laisse respirer.",
     role: 'Direction artistique',
     credits: [
       { label: 'Client', value: 'Ankama' },
       { label: 'Direction artistique', value: 'Emeric Ressy' },
-      { label: 'Studio', value: '—' },
     ],
+    posterUrl: `${FRAMER}/fVKnxUJI4HJJOveJhIiqRvrp7k.png`,
+    externalUrl: `${SITE}/work/dofus`,
   },
   {
     id: 'douce-melancolie',
@@ -58,12 +66,14 @@ export const projects: Project[] = [
     blurb:
       'Pièce personnelle. Atmosphère, lenteur, brouillard. Le silence comme matière.',
     description:
-      'Recherche personnelle sur la lenteur. Une pièce qui refuse l\'efficacité et préfère le silence, le brouillard, le poids du temps qui passe. Texture, lumière diffuse, presque rien — et pourtant la sensation que quelque chose va arriver.',
+      "Recherche personnelle sur la lenteur. Une pièce qui refuse l'efficacité et préfère le silence, le brouillard, le poids du temps qui passe. Texture, lumière diffuse, presque rien — et pourtant la sensation que quelque chose va arriver.",
     role: 'Direction · Motion · Édition',
     credits: [
       { label: 'Auteur', value: 'Emeric Ressy' },
       { label: 'Année', value: '2025' },
     ],
+    posterUrl: `${FRAMER}/ln2DZTcV0fkdUMlPK4Zg03ZqFA.png`,
+    externalUrl: `${SITE}/work/dmdc`,
   },
   {
     id: 'come-torment',
@@ -75,11 +85,13 @@ export const projects: Project[] = [
     blurb:
       'Registre dark fantasy. Volumes lourds, lumière dure, tension contenue.',
     description:
-      'Étude personnelle dans un registre dark fantasy. Volumes massifs, contre-jour, lumières dures. Une pièce contenue qui flirte avec l\'inconfort sans jamais basculer dans le grotesque.',
+      "Étude personnelle dans un registre dark fantasy. Volumes massifs, contre-jour, lumières dures. Une pièce contenue qui flirte avec l'inconfort sans jamais basculer dans le grotesque.",
     role: 'Direction · Motion · Édition',
     credits: [
       { label: 'Auteur', value: 'Emeric Ressy' },
       { label: 'Année', value: '2024' },
     ],
+    posterUrl: `${FRAMER}/X7GbluTZa37Nxfu3FQhuPYtseK8.png`,
+    externalUrl: `${SITE}/work/torment`,
   },
 ];

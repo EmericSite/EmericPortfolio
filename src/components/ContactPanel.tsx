@@ -7,14 +7,14 @@ const EMAIL = 'hello@emericressy.com';
 const SOCIALS = [
   {
     label: 'Instagram',
-    handle: '@emericressy',
-    href: 'https://instagram.com/emericressy',
+    handle: '@fumir._o',
+    href: 'https://www.instagram.com/fumir._o/?hl=fr',
   },
-  { label: 'X', handle: '@emericressy', href: 'https://x.com/emericressy' },
+  { label: 'X', handle: '@fumir_o', href: 'https://x.com/fumir_o' },
   {
     label: 'LinkedIn',
     handle: 'emeric-ressy',
-    href: 'https://linkedin.com/in/emeric-ressy',
+    href: 'https://www.linkedin.com/in/emeric-ressy-a05b0a194/',
   },
 ];
 
