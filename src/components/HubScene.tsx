@@ -108,6 +108,29 @@ function LogoDisk() {
     tex.colorSpace = THREE.SRGBColorSpace;
     if (matRef.current) {
       matRef.current.map = tex;
+      matRef.current.emissiveMap = tex;
+      matRef.current.onBeforeCompile = (shader) => {
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <map_fragment>',
+          /* glsl */ `
+          #include <map_fragment>
+          // Boost saturation + contrast + vibrance on the logo texture
+          {
+            vec3 _c = diffuseColor.rgb;
+            float _luma = dot(_c, vec3(0.299, 0.587, 0.114));
+            // Vibrance: saturate less aggressively for already-saturated pixels
+            float _maxC = max(max(_c.r, _c.g), _c.b);
+            float _minC = min(min(_c.r, _c.g), _c.b);
+            float _sat = _maxC - _minC;
+            float _vibrance = 0.55 * (1.0 - _sat);
+            _c = mix(vec3(_luma), _c, 1.35 + _vibrance);
+            // Contrast around mid grey
+            _c = (_c - 0.5) * 1.22 + 0.5;
+            diffuseColor.rgb = clamp(_c, 0.0, 1.0);
+          }
+          `,
+        );
+      };
       matRef.current.needsUpdate = true;
     }
   }, [tex]);
@@ -118,12 +141,15 @@ function LogoDisk() {
       <meshPhysicalMaterial
         ref={matRef}
         color="#ffffff"
-        metalness={0.55}
-        roughness={0.28}
+        emissive="#ffffff"
+        emissiveIntensity={0.35}
+        metalness={0.2}
+        roughness={0.45}
         clearcoat={1}
-        clearcoatRoughness={0.12}
-        envMapIntensity={1.5}
+        clearcoatRoughness={0.1}
+        envMapIntensity={0.9}
         transparent
+        toneMapped={false}
       />
     </mesh>
   );
