@@ -548,26 +548,42 @@ function Cartouche({
             zIndexRange={[100, 0]}
             style={{ pointerEvents: 'auto' }}
           >
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                startVideo();
-              }}
-              aria-label={`Lire ${project.title}`}
-              className="group flex h-20 w-20 items-center justify-center rounded-full border border-chrome/40 bg-ink/55 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-ink/80 hover:border-chrome/80"
-              style={{ boxShadow: `0 0 32px -6px ${project.accent}` }}
-            >
+            <div className="relative flex items-center justify-center">
               <span
-                className="ml-1 text-2xl"
+                className="play-ring absolute inset-0 rounded-full border-2"
+                style={{ borderColor: project.accent }}
+                aria-hidden
+              />
+              <span
+                className="play-ring absolute inset-0 rounded-full border"
                 style={{
-                  color: project.accent,
-                  textShadow: `0 0 18px ${project.accent}`,
+                  borderColor: project.accent,
+                  animationDelay: '1.2s',
+                  opacity: 0.4,
                 }}
+                aria-hidden
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  startVideo();
+                }}
+                aria-label={`Lire ${project.title}`}
+                className="play-breathe relative flex h-20 w-20 items-center justify-center rounded-full border border-chrome/40 bg-ink/55 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-ink/85 hover:border-chrome/80"
+                style={{ boxShadow: `0 0 32px -6px ${project.accent}` }}
               >
-                ▶
-              </span>
-            </button>
+                <span
+                  className="ml-1 text-2xl"
+                  style={{
+                    color: project.accent,
+                    textShadow: `0 0 18px ${project.accent}`,
+                  }}
+                >
+                  ▶
+                </span>
+              </button>
+            </div>
           </Html>
         )}
       </Float>
