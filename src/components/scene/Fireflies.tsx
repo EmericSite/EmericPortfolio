@@ -48,19 +48,28 @@ const FRAG = /* glsl */ `
   }
 `;
 
-export default function Fireflies({
-  count = 28,
-  color = '#F4D8E2',
-  range = [12, 8, 6] as [number, number, number],
-  centerZ = -1,
-  size = 90,
-}: {
+type FirefliesProps = {
   count?: number;
   color?: string;
   range?: [number, number, number];
   centerZ?: number;
   size?: number;
-}) {
+};
+
+export default function Fireflies(props: FirefliesProps) {
+  // count = 0 → render nothing (used by HubScene on tier C).
+  // Early return BEFORE any hooks to keep hook order stable across mounts.
+  if ((props.count ?? 28) <= 0) return null;
+  return <FirefliesInner {...props} />;
+}
+
+function FirefliesInner({
+  count = 28,
+  color = '#F4D8E2',
+  range = [12, 8, 6] as [number, number, number],
+  centerZ = -1,
+  size = 50,
+}: FirefliesProps) {
   const matRef = useRef<THREE.ShaderMaterial>(null);
 
   const { positions, phases, drifts } = useMemo(() => {

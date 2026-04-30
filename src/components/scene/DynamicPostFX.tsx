@@ -11,6 +11,7 @@ import {
 import { type DepthOfFieldEffect, KernelSize } from 'postprocessing';
 import { useRef } from 'react';
 import * as THREE from 'three';
+import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 import { useHubStore, type HubMode } from '@/store/hub';
 
 type BloomLike = { intensity: number };
@@ -50,13 +51,21 @@ const GLITCH_PEAK = 0.0065;
 const GLITCH_DURATION_MS = 350;
 
 export default function DynamicPostFX() {
+  const tier = usePerformanceTier();
+  const budget = tierBudget[tier];
+
   const bloomRef = useRef<BloomLike>(null);
   const caRef = useRef<CALike>(null);
   const dofRef = useRef<DepthOfFieldEffect>(null);
   const prevMode = useRef<HubMode>('hub');
   const modeChangedAt = useRef(0);
 
+  const postFX = budget.postFX;
+  const hoverFX = budget.hoverFX;
+
   useFrame(({ clock }) => {
+    if (postFX === 'off') return;
+
     const mode = useHubStore.getState().mode;
     if (mode !== prevMode.current) {
       modeChangedAt.current = performance.now();
@@ -78,7 +87,7 @@ export default function DynamicPostFX() {
     // Hover-state CA jitter — small high-freq noise on the base level so
     // chromatic fringing feels alive (lens "looking" at the cartouche)
     let hoverJitter = 0;
-    if (mode === 'hover') {
+    if (mode === 'hover' && hoverFX) {
       const ct = clock.elapsedTime;
       hoverJitter =
         Math.abs(Math.sin(ct * 19)) * 0.0015 +
@@ -109,6 +118,42 @@ export default function DynamicPostFX() {
       );
     }
   });
+
+  if (postFX === 'off') return null;
+
+  if (postFX === 'minimal') {
+    return (
+      <EffectComposer multisampling={0} stencilBuffer={false}>
+        <Bloom
+          ref={bloomRef as React.Ref<BloomLike>}
+          intensity={0.4}
+          luminanceThreshold={0.6}
+          luminanceSmoothing={0.3}
+          kernelSize={KernelSize.SMALL}
+        />
+        <Vignette eskil={false} offset={0.15} darkness={0.85} />
+      </EffectComposer>
+    );
+  }
+
+  if (postFX === 'reduced') {
+    return (
+      <EffectComposer multisampling={0} stencilBuffer={false}>
+        <Bloom
+          ref={bloomRef as React.Ref<BloomLike>}
+          intensity={0.75}
+          luminanceThreshold={0.55}
+          luminanceSmoothing={0.3}
+          kernelSize={KernelSize.SMALL}
+        />
+        <ChromaticAberration
+          ref={caRef as React.Ref<CALike>}
+          offset={ZERO_OFFSET}
+        />
+        <Vignette eskil={false} offset={0.15} darkness={0.85} />
+      </EffectComposer>
+    );
+  }
 
   return (
     <EffectComposer>

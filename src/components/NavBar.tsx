@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Image from 'next/image';
 import { useHubStore, type HubMode } from '@/store/hub';
 
@@ -9,7 +10,7 @@ const NAV_ITEMS: { label: string; mode: HubMode }[] = [
   { label: 'Contact', mode: 'contact' },
 ];
 
-export default function NavBar() {
+function NavBar() {
   const mode = useHubStore((s) => s.mode);
   const setMode = useHubStore((s) => s.setMode);
 
@@ -62,3 +63,5 @@ export default function NavBar() {
     </header>
   );
 }
+
+export default memo(NavBar);

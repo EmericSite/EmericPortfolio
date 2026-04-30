@@ -83,8 +83,15 @@ body {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   animation-direction: normal;
-  will-change: transform;
 }
 .marquee-track.marquee-track-reverse {
   animation-direction: reverse;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
 }

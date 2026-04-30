@@ -22,6 +22,7 @@ import CameraRig from './scene/CameraRig';
 import DynamicPostFX from './scene/DynamicPostFX';
 import Fireflies from './scene/Fireflies';
 import { useHubStore } from '@/store/hub';
+import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 
 // === Armillary halo system ===
 
@@ -233,11 +234,26 @@ export default function HubScene({
 }: {
   showCartouches?: boolean;
 }) {
+  const tier = usePerformanceTier();
+  const budget = tierBudget[tier];
+  const sparklesCount1 = Math.max(1, Math.round(140 * budget.sparkles));
+  const sparklesCount2 = Math.max(1, Math.round(70 * budget.sparkles));
+  const sparklesCount3 = Math.max(1, Math.round(50 * budget.sparkles));
+  const fireflies1 = Math.max(0, Math.round(26 * budget.fireflies));
+  const fireflies2 = Math.max(0, Math.round(14 * budget.fireflies));
+  const fireflies3 = Math.max(0, Math.round(8 * budget.fireflies));
+
   return (
     <Canvas
       camera={{ position: [0, 0, 4.6], fov: 45 }}
-      dpr={[1, 1.5]}
-      gl={{ antialias: true, powerPreference: 'high-performance', alpha: true }}
+      dpr={budget.dpr as [number, number]}
+      gl={{
+        antialias: true,
+        powerPreference: 'high-performance',
+        alpha: true,
+        stencil: false,
+        depth: true,
+      }}
       performance={{ min: 0.5 }}
     >
       <fog attach="fog" args={['#08070C', 3.6, 11]} />
@@ -255,55 +271,69 @@ export default function HubScene({
       </Suspense>
 
       {/* Pearl mist — broad ambient field, very slow drift */}
-      <Sparkles
-        count={140}
-        scale={13}
-        size={2.4}
-        speed={0.12}
-        color="#F4D8E2"
-        opacity={0.55}
-      />
-      {/* Soft pink atmospheric haze */}
-      <Sparkles
-        count={70}
-        scale={15}
-        size={3.4}
-        speed={0.07}
-        color="#FFB6CB"
-        opacity={0.28}
-      />
-      {/* Magenta accent dust */}
-      <Sparkles
-        count={50}
-        scale={7}
-        size={1.5}
-        speed={0.3}
-        color="#FF2D9C"
-        opacity={0.32}
-      />
+      {budget.sparkles > 0 && (
+        <>
+          <Sparkles
+            count={sparklesCount1}
+            scale={13}
+            size={2.4}
+            speed={0.12}
+            color="#F4D8E2"
+            opacity={0.55}
+          />
+          {/* Soft pink atmospheric haze */}
+          <Sparkles
+            count={sparklesCount2}
+            scale={15}
+            size={3.4}
+            speed={0.07}
+            color="#FFB6CB"
+            opacity={0.28}
+          />
+          {/* Magenta accent dust */}
+          <Sparkles
+            count={sparklesCount3}
+            scale={7}
+            size={1.5}
+            speed={0.3}
+            color="#FF2D9C"
+            opacity={0.32}
+          />
+        </>
+      )}
 
       {/* Fireflies — slow blinking + lazy drift, the "alive" element */}
-      <Fireflies
-        count={26}
-        color="#F4D8E2"
-        range={[10, 6, 5]}
-        centerZ={-0.5}
-        size={120}
-      />
-      <Fireflies
-        count={14}
-        color="#FFB6CB"
-        range={[12, 7, 6]}
-        centerZ={-1}
-        size={150}
-      />
-      <Fireflies
-        count={8}
-        color="#FF6FB0"
-        range={[8, 5, 4]}
-        centerZ={-0.3}
-        size={180}
-      />
+      {budget.fireflies > 0 && (
+        <>
+          {fireflies1 > 0 && (
+            <Fireflies
+              count={fireflies1}
+              color="#F4D8E2"
+              range={[10, 6, 5]}
+              centerZ={-0.5}
+              size={120}
+            />
+          )}
+          {fireflies2 > 0 && (
+            <Fireflies
+              count={fireflies2}
+              color="#FFB6CB"
+              range={[12, 7, 6]}
+              centerZ={-1}
+              size={150}
+            />
+          )}
+          {fireflies3 > 0 && (
+            <Fireflies
+              count={fireflies3}
+              color="#FF6FB0"
+              range={[8, 5, 4]}
+              centerZ={-0.3}
+              size={180}
+            />
+          )}
+        </>
+      )}
 
       <Suspense fallback={null}>
         <Environment preset="warehouse" />

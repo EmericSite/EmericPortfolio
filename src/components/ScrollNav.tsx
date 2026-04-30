@@ -11,6 +11,8 @@ export default function ScrollNav() {
   useEffect(() => {
     let acc = 0;
     let lastTime = 0;
+    let rAFPending = false;
+    let rAFId = 0;
 
     const isHubFlow = () => {
       const { mode, activeId } = useHubStore.getState();
@@ -32,9 +34,15 @@ export default function ScrollNav() {
       if (!isHubFlow()) return;
       e.preventDefault();
       acc += e.deltaY;
-      if (Math.abs(acc) < WHEEL_THRESHOLD) return;
-      advance(acc > 0 ? 1 : -1);
-      acc = 0;
+      if (rAFPending) return;
+      rAFPending = true;
+      rAFId = requestAnimationFrame(() => {
+        if (Math.abs(acc) >= WHEEL_THRESHOLD) {
+          advance(acc > 0 ? 1 : -1);
+          acc = 0;
+        }
+        rAFPending = false;
+      });
     };
 
     const onKey = (e: KeyboardEvent) => {
@@ -77,6 +85,7 @@ export default function ScrollNav() {
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchend', onTouchEnd);
+      if (rAFId) cancelAnimationFrame(rAFId);
     };
   }, []);
 

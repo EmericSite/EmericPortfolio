@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useHubStore } from '@/store/hub';
 import { projects } from '@/data/projects';
 import ProjectVideoPlayer from '@/components/ProjectVideoPlayer';
@@ -10,13 +11,18 @@ const TOTAL = projects.length;
 const pad2 = (n: number) => n.toString().padStart(2, '0');
 
 export default function HubOverlay() {
-  const mode = useHubStore((s) => s.mode);
-  const hoveredId = useHubStore((s) => s.hoveredId);
-  const activeId = useHubStore((s) => s.activeId);
-  const scrollIndex = useHubStore((s) => s.scrollIndex);
-  const setMode = useHubStore((s) => s.setMode);
-  const scrollNext = useHubStore((s) => s.scrollNext);
-  const scrollPrev = useHubStore((s) => s.scrollPrev);
+  const { mode, hoveredId, activeId, scrollIndex, setMode, scrollNext, scrollPrev } =
+    useHubStore(
+      useShallow((s) => ({
+        mode: s.mode,
+        hoveredId: s.hoveredId,
+        activeId: s.activeId,
+        scrollIndex: s.scrollIndex,
+        setMode: s.setMode,
+        scrollNext: s.scrollNext,
+        scrollPrev: s.scrollPrev,
+      }))
+    );
 
   const active = activeId
     ? projects.find((p) => p.id === activeId) ?? null

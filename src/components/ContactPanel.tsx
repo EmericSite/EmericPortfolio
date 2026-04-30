@@ -47,6 +47,7 @@ export default function ContactPanel() {
       aria-modal={isOpen}
       aria-labelledby="contact-title"
       aria-hidden={!isOpen}
+      style={{ backdropFilter: isOpen ? undefined : 'none' }}
       className={`absolute inset-y-0 left-0 z-25 w-full md:w-[560px] bg-ink/90 backdrop-blur-md border-r border-fog transition-all duration-700 ease-out ${
         isOpen
           ? 'translate-x-0 opacity-100'

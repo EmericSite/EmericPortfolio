@@ -6,11 +6,17 @@ import { projects } from "@/data/projects";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 const instrumentSerif = Instrument_Serif({
@@ -18,6 +24,9 @@ const instrumentSerif = Instrument_Serif({
   weight: "400",
   style: ["normal", "italic"],
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 const SITE_URL = "https://emericressy.com";

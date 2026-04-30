@@ -1,6 +1,6 @@
 const PHRASE = '·EMERIC.RESSY';
 const PHRASE_REPEATS = 40;
-const LINE_COUNT = 48;
+const LINE_COUNT = 24;
 const TRACK = PHRASE.repeat(PHRASE_REPEATS);
 
 export default function MarqueeBackground() {

@@ -5,6 +5,7 @@ import { useRef } from 'react';
 import * as THREE from 'three';
 import type { PerspectiveCamera } from 'three';
 import { useHubStore, type HubMode } from '@/store/hub';
+import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 
 const TARGETS: Record<HubMode, { pos: THREE.Vector3; fov: number }> = {
   hub: { pos: new THREE.Vector3(0, 0, 4.6), fov: 45 },
@@ -24,8 +25,14 @@ const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export default function CameraRig() {
   const { camera } = useThree();
+  const tier = usePerformanceTier();
+  const hoverFXEnabled = tierBudget[tier].hoverFX;
+
+  // Stable Vector3 refs hoisted out of useFrame to avoid per-frame allocs
   const lookAtTarget = useRef(new THREE.Vector3(0, 0, 0));
   const currentLook = useRef(new THREE.Vector3(0, 0, 0));
+  const tmpVec = useRef(new THREE.Vector3());
+  const shakeVec = useRef(new THREE.Vector3());
   const prevMode = useRef<HubMode>('hub');
   const modeChangedAt = useRef(0);
 
@@ -48,11 +55,15 @@ export default function CameraRig() {
     }
 
     const t = TARGETS[mode];
-    camera.position.lerp(t.pos, lerpFactor);
+    // target.pos is a constant Vector3 from TARGETS — lerp reads it, no alloc.
+    // We still copy into tmpVec to keep a stable target alias for any future math.
+    tmpVec.current.copy(t.pos);
+    camera.position.lerp(tmpVec.current, lerpFactor);
 
     // Camera lens shake on hover — high-frequency multi-axis jitter applied
-    // AFTER the lerp so it sits as an oscillation around the target pose
-    const isHovering = hoveredId !== null && !activeId;
+    // AFTER the lerp so it sits as an oscillation around the target pose.
+    // Disabled on low-tier devices (no hoverFX budget).
+    const isHovering = hoverFXEnabled && hoveredId !== null && !activeId;
     if (isHovering) {
       const ct = clock.elapsedTime;
       const shakeX =
@@ -61,8 +72,12 @@ export default function CameraRig() {
         Math.cos(ct * 53) * 0.01 + Math.sin(ct * 41) * 0.007;
       // Occasional kick — pseudo-glitch lens punch
       const kick = Math.sin(ct * 3.1) > 0.92 ? 0.04 : 0;
-      camera.position.x += shakeX + kick * Math.sin(ct * 91);
-      camera.position.y += shakeY + kick * Math.cos(ct * 73);
+      shakeVec.current.set(
+        shakeX + kick * Math.sin(ct * 91),
+        shakeY + kick * Math.cos(ct * 73),
+        0,
+      );
+      camera.position.add(shakeVec.current);
     }
 
     const persp = camera as PerspectiveCamera;

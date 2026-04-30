@@ -42,6 +42,7 @@ export default function AboutPanel() {
       aria-modal={isOpen}
       aria-labelledby="about-title"
       aria-hidden={!isOpen}
+      style={{ backdropFilter: isOpen ? undefined : 'none' }}
       className={`absolute inset-y-0 right-0 z-25 w-full md:w-[560px] bg-ink/90 backdrop-blur-md border-l border-fog transition-all duration-700 ease-out ${
         isOpen
           ? 'translate-x-0 opacity-100'

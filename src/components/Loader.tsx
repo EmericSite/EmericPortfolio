@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useProgress } from '@react-three/drei';
 
-export default function Loader() {
+function Loader() {
   const { progress, active } = useProgress();
   const [hidden, setHidden] = useState(false);
   const [bootProgress, setBootProgress] = useState(8);
@@ -44,7 +44,10 @@ export default function Loader() {
       }`}
     >
       <div className="flex flex-col items-center gap-8">
-        <div className="relative h-20 w-20 animate-[spin_8s_linear_infinite]">
+        <div
+          className="relative h-20 w-20 animate-[spin_8s_linear_infinite]"
+          style={{ willChange: 'transform' }}
+        >
           <Image
             src="/logo.png"
             alt="Loading"
@@ -84,3 +87,5 @@ export default function Loader() {
     </div>
   );
 }
+
+export default memo(Loader);

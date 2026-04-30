@@ -13,6 +13,9 @@ import type {
 } from 'three';
 import { projects, type Project } from '@/data/projects';
 import { useHubStore } from '@/store/hub';
+import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
+
+const PROJECT_BY_ID = new Map<string, Project>(projects.map((p) => [p.id, p]));
 
 const ORBIT_RADIUS = 2.3;
 const ORBIT_TILT = 0.4;
@@ -105,9 +108,7 @@ function FlareDriver({
 }) {
   useFrame(({ clock }) => {
     const { hoveredId, activeId } = useHubStore.getState();
-    const hovered = hoveredId
-      ? projects.find((p) => p.id === hoveredId)
-      : null;
+    const hovered = hoveredId ? PROJECT_BY_ID.get(hoveredId) : null;
     const isLit = !activeId && hovered?.accent === accent;
     const t = clock.elapsedTime;
 
@@ -155,16 +156,19 @@ function Cartouche({
   project,
   index,
   total,
+  hoverFXEnabled,
 }: {
   project: Project;
   index: number;
   total: number;
+  hoverFXEnabled: boolean;
 }) {
   const groupRef = useRef<Group>(null);
   const innerRef = useRef<Group>(null);
   const accentMatRef = useRef<MeshStandardMaterial>(null);
   const chromeMatRef = useRef<MeshPhysicalMaterial>(null);
   const gemMatRef = useRef<MeshStandardMaterial>(null);
+  const cachedMats = useRef<THREE.Material[]>([]);
   const reducedMotion = useRef(
     typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -192,6 +196,23 @@ function Cartouche({
       accentMatRef.current.needsUpdate = true;
     }
   }, [tex]);
+
+  // Cache materials once after mount so per-frame updates don't traverse the tree.
+  useEffect(() => {
+    const mats: THREE.Material[] = [];
+    innerRef.current?.traverse((obj) => {
+      const m = obj as Mesh;
+      if (m.isMesh && m.material) {
+        const mat = m.material as THREE.Material | THREE.Material[];
+        if (Array.isArray(mat)) {
+          for (const sub of mat) mats.push(sub);
+        } else {
+          mats.push(mat);
+        }
+      }
+    });
+    cachedMats.current = mats;
+  }, []);
 
   useFrame(({ clock }) => {
     if (!groupRef.current || !innerRef.current) return;
@@ -260,23 +281,21 @@ function Cartouche({
 
     const targetOpacity = isDimmed ? 0.05 : isOffstage ? 0.4 : 1;
     const opacityLerp = reducedMotion.current ? 0.015 : 0.08;
-    innerRef.current.traverse((obj) => {
-      const m = obj as Mesh;
-      if (m.isMesh && m.material) {
-        const mat = m.material as MeshStandardMaterial;
-        if ('opacity' in mat) {
-          const next = THREE.MathUtils.lerp(
-            mat.opacity,
-            targetOpacity,
-            opacityLerp,
-          );
-          if (Math.abs(mat.opacity - next) > 0.001) {
-            if (!mat.transparent) mat.transparent = true;
-            mat.opacity = next;
-          }
+    const mats = cachedMats.current;
+    for (let i = 0; i < mats.length; i++) {
+      const mat = mats[i] as MeshStandardMaterial;
+      if ('opacity' in mat) {
+        const next = THREE.MathUtils.lerp(
+          mat.opacity,
+          targetOpacity,
+          opacityLerp,
+        );
+        if (Math.abs(mat.opacity - next) > 0.001) {
+          if (!mat.transparent) mat.transparent = true;
+          mat.opacity = next;
         }
       }
-    });
+    }
   });
 
   return (
@@ -286,7 +305,7 @@ function Cartouche({
         rotationIntensity={0.05}
         floatIntensity={0.2}
       >
-        <LensFlare accent={project.accent} />
+        {hoverFXEnabled && <LensFlare accent={project.accent} />}
         <group
           ref={innerRef}
           onPointerOver={(e) => {
@@ -485,10 +504,18 @@ function Cartouche({
 }
 
 export default function CartoucheOrbit() {
+  const tier = usePerformanceTier();
+  const hoverFXEnabled = tierBudget[tier].hoverFX;
   return (
     <group>
       {projects.map((p, i) => (
-        <Cartouche key={p.id} project={p} index={i} total={projects.length} />
+        <Cartouche
+          key={p.id}
+          project={p}
+          index={i}
+          total={projects.length}
+          hoverFXEnabled={hoverFXEnabled}
+        />
       ))}
     </group>
   );
