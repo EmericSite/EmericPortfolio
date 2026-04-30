@@ -121,25 +121,6 @@ export default function DynamicPostFX() {
 
   if (postFX === 'off') return null;
 
-  if (postFX === 'reduced') {
-    return (
-      <EffectComposer multisampling={0} stencilBuffer={false}>
-        <Bloom
-          ref={bloomRef as React.Ref<BloomLike>}
-          intensity={0.75}
-          luminanceThreshold={0.55}
-          luminanceSmoothing={0.3}
-          kernelSize={KernelSize.SMALL}
-        />
-        <ChromaticAberration
-          ref={caRef as React.Ref<CALike>}
-          offset={ZERO_OFFSET}
-        />
-        <Vignette eskil={false} offset={0.15} darkness={0.85} />
-      </EffectComposer>
-    );
-  }
-
   return (
     <EffectComposer multisampling={0} stencilBuffer={false}>
       <Bloom
