@@ -201,9 +201,7 @@ export default function ContactPanel() {
                 Envoyé. Merci.
               </span>
             ) : (
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist/60">
-                mailto · sans backend
-              </span>
+              <span />
             )}
 
             <button
