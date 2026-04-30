@@ -3,12 +3,15 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import type { Project } from '@/data/projects';
+import { useHubStore } from '@/store/hub';
 
 export default function ProjectVideoPlayer({ project }: { project: Project }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPseudoFullscreen, setIsPseudoFullscreen] = useState(false);
   const [iframeError, setIframeError] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoStarted = useHubStore((s) => s.videoStarted);
+  const stopVideo = useHubStore((s) => s.stopVideo);
 
   // Reset to poster state whenever the project changes
   useEffect(() => {
@@ -16,6 +19,22 @@ export default function ProjectVideoPlayer({ project }: { project: Project }) {
     setIsPseudoFullscreen(false);
     setIframeError(false);
   }, [project.id]);
+
+  // External trigger from store (re-click on cartouche / play overlay)
+  useEffect(() => {
+    if (videoStarted && !isPlaying) {
+      handlePlay();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoStarted]);
+
+  // Reset store flag when video stops
+  useEffect(() => {
+    if (!isPlaying && videoStarted) {
+      stopVideo();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying]);
 
   // Drop out of "playing" when the user exits native fullscreen
   useEffect(() => {

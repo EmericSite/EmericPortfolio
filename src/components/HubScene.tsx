@@ -286,6 +286,10 @@ export default function HubScene({
         depth: true,
       }}
       performance={{ min: 0.5 }}
+      onPointerMissed={() => {
+        const { activeId, setMode } = useHubStore.getState();
+        if (activeId) setMode('hub');
+      }}
     >
       <fog attach="fog" args={['#08070C', 3.6, 11]} />
 

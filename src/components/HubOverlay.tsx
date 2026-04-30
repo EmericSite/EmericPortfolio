@@ -11,15 +11,17 @@ const TOTAL = projects.length;
 const pad2 = (n: number) => n.toString().padStart(2, '0');
 
 export default function HubOverlay() {
-  const { mode, activeId, scrollIndex, setMode, scrollNext, scrollPrev } =
+  const { mode, activeId, scrollIndex, videoStarted, setMode, scrollNext, scrollPrev, startVideo } =
     useHubStore(
       useShallow((s) => ({
         mode: s.mode,
         activeId: s.activeId,
         scrollIndex: s.scrollIndex,
+        videoStarted: s.videoStarted,
         setMode: s.setMode,
         scrollNext: s.scrollNext,
         scrollPrev: s.scrollPrev,
+        startVideo: s.startVideo,
       }))
     );
 
@@ -86,6 +88,67 @@ export default function HubOverlay() {
         </div>
       </div>
 
+      {/* Center play overlay — sits over the active cartouche */}
+      <div
+        className={`pointer-events-none absolute inset-0 z-15 hidden md:flex items-center justify-end pr-[480px] transition-opacity duration-500 ${
+          active && !videoStarted ? 'opacity-100' : 'opacity-0'
+        }`}
+        aria-hidden={!active}
+      >
+        <button
+          type="button"
+          onClick={startVideo}
+          aria-label={active ? `Lire ${active.title}` : 'Lire le projet'}
+          tabIndex={active ? 0 : -1}
+          className={`pointer-events-auto group flex h-20 w-20 items-center justify-center rounded-full border border-chrome/40 bg-ink/50 backdrop-blur transition-all duration-300 hover:scale-110 hover:bg-ink/80 ${
+            active ? 'hover:border-cyanglitch' : ''
+          }`}
+          style={{
+            boxShadow: active
+              ? `0 0 32px -8px ${active.accent}`
+              : undefined,
+          }}
+        >
+          <span
+            className="ml-1 text-2xl"
+            style={{
+              color: active?.accent ?? '#fff',
+              textShadow: active ? `0 0 18px ${active.accent}` : undefined,
+            }}
+          >
+            ▶
+          </span>
+        </button>
+      </div>
+
+      {/* Mobile play overlay — positioned above the panel transition */}
+      <div
+        className={`pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 z-15 flex md:hidden justify-center transition-opacity duration-500 ${
+          active && !videoStarted ? 'opacity-100' : 'opacity-0'
+        }`}
+        aria-hidden
+      >
+        <button
+          type="button"
+          onClick={startVideo}
+          aria-label={active ? `Lire ${active.title}` : 'Lire le projet'}
+          tabIndex={-1}
+          className="pointer-events-auto flex h-16 w-16 items-center justify-center rounded-full border border-chrome/40 bg-ink/60 backdrop-blur transition-all duration-300 hover:scale-110"
+          style={{
+            boxShadow: active
+              ? `0 0 28px -8px ${active.accent}`
+              : undefined,
+          }}
+        >
+          <span
+            className="ml-0.5 text-xl"
+            style={{ color: active?.accent ?? '#fff' }}
+          >
+            ▶
+          </span>
+        </button>
+      </div>
+
       {/* Project full content (when active) */}
       <div
         ref={projectPanelRef}
@@ -99,80 +162,87 @@ export default function HubOverlay() {
         }`}
       >
         {active && (
-          <div className="h-full overflow-y-auto bg-ink/85 backdrop-blur-md border-l border-fog px-6 md:px-12 py-24 md:py-32">
-            <div className="mb-8">
-              <ProjectVideoPlayer project={active} />
+          <div className="relative h-full overflow-y-auto bg-ink/85 backdrop-blur-md border-l border-fog">
+            {/* Sticky header — back to hub + close */}
+            <div className="sticky top-0 z-30 flex items-center justify-between gap-3 px-6 md:px-12 py-4 bg-ink/85 backdrop-blur-md border-b border-fog/50">
+              <button
+                type="button"
+                onClick={() => setMode('hub')}
+                className="group inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome hover:text-cyanglitch transition-colors"
+              >
+                <span className="transition-transform group-hover:-translate-x-1">
+                  ←
+                </span>
+                retour
+              </button>
+              <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-mist/70">
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ background: active.accent }}
+                />
+                <span>
+                  {pad2(scrollIndex + 1)} / {pad2(TOTAL)}
+                </span>
+              </div>
+              <button
+                ref={closeButtonRef}
+                type="button"
+                onClick={() => setMode('hub')}
+                aria-label="Fermer"
+                className="h-8 w-8 flex items-center justify-center rounded-full border border-fog text-chrome hover:border-magentaglitch hover:text-magentaglitch transition-colors"
+              >
+                <span className="font-mono text-xs">×</span>
+              </button>
             </div>
 
-            <div className="flex items-center gap-3 mb-6 font-mono text-[10px] uppercase tracking-[0.25em] text-mist">
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ background: active.accent }}
-              />
-              <span>{active.year}</span>
-              <span className="text-mist/40">·</span>
-              <span>{active.tag}</span>
-            </div>
+            <div className="px-6 md:px-12 pt-8 pb-24 md:pb-32">
+              <div className="mb-8">
+                <ProjectVideoPlayer project={active} />
+              </div>
 
-            <h2
-              id="project-title"
-              className="font-display text-3xl md:text-5xl leading-[1.05] text-pearl mb-8"
-            >
-              {active.title}
-            </h2>
+              <div className="flex items-center gap-3 mb-6 font-mono text-[10px] uppercase tracking-[0.25em] text-mist">
+                <span>{active.year}</span>
+                <span className="text-mist/40">·</span>
+                <span>{active.tag}</span>
+              </div>
 
-            <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-3">
-              Rôle
-            </div>
-            <div className="text-chrome mb-8">{active.role}</div>
+              <h2
+                id="project-title"
+                className="font-display text-3xl md:text-5xl leading-[1.05] text-pearl mb-8"
+              >
+                {active.title}
+              </h2>
 
-            <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-3">
-              Description
-            </div>
-            <p className="text-mist leading-relaxed mb-10">
-              {active.description}
-            </p>
+              <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-3">
+                Rôle
+              </div>
+              <div className="text-chrome mb-8">{active.role}</div>
 
-            <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-4">
-              Crédits
-            </div>
-            <div className="space-y-2 mb-12">
-              {active.credits.map((c) => (
-                <div
-                  key={c.label}
-                  className="grid grid-cols-[120px_1fr] gap-4 border-t border-fog/60 pt-2"
-                >
-                  <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mist">
-                    {c.label}
+              <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-3">
+                Description
+              </div>
+              <p className="text-mist leading-relaxed mb-10">
+                {active.description}
+              </p>
+
+              <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-4">
+                Crédits
+              </div>
+              <div className="space-y-2 mb-12">
+                {active.credits.map((c) => (
+                  <div
+                    key={c.label}
+                    className="grid grid-cols-[120px_1fr] gap-4 border-t border-fog/60 pt-2"
+                  >
+                    <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mist">
+                      {c.label}
+                    </div>
+                    <div className="text-chrome text-sm">{c.value}</div>
                   </div>
-                  <div className="text-chrome text-sm">{c.value}</div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setMode('hub')}
-              className="group inline-flex items-center gap-3 border border-fog rounded-full px-6 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome hover:border-cyanglitch hover:text-cyanglitch transition-colors"
-            >
-              <span className="transition-transform group-hover:-translate-x-1">
-                ←
-              </span>
-              retour au hub
-            </button>
           </div>
-        )}
-
-        {active && (
-          <button
-            ref={closeButtonRef}
-            type="button"
-            onClick={() => setMode('hub')}
-            aria-label="Fermer"
-            className="absolute top-6 right-6 md:top-10 md:right-10 h-10 w-10 flex items-center justify-center border border-fog rounded-full bg-ink/60 backdrop-blur text-chrome hover:border-magentaglitch hover:text-magentaglitch transition-colors z-10"
-          >
-            <span className="font-mono text-sm">×</span>
-          </button>
         )}
       </div>
     </>
