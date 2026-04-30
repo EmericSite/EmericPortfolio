@@ -10,7 +10,7 @@ import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 const TARGETS: Record<HubMode, { pos: THREE.Vector3; fov: number }> = {
   hub: { pos: new THREE.Vector3(0, 0, 4.6), fov: 45 },
   hover: { pos: new THREE.Vector3(0, 0, 4.2), fov: 42 },
-  project: { pos: new THREE.Vector3(0, 0.1, 4.5), fov: 36 },
+  project: { pos: new THREE.Vector3(0, 0, 4.4), fov: 34 },
   about: { pos: new THREE.Vector3(2.0, 0.25, 5.0), fov: 38 },
   contact: { pos: new THREE.Vector3(-2.0, 0.45, 5.0), fov: 38 },
 };

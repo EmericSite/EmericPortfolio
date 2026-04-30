@@ -6,15 +6,23 @@ import { useFocusTrap } from '@/lib/useFocusTrap';
 import { useSwipeToClose } from '@/lib/useSwipeToClose';
 
 const STATS = [
-  { value: '04', label: 'Projets phares\n2024 — 2026' },
-  { value: '02', label: 'Registres\nGaming · Poétique' },
-  { value: '01', label: 'Studio\nParis' },
+  { idx: '01', value: '04', label: 'Projets phares\n2024 — 2026' },
+  { idx: '02', value: '02', label: 'Registres\nGaming · Poétique' },
+  { idx: '03', value: '01', label: 'Studio\nParis' },
 ];
 
 const APPROACH = [
-  'Je construis des images qui ne s\'oublient pas. Chaque pièce part d\'une atmosphère, d\'un grain, d\'une intuition narrative — la 3D n\'est qu\'un moyen.',
-  'Je travaille en direction artistique sur le motion : composition, lumière, rythme, sound design. La technique sert le sentiment, jamais l\'inverse.',
+  {
+    tag: 'Méthode',
+    body: 'Je construis des images qui ne s\u2019oublient pas. Chaque pièce part d\u2019une atmosphère, d\u2019un grain, d\u2019une intuition narrative — la 3D n\u2019est qu\u2019un moyen.',
+  },
+  {
+    tag: 'Direction',
+    body: 'Je travaille en direction artistique sur le motion : composition, lumière, rythme, sound design. La technique sert le sentiment, jamais l\u2019inverse.',
+  },
 ];
+
+const CLIENTS = ['Ankama', 'Gentle Mates', 'HoYoverse'];
 
 export default function AboutPanel() {
   const mode = useHubStore((s) => s.mode);
@@ -49,71 +57,193 @@ export default function AboutPanel() {
           : 'translate-x-full opacity-0 pointer-events-none'
       }`}
     >
-      <div className="h-full overflow-y-auto px-6 md:px-14 py-24 md:py-32">
-        <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-magentaglitch mb-6 flex items-center gap-3">
-          <span className="h-px w-8 bg-magentaglitch" />
-          About
+      {/* Decorative vertical rail with section number */}
+      <div className="hidden md:flex absolute inset-y-0 left-0 w-10 flex-col items-center justify-between py-10 pointer-events-none border-r border-fog/30">
+        <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50 [writing-mode:vertical-rl] rotate-180">
+          Section · About
+        </span>
+        <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
+          01/04
+        </span>
+      </div>
+
+      <div className="h-full overflow-y-auto px-6 md:px-14 md:pl-20 py-24 md:py-32">
+        {/* ID CARD */}
+        <div className="mb-10 md:mb-12">
+          <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.3em] text-mist/70 pb-3 border-b border-fog/40">
+            <span>Emeric Ressy</span>
+            <span className="text-magentaglitch">ST# 01</span>
+            <span>Paris · 2026</span>
+          </div>
+          <div className="flex items-center gap-3 pt-3 font-mono text-[9px] uppercase tracking-[0.3em] text-magentaglitch">
+            <span className="h-px w-6 bg-magentaglitch" />
+            About
+            <span className="ml-auto text-mist/40">v.04 — rev.26</span>
+          </div>
         </div>
 
+        {/* HEADING */}
         <h2
           id="about-title"
-          className="font-display text-4xl sm:text-5xl md:text-6xl leading-[0.95] mb-8 md:mb-10"
+          className="font-display text-5xl sm:text-6xl md:text-[5.25rem] leading-[0.92] tracking-tight mb-2"
         >
-          Motion Designer,
+          Motion
+          <br />
+          <span className="inline-flex items-baseline gap-3">
+            <span className="text-chrome">Designer,</span>
+            <span aria-hidden className="hidden sm:inline-block h-[1px] w-12 bg-fog translate-y-[-0.6em]" />
+          </span>
           <br />
           <span className="italic text-pearl">based in Paris.</span>
         </h2>
-
-        <p className="font-display italic text-xl md:text-2xl text-pearl/90 leading-snug mb-10">
-          « Through motion design, I explore narrative, atmosphere, and visual
-          identity to create striking and memorable imagery. »
-        </p>
-
-        <div className="space-y-5 text-mist text-base leading-relaxed mb-12">
-          {APPROACH.map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
+        <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50 mb-10 md:mb-14">
+          ⎯⎯ 3D · Direction Artistique · Motion
         </div>
 
-        <div className="grid grid-cols-3 gap-px bg-fog/40 border border-fog/40 mb-12">
-          {STATS.map((s) => (
-            <div key={s.value} className="bg-ink p-5">
-              <div className="font-display text-4xl text-pearl mb-2">
-                {s.value}
-              </div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mist whitespace-pre-line leading-relaxed">
-                {s.label}
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* QUOTE — magazine block */}
+        <figure className="relative mb-12 md:mb-16 pl-5 md:pl-6">
+          <span
+            aria-hidden
+            className="absolute left-0 top-1 bottom-1 w-[2px] bg-gradient-to-b from-magentaglitch via-magentaglitch/60 to-transparent"
+          />
+          <span
+            aria-hidden
+            className="absolute -left-[3px] top-1 h-[2px] w-2 bg-magentaglitch"
+          />
+          <span
+            aria-hidden
+            className="absolute -left-[3px] bottom-1 h-[2px] w-2 bg-magentaglitch/40"
+          />
+          <blockquote className="font-display italic text-xl md:text-[1.7rem] text-pearl/95 leading-[1.25]">
+            Through motion design, I explore narrative, atmosphere, and visual
+            identity to create striking and memorable imagery.
+          </blockquote>
+          <figcaption className="mt-4 font-mono text-[9px] uppercase tracking-[0.3em] text-mist/60">
+            — Statement / EN
+          </figcaption>
+        </figure>
 
-        <div className="space-y-3 mb-12">
-          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-cyanglitch">
-            Clients & studios
+        {/* APPROACH — numbered editorial blocks */}
+        <div className="mb-14 md:mb-16">
+          <div className="flex items-center justify-between mb-6">
+            <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-cyanglitch">
+              ⎯ Approach
+            </span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
+              02 entrées
+            </span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {['Ankama', 'Gentle Mates', 'HoYoverse'].map((c) => (
-              <span
-                key={c}
-                className="border border-fog rounded-full px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-mist"
+          <div className="divide-y divide-fog/40 border-y border-fog/40">
+            {APPROACH.map((p, i) => (
+              <div
+                key={i}
+                className="grid grid-cols-[auto_1fr] gap-4 md:gap-6 py-5 md:py-6"
               >
-                {c}
-              </span>
+                <div className="flex flex-col items-start min-w-[44px]">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-magentaglitch">
+                    #{String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.25em] text-mist/60">
+                    {p.tag}
+                  </span>
+                </div>
+                <p className="text-mist text-base leading-relaxed">{p.body}</p>
+              </div>
             ))}
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setMode('contact')}
-          className="group inline-flex items-center gap-3 border border-fog rounded-full px-6 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome hover:border-cyanglitch hover:text-cyanglitch transition-colors"
-        >
-          Discuter d&rsquo;un projet
-          <span className="transition-transform group-hover:translate-x-1">
-            →
-          </span>
-        </button>
+        {/* STATS — oversized editorial */}
+        <div className="mb-14 md:mb-16">
+          <div className="flex items-center justify-between mb-6">
+            <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-cyanglitch">
+              ⎯ Index
+            </span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
+              2024 / 2026
+            </span>
+          </div>
+          <div className="grid grid-cols-3 border-t border-b border-fog/60 divide-x divide-fog/40">
+            {STATS.map((s) => (
+              <div key={s.idx} className="relative px-3 py-5 md:py-6">
+                <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-magentaglitch mb-3">
+                  {s.idx}
+                </div>
+                <div className="font-display text-5xl md:text-6xl text-chrome leading-none mb-3 tabular-nums">
+                  {s.value}
+                </div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-mist/80 whitespace-pre-line leading-[1.6]">
+                  {s.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CLIENTS — editorial table */}
+        <div className="mb-14 md:mb-16">
+          <div className="flex items-center justify-between mb-4">
+            <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-cyanglitch">
+              ⎯ Clients & studios
+            </span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
+              Sélection
+            </span>
+          </div>
+          <ul className="border-t border-fog/60">
+            {CLIENTS.map((c, i) => (
+              <li
+                key={c}
+                className="group flex items-baseline gap-4 border-b border-fog/40 py-3 md:py-4"
+              >
+                <span className="font-mono text-[9px] tracking-[0.3em] text-mist/50 tabular-nums w-7">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="font-display text-2xl md:text-3xl text-pearl tracking-tight">
+                  {c}
+                </span>
+                <span
+                  aria-hidden
+                  className="flex-1 mx-2 border-b border-dotted border-fog/50 translate-y-[-0.35em]"
+                />
+                <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50">
+                  Direction · Motion
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-16 md:mt-20 pt-8 border-t border-fog/60">
+          <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50 mb-4">
+            ⎯ Prochaine étape
+          </div>
+          <button
+            type="button"
+            onClick={() => setMode('contact')}
+            className="group w-full flex items-center justify-between gap-6 border border-fog hover:border-cyanglitch px-5 md:px-6 py-5 md:py-6 transition-colors"
+          >
+            <span className="flex flex-col items-start text-left">
+              <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-cyanglitch mb-1">
+                /Contact
+              </span>
+              <span className="font-display italic text-2xl md:text-3xl text-chrome group-hover:text-cyanglitch transition-colors">
+                Discuter d&rsquo;un projet
+              </span>
+            </span>
+            <span className="font-mono text-2xl text-chrome group-hover:text-cyanglitch transition-all group-hover:translate-x-1">
+              →
+            </span>
+          </button>
+
+          {/* Footer slug */}
+          <div className="mt-10 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
+            <span>END · About</span>
+            <span aria-hidden>— · — · —</span>
+            <span>01 / 04</span>
+          </div>
+        </div>
       </div>
 
       <button

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useHubStore } from '@/store/hub';
 import { useFocusTrap } from '@/lib/useFocusTrap';
 import { useSwipeToClose } from '@/lib/useSwipeToClose';
@@ -28,8 +28,38 @@ export default function ContactPanel() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
   useFocusTrap(sectionRef, isOpen);
   useSwipeToClose(sectionRef, isOpen, 'left', () => setMode('hub'));
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !message.trim() || sending) return;
+
+    setSending(true);
+
+    const subject = `Nouveau message — ${name}`;
+    const body = `Nom: ${name}\nEmail: ${email}\n\n${message}`;
+    const url = `mailto:${EMAIL}?subject=${encodeURIComponent(
+      subject,
+    )}&body=${encodeURIComponent(body)}`;
+
+    window.location.href = url;
+
+    setSent(true);
+    window.setTimeout(() => {
+      setName('');
+      setEmail('');
+      setMessage('');
+      setSent(false);
+      setSending(false);
+    }, 3000);
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -91,6 +121,103 @@ export default function ContactPanel() {
             {EMAIL}
           </div>
         </a>
+
+        <form
+          onSubmit={handleSubmit}
+          noValidate={false}
+          className="border border-fog rounded-sm p-5 mb-10 space-y-5"
+        >
+          <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist inline-flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-cyanglitch" />
+            Ou écris-moi ici
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="contact-name"
+              className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist inline-flex items-center gap-2"
+            >
+              <span className="h-1 w-1 rounded-full bg-cyanglitch" />
+              Nom
+            </label>
+            <input
+              id="contact-name"
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={sending}
+              autoComplete="name"
+              className="block w-full bg-ink/40 border border-fog rounded-sm px-4 py-3 font-mono text-sm text-pearl placeholder:text-mist/50 focus:outline-none focus:border-cyanglitch focus:ring-1 focus:ring-cyanglitch transition-colors disabled:opacity-50"
+              placeholder="Ton nom"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="contact-email"
+              className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist inline-flex items-center gap-2"
+            >
+              <span className="h-1 w-1 rounded-full bg-cyanglitch" />
+              Email
+            </label>
+            <input
+              id="contact-email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={sending}
+              autoComplete="email"
+              className="block w-full bg-ink/40 border border-fog rounded-sm px-4 py-3 font-mono text-sm text-pearl placeholder:text-mist/50 focus:outline-none focus:border-cyanglitch focus:ring-1 focus:ring-cyanglitch transition-colors disabled:opacity-50"
+              placeholder="toi@exemple.com"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="contact-message"
+              className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist inline-flex items-center gap-2"
+            >
+              <span className="h-1 w-1 rounded-full bg-cyanglitch" />
+              Message
+            </label>
+            <textarea
+              id="contact-message"
+              required
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              disabled={sending}
+              className="block w-full bg-ink/40 border border-fog rounded-sm px-4 py-3 font-mono text-sm text-pearl placeholder:text-mist/50 focus:outline-none focus:border-cyanglitch focus:ring-1 focus:ring-cyanglitch transition-colors disabled:opacity-50 resize-none"
+              placeholder="Parle-moi de ton projet…"
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-4 pt-1">
+            {sent ? (
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch inline-flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyanglitch animate-pulse" />
+                Envoyé. Merci.
+              </span>
+            ) : (
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist/60">
+                mailto · sans backend
+              </span>
+            )}
+
+            <button
+              type="submit"
+              disabled={sending}
+              className="group inline-flex items-center gap-3 border border-fog rounded-full px-6 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome hover:border-cyanglitch hover:text-cyanglitch transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Envoyer
+              <span className="transition-transform group-hover:translate-x-1">
+                →
+              </span>
+            </button>
+          </div>
+        </form>
 
         <div className="space-y-px bg-fog/40 border border-fog/40 mb-10">
           {SOCIALS.map((s) => (

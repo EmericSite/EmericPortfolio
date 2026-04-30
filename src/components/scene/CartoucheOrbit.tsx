@@ -21,8 +21,8 @@ const PROJECT_BY_ID = new Map<string, Project>(projects.map((p) => [p.id, p]));
 const ORBIT_TILT = 0.4;
 const ORBIT_SPEED = 0.06;
 const ORBIT_CENTER_Z = 0.8;
-const ACTIVE_TARGET = new THREE.Vector3(0, 0.1, 1.5);
-const ACTIVE_LOOK = new THREE.Vector3(0, 0.1, 4.6);
+const ACTIVE_TARGET = new THREE.Vector3(0, 0, 1.6);
+const ACTIVE_LOOK = new THREE.Vector3(0, 0, 4.6);
 const LOOK_AT = new THREE.Vector3(0, 0, 1.2);
 
 function LensFlare({ accent }: { accent: string }) {

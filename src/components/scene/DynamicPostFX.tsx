@@ -41,7 +41,9 @@ const CA_BY_MODE: Record<HubMode, number> = {
 const DOF_BY_MODE: Record<HubMode, number> = {
   hub: 0,
   hover: 0,
-  project: 4,
+  // Active cartouche must read sharp — DoF blur was washing it out and
+  // creating focus mismatch as the card lerped to its target.
+  project: 0,
   about: 1.5,
   contact: 1.5,
 };
