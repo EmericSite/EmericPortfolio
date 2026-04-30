@@ -27,7 +27,7 @@ export default function Home() {
       <ScrollNav />
       <AccessibleProjectList />
 
-      <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-12 pointer-events-none">
+      <div className="relative z-10 flex h-full flex-col justify-end p-6 pb-10 md:p-12 md:pb-20 pointer-events-none">
         <div className="max-w-3xl animate-fade-up">
           <p className="font-mono text-xs uppercase tracking-[0.25em] text-magentaglitch mb-4">
             Mélancolie électrique
@@ -37,9 +37,6 @@ export default function Home() {
             <br />
             <span className="italic text-pearl">Direction artistique.</span>
           </h1>
-          <p className="mt-6 max-w-xl text-mist text-base md:text-lg leading-relaxed animate-fade-up-slow">
-            Survole une relique en orbite. Clique pour entrer.
-          </p>
         </div>
       </div>
     </main>
