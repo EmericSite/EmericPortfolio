@@ -16,14 +16,14 @@ export default function Error({
   return (
     <div className="min-h-screen bg-ink text-chrome flex flex-col items-center justify-center px-6 text-center font-mono">
       <p className="text-xs uppercase tracking-[0.3em] text-magentaglitch mb-6">
-        404 · ressource hors-orbite
+        scène hors-orbite
       </p>
       <h2 className="font-display text-3xl md:text-5xl text-pearl mb-6">
-        Quelque chose a glissé.
+        Le hub n&rsquo;a pas pu se charger.
       </h2>
       <p className="text-mist text-sm max-w-md mb-8">
-        Le hub n&rsquo;a pas pu se charger. Recharge la page — si le souci
-        persiste, essaie en navigation privée (cache).
+        Recharge la page. Si le souci persiste, ouvre la console pour copier
+        l&rsquo;erreur ou essaie en navigation privée.
       </p>
       <button
         type="button"

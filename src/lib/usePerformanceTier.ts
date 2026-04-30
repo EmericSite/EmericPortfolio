@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export type PerfTier = 'S' | 'A' | 'B' | 'C';
 
@@ -74,14 +74,10 @@ function detectTier(): PerfTier {
 }
 
 export function usePerformanceTier(): PerfTier {
-  // Start at 'A' (safe default) instead of 'S' to avoid a heavy first frame
-  // on machines that turn out to need 'B' or 'C'.
-  const [tier, setTier] = useState<PerfTier>('A');
-
-  useEffect(() => {
-    setTier(detectTier());
-  }, []);
-
+  // Lazy init: detect once, never change. Keeps the EffectComposer tree
+  // structurally stable across renders (mounting/unmounting effects mid-
+  // session was crashing R3F reconciliation in production).
+  const [tier] = useState<PerfTier>(() => detectTier());
   return tier;
 }
 
