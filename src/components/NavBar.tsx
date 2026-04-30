@@ -18,26 +18,26 @@ function NavBar() {
     mode === 'hover' || mode === 'project' ? 'hub' : mode;
 
   return (
-    <header className="absolute top-0 inset-x-0 z-30 flex items-center justify-between p-6 md:px-12 md:py-8 pointer-events-none">
+    <header className="absolute top-0 inset-x-0 z-30 flex items-center justify-between p-4 md:px-12 md:py-8 pointer-events-none">
       <button
         type="button"
         onClick={() => setMode('hub')}
         className="pointer-events-auto flex items-center gap-3 group"
       >
-        <div className="relative h-10 w-10 transition-transform group-hover:rotate-12">
+        <div className="relative h-8 w-8 md:h-10 md:w-10 transition-transform group-hover:rotate-12">
           <Image
             src="/logo.png"
             alt="Emeric Ressy"
             fill
             className="object-contain"
-            sizes="40px"
+            sizes="(max-width: 768px) 32px, 40px"
             priority
           />
         </div>
-        <div className="text-left font-mono text-xs uppercase tracking-[0.18em] text-mist">
+        <div className="text-left font-mono text-[10px] sm:text-xs uppercase tracking-[0.18em] text-mist">
           Emeric Ressy
-          <br />
-          <span className="text-chrome/50">Motion Designer · Paris</span>
+          <br className="hidden sm:inline" />
+          <span className="hidden sm:inline text-chrome/50">Motion Designer · Paris</span>
         </div>
       </button>
 
@@ -49,7 +49,7 @@ function NavBar() {
               key={item.label}
               type="button"
               onClick={() => setMode(item.mode)}
-              className={`px-4 py-2 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-mono text-[10px] uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-colors ${
                 isActive
                   ? 'bg-chrome text-ink'
                   : 'text-mist hover:text-chrome'

@@ -52,7 +52,7 @@ export default function HubOverlay() {
   useEffect(() => {
     if (active) {
       const id = window.setTimeout(() => {
-        closeButtonRef.current?.focus();
+        closeButtonRef.current?.focus({ preventScroll: true });
       }, 0);
       return () => window.clearTimeout(id);
     }
@@ -62,14 +62,14 @@ export default function HubOverlay() {
     <>
       {/* Bottom-left: focused project info */}
       <div
-        className={`pointer-events-none absolute bottom-6 left-6 md:bottom-12 md:left-12 z-20 max-w-md transition-all duration-500 ${
+        className={`pointer-events-none absolute bottom-24 left-4 right-4 md:bottom-12 md:left-12 md:right-auto z-20 max-w-md md:max-w-md transition-all duration-500 ${
           inHubFlow && focused
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 translate-y-3'
         }`}
       >
         {focused && (
-          <div className="border border-fog bg-ink/70 backdrop-blur rounded-sm p-5 pointer-events-auto">
+          <div className="border border-fog bg-ink/70 backdrop-blur rounded-sm p-4 md:p-5 pointer-events-auto">
             <div className="flex items-center gap-3 mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-mist">
               <span
                 className="h-1.5 w-1.5 rounded-full"
@@ -79,7 +79,7 @@ export default function HubOverlay() {
               <span className="text-mist/40">·</span>
               <span>{focused.tag}</span>
             </div>
-            <div className="font-display text-2xl md:text-3xl leading-tight text-pearl">
+            <div className="font-display text-xl md:text-3xl leading-tight text-pearl">
               {focused.title}
             </div>
             <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch">
@@ -91,7 +91,7 @@ export default function HubOverlay() {
 
       {/* Bottom-right: project counter + scroll nav */}
       <div
-        className={`absolute bottom-6 right-6 md:bottom-12 md:right-12 z-20 transition-opacity duration-500 ${
+        className={`absolute bottom-4 right-4 md:bottom-12 md:right-12 z-20 transition-opacity duration-500 ${
           mode === 'about' || mode === 'contact'
             ? 'opacity-0 pointer-events-none'
             : 'opacity-100'
@@ -119,7 +119,7 @@ export default function HubOverlay() {
             <span className="font-mono text-xs">↓</span>
           </button>
         </div>
-        <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50 mt-3 text-center">
+        <div className="hidden md:block font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50 mt-3 text-center">
           scroll · ← →
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function HubOverlay() {
         }`}
       >
         {active && (
-          <div className="h-full overflow-y-auto bg-ink/85 backdrop-blur-md border-l border-fog px-8 md:px-12 py-28 md:py-32">
+          <div className="h-full overflow-y-auto bg-ink/85 backdrop-blur-md border-l border-fog px-6 md:px-12 py-24 md:py-32">
             <div className="mb-8">
               <ProjectVideoPlayer project={active} />
             </div>
@@ -154,7 +154,7 @@ export default function HubOverlay() {
 
             <h2
               id="project-title"
-              className="font-display text-4xl md:text-5xl leading-[1.05] text-pearl mb-8"
+              className="font-display text-3xl md:text-5xl leading-[1.05] text-pearl mb-8"
             >
               {active.title}
             </h2>

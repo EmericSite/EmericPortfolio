@@ -17,7 +17,6 @@ import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 
 const PROJECT_BY_ID = new Map<string, Project>(projects.map((p) => [p.id, p]));
 
-const ORBIT_RADIUS = 2.3;
 const ORBIT_TILT = 0.4;
 const ORBIT_SPEED = 0.06;
 const ORBIT_CENTER_Z = 0.8;
@@ -157,11 +156,15 @@ function Cartouche({
   index,
   total,
   hoverFXEnabled,
+  orbitRadius,
+  cartoucheScale,
 }: {
   project: Project;
   index: number;
   total: number;
   hoverFXEnabled: boolean;
+  orbitRadius: number;
+  cartoucheScale: number;
 }) {
   const groupRef = useRef<Group>(null);
   const innerRef = useRef<Group>(null);
@@ -234,8 +237,8 @@ function Cartouche({
     } else {
       const angle = angleOffset + clock.elapsedTime * ORBIT_SPEED;
       orbitTarget.current.set(
-        Math.cos(angle) * ORBIT_RADIUS,
-        Math.sin(angle) * ORBIT_RADIUS * ORBIT_TILT,
+        Math.cos(angle) * orbitRadius,
+        Math.sin(angle) * orbitRadius * ORBIT_TILT,
         ORBIT_CENTER_Z + Math.sin(angle * 1.4) * 0.45,
       );
       groupRef.current.position.lerp(orbitTarget.current, positionLerp);
@@ -299,7 +302,7 @@ function Cartouche({
   });
 
   return (
-    <group ref={groupRef} position={[0, 0, FLY_IN_OFFSET_Z]}>
+    <group ref={groupRef} position={[0, 0, FLY_IN_OFFSET_Z]} scale={cartoucheScale}>
       <Float
         speed={reducedMotion.current ? 0 : 0.85}
         rotationIntensity={0.05}
@@ -503,7 +506,13 @@ function Cartouche({
   );
 }
 
-export default function CartoucheOrbit() {
+export default function CartoucheOrbit({
+  orbitRadius = 2.3,
+  cartoucheScale = 1,
+}: {
+  orbitRadius?: number;
+  cartoucheScale?: number;
+} = {}) {
   const tier = usePerformanceTier();
   const hoverFXEnabled = tierBudget[tier].hoverFX;
   return (
@@ -515,6 +524,8 @@ export default function CartoucheOrbit() {
           index={i}
           total={projects.length}
           hoverFXEnabled={hoverFXEnabled}
+          orbitRadius={orbitRadius}
+          cartoucheScale={cartoucheScale}
         />
       ))}
     </group>

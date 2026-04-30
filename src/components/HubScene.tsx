@@ -23,6 +23,7 @@ import DynamicPostFX from './scene/DynamicPostFX';
 import Fireflies from './scene/Fireflies';
 import { useHubStore } from '@/store/hub';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
+import { useViewportScale } from '@/lib/useViewportScale';
 
 // === Armillary halo system ===
 
@@ -162,6 +163,7 @@ function Relic() {
   const groupRef = useRef<Group>(null);
   const mode = useHubStore((s) => s.mode);
   const { mouse } = useThree();
+  const { hubScale } = useViewportScale();
   const reducedMotion = useRef(
     typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -214,17 +216,19 @@ function Relic() {
 
   return (
     <group ref={groupRef} position={[0, 0, -1.2]}>
-      <Float
-        speed={reducedMotion.current ? 0 : 0.85}
-        rotationIntensity={0.15}
-        floatIntensity={0.55}
-      >
-        <HaloA />
-        <MidRing />
-        <InnerRing />
-        <LogoBackplate />
-        <LogoDisk />
-      </Float>
+      <group scale={hubScale}>
+        <Float
+          speed={reducedMotion.current ? 0 : 0.85}
+          rotationIntensity={0.15}
+          floatIntensity={0.55}
+        >
+          <HaloA />
+          <MidRing />
+          <InnerRing />
+          <LogoBackplate />
+          <LogoDisk />
+        </Float>
+      </group>
     </group>
   );
 }
@@ -242,10 +246,11 @@ export default function HubScene({
   const fireflies1 = Math.max(0, Math.round(26 * budget.fireflies));
   const fireflies2 = Math.max(0, Math.round(14 * budget.fireflies));
   const fireflies3 = Math.max(0, Math.round(8 * budget.fireflies));
+  const { cameraZ, orbitRadius, cartoucheScale } = useViewportScale();
 
   return (
     <Canvas
-      camera={{ position: [0, 0, 4.6], fov: 45 }}
+      camera={{ position: [0, 0, cameraZ], fov: 45 }}
       dpr={budget.dpr as [number, number]}
       gl={{
         antialias: true,
@@ -267,7 +272,12 @@ export default function HubScene({
 
       <Suspense fallback={null}>
         <Relic />
-        {showCartouches && <CartoucheOrbit />}
+        {showCartouches && (
+          <CartoucheOrbit
+            orbitRadius={orbitRadius}
+            cartoucheScale={cartoucheScale}
+          />
+        )}
       </Suspense>
 
       {/* Pearl mist — broad ambient field, very slow drift */}

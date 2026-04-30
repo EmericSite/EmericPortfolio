@@ -34,7 +34,7 @@ export default function ContactPanel() {
   useEffect(() => {
     if (isOpen) {
       const id = window.setTimeout(() => {
-        closeButtonRef.current?.focus();
+        closeButtonRef.current?.focus({ preventScroll: true });
       }, 0);
       return () => window.clearTimeout(id);
     }
@@ -54,7 +54,7 @@ export default function ContactPanel() {
           : '-translate-x-full opacity-0 pointer-events-none'
       }`}
     >
-      <div className="h-full overflow-y-auto px-8 md:px-14 py-28 md:py-32">
+      <div className="h-full overflow-y-auto px-6 md:px-14 py-24 md:py-32">
         <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-cyanglitch mb-6 flex items-center gap-3">
           <span className="h-px w-8 bg-cyanglitch" />
           Contact
@@ -67,7 +67,7 @@ export default function ContactPanel() {
 
         <h2
           id="contact-title"
-          className="font-display text-5xl md:text-6xl leading-[0.95] mb-10"
+          className="font-display text-4xl sm:text-5xl md:text-6xl leading-[0.95] mb-8 md:mb-10"
         >
           Parlons d&rsquo;un
           <br />
