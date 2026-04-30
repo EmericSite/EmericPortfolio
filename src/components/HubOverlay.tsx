@@ -11,11 +11,10 @@ const TOTAL = projects.length;
 const pad2 = (n: number) => n.toString().padStart(2, '0');
 
 export default function HubOverlay() {
-  const { mode, hoveredId, activeId, scrollIndex, setMode, scrollNext, scrollPrev } =
+  const { mode, activeId, scrollIndex, setMode, scrollNext, scrollPrev } =
     useHubStore(
       useShallow((s) => ({
         mode: s.mode,
-        hoveredId: s.hoveredId,
         activeId: s.activeId,
         scrollIndex: s.scrollIndex,
         setMode: s.setMode,
@@ -27,14 +26,6 @@ export default function HubOverlay() {
   const active = activeId
     ? projects.find((p) => p.id === activeId) ?? null
     : null;
-  const hovered = hoveredId
-    ? projects.find((p) => p.id === hoveredId) ?? null
-    : null;
-  const scrollFocused =
-    mode === 'hub' || mode === 'hover' ? projects[scrollIndex] : null;
-
-  const focused = active ?? hovered ?? scrollFocused;
-  const inHubFlow = mode === 'hub' || mode === 'hover';
 
   const projectPanelRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -60,35 +51,6 @@ export default function HubOverlay() {
 
   return (
     <>
-      {/* Bottom-left: focused project info */}
-      <div
-        className={`pointer-events-none absolute bottom-24 left-4 right-4 md:bottom-12 md:left-12 md:right-auto z-20 max-w-md md:max-w-md transition-all duration-500 ${
-          inHubFlow && focused
-            ? 'opacity-100 translate-y-0'
-            : 'opacity-0 translate-y-3'
-        }`}
-      >
-        {focused && (
-          <div className="border border-fog bg-ink/70 backdrop-blur rounded-sm p-4 md:p-5 pointer-events-auto">
-            <div className="flex items-center gap-3 mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-mist">
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ background: focused.accent }}
-              />
-              <span>{focused.year}</span>
-              <span className="text-mist/40">·</span>
-              <span>{focused.tag}</span>
-            </div>
-            <div className="font-display text-xl md:text-3xl leading-tight text-pearl">
-              {focused.title}
-            </div>
-            <div className="mt-3 font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch">
-              cliquer pour ouvrir →
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Bottom-right: project counter + scroll nav */}
       <div
         className={`absolute bottom-4 right-4 md:bottom-12 md:right-12 z-20 transition-opacity duration-500 ${
