@@ -246,7 +246,7 @@ export default function HubScene({
   const fireflies1 = Math.max(0, Math.round(26 * budget.fireflies));
   const fireflies2 = Math.max(0, Math.round(14 * budget.fireflies));
   const fireflies3 = Math.max(0, Math.round(8 * budget.fireflies));
-  const { cameraZ, orbitRadius, cartoucheScale } = useViewportScale();
+  const { cameraZ, orbitRadius, cartoucheScale, layout } = useViewportScale();
 
   return (
     <Canvas
@@ -276,6 +276,7 @@ export default function HubScene({
           <CartoucheOrbit
             orbitRadius={orbitRadius}
             cartoucheScale={cartoucheScale}
+            layout={layout}
           />
         )}
       </Suspense>

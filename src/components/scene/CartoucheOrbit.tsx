@@ -14,6 +14,7 @@ import type {
 import { projects, type Project } from '@/data/projects';
 import { useHubStore } from '@/store/hub';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
+import type { CartoucheLayout } from '@/lib/useViewportScale';
 
 const PROJECT_BY_ID = new Map<string, Project>(projects.map((p) => [p.id, p]));
 
@@ -158,6 +159,7 @@ function Cartouche({
   hoverFXEnabled,
   orbitRadius,
   cartoucheScale,
+  layout,
 }: {
   project: Project;
   index: number;
@@ -165,6 +167,7 @@ function Cartouche({
   hoverFXEnabled: boolean;
   orbitRadius: number;
   cartoucheScale: number;
+  layout: CartoucheLayout;
 }) {
   const groupRef = useRef<Group>(null);
   const innerRef = useRef<Group>(null);
@@ -231,9 +234,26 @@ function Cartouche({
 
     const positionLerp = reducedMotion.current ? 0.015 : 0.08;
     const activeLerp = reducedMotion.current ? 0.015 : 0.06;
+
+    // Compute wrapped stack offset (used both for positioning and scaling)
+    let stackOffset = index - scrollIndex;
+    if (stackOffset > total / 2) stackOffset -= total;
+    if (stackOffset < -total / 2) stackOffset += total;
+    const isStackFront = layout === 'stack' && stackOffset === 0;
+
     if (isActive) {
       groupRef.current.position.lerp(ACTIVE_TARGET, activeLerp);
       groupRef.current.lookAt(ACTIVE_LOOK);
+    } else if (layout === 'stack') {
+      const sign = stackOffset === 0 ? 0 : Math.sign(stackOffset);
+      const abs = Math.abs(stackOffset);
+      orbitTarget.current.set(
+        sign * (0.5 + (abs - 1) * 0.18),
+        -abs * 0.05,
+        ORBIT_CENTER_Z + (isStackFront ? 0.4 : -0.35 * abs),
+      );
+      groupRef.current.position.lerp(orbitTarget.current, positionLerp);
+      groupRef.current.lookAt(LOOK_AT);
     } else {
       const angle = angleOffset + clock.elapsedTime * ORBIT_SPEED;
       orbitTarget.current.set(
@@ -245,7 +265,16 @@ function Cartouche({
       groupRef.current.lookAt(LOOK_AT);
     }
 
-    const targetScale = isActive ? 1.5 : isFocused ? 1.18 : 0.95;
+    const stackScale = isStackFront
+      ? 1.4
+      : Math.max(0.45, 0.85 - Math.abs(stackOffset) * 0.18);
+    const targetScale = isActive
+      ? 1.5
+      : layout === 'stack'
+        ? stackScale
+        : isFocused
+          ? 1.18
+          : 0.95;
     const scaleLerp = reducedMotion.current ? 0.015 : 0.08;
     const s = THREE.MathUtils.lerp(
       innerRef.current.scale.x,
@@ -282,7 +311,15 @@ function Cartouche({
         base + Math.sin(clock.elapsedTime * 1.4 + breathPhase) * 0.35;
     }
 
-    const targetOpacity = isDimmed ? 0.05 : isOffstage ? 0.4 : 1;
+    const stackFade =
+      layout === 'stack' && !isStackFront
+        ? Math.max(0.25, 1 - Math.abs(stackOffset) * 0.3)
+        : 1;
+    const targetOpacity = isDimmed
+      ? 0.05
+      : isOffstage
+        ? 0.4
+        : stackFade;
     const opacityLerp = reducedMotion.current ? 0.015 : 0.08;
     const mats = cachedMats.current;
     for (let i = 0; i < mats.length; i++) {
@@ -509,9 +546,11 @@ function Cartouche({
 export default function CartoucheOrbit({
   orbitRadius = 2.3,
   cartoucheScale = 1,
+  layout = 'orbit',
 }: {
   orbitRadius?: number;
   cartoucheScale?: number;
+  layout?: CartoucheLayout;
 } = {}) {
   const tier = usePerformanceTier();
   const hoverFXEnabled = tierBudget[tier].hoverFX;
@@ -526,6 +565,7 @@ export default function CartoucheOrbit({
           hoverFXEnabled={hoverFXEnabled}
           orbitRadius={orbitRadius}
           cartoucheScale={cartoucheScale}
+          layout={layout}
         />
       ))}
     </group>

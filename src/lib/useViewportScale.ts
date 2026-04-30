@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from 'react';
 
+export type CartoucheLayout = 'orbit' | 'stack';
+
 export type ViewportScale = {
   hubScale: number;
   orbitRadius: number;
   cartoucheScale: number;
   cameraZ: number;
   isCompact: boolean;
+  layout: CartoucheLayout;
 };
 
 const DEFAULT_SCALE: ViewportScale = {
@@ -16,29 +19,31 @@ const DEFAULT_SCALE: ViewportScale = {
   cartoucheScale: 1,
   cameraZ: 4.6,
   isCompact: false,
+  layout: 'orbit',
 };
 
 function computeScale(width: number, height: number): ViewportScale {
-  const minDim = Math.min(width, height);
   const aspect = width / Math.max(height, 1);
   const isPortrait = aspect < 1;
 
   if (width < 640) {
     return {
-      hubScale: 0.5,
+      hubScale: 0.45,
       orbitRadius: 1.55,
-      cartoucheScale: 0.78,
+      cartoucheScale: 1.05,
       cameraZ: 5.1,
       isCompact: true,
+      layout: 'stack',
     };
   }
   if (width < 768) {
     return {
-      hubScale: 0.6,
+      hubScale: 0.55,
       orbitRadius: 1.75,
-      cartoucheScale: 0.85,
+      cartoucheScale: 1.0,
       cameraZ: 4.9,
       isCompact: true,
+      layout: 'stack',
     };
   }
   if (width < 1024) {
@@ -48,6 +53,7 @@ function computeScale(width: number, height: number): ViewportScale {
       cartoucheScale: 0.9,
       cameraZ: 4.7,
       isCompact: false,
+      layout: 'orbit',
     };
   }
   if (width < 1280) {
@@ -57,6 +63,7 @@ function computeScale(width: number, height: number): ViewportScale {
       cartoucheScale: 0.92,
       cameraZ: 4.7,
       isCompact: false,
+      layout: 'orbit',
     };
   }
   return DEFAULT_SCALE;
