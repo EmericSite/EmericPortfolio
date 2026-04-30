@@ -9,30 +9,39 @@ type Nav = Navigator & {
   userAgentData?: { platform?: string };
 };
 
-function probeWebGLRenderer(): { renderer: string; isWeakGPU: boolean } {
-  if (typeof document === 'undefined') return { renderer: '', isWeakGPU: false };
+function probeWebGLRenderer(): {
+  renderer: string;
+  isWeakGPU: boolean;
+  isSoftware: boolean;
+} {
+  if (typeof document === 'undefined')
+    return { renderer: '', isWeakGPU: false, isSoftware: false };
   try {
     const canvas = document.createElement('canvas');
     const gl =
       canvas.getContext('webgl2') || canvas.getContext('webgl');
-    if (!gl) return { renderer: '', isWeakGPU: true };
+    if (!gl) return { renderer: '', isWeakGPU: true, isSoftware: true };
     const dbg = gl.getExtension('WEBGL_debug_renderer_info');
     const renderer =
       (dbg && (gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) as string)) || '';
     const r = renderer.toLowerCase();
+    const isSoftware =
+      r.includes('microsoft basic render') ||
+      r.includes('swiftshader') ||
+      r.includes('llvmpipe') ||
+      r.includes('software') ||
+      r.includes('vmware') ||
+      r.includes('warp');
     const isWeakGPU =
+      isSoftware ||
       r.includes('intel') ||
       r.includes('uhd') ||
       r.includes('iris') ||
       r.includes('hd graphics') ||
-      r.includes('swiftshader') ||
-      r.includes('llvmpipe') ||
-      r.includes('vmware') ||
-      r.includes('mesa') ||
-      r.includes('microsoft basic render');
-    return { renderer, isWeakGPU };
+      r.includes('mesa');
+    return { renderer, isWeakGPU, isSoftware };
   } catch {
-    return { renderer: '', isWeakGPU: false };
+    return { renderer: '', isWeakGPU: false, isSoftware: false };
   }
 }
 
@@ -54,7 +63,12 @@ function detectTier(): PerfTier {
     return 'B';
   }
 
-  const { isWeakGPU } = probeWebGLRenderer();
+  const { isWeakGPU, isSoftware } = probeWebGLRenderer();
+
+  // Software renderer (Microsoft Basic Render Driver, SwiftShader, LLVMpipe,
+  // WARP) means the browser fell back to CPU rendering — WebGL won't run at
+  // any usable framerate. Force tier C so we render the 2D fallback hub.
+  if (isSoftware) return 'C';
 
   // Weak GPU (Intel UHD/Iris, Mesa, virtual) caps at tier B regardless of CPU.
   if (isWeakGPU) return 'B';
@@ -94,4 +108,8 @@ export function getDetectedTier(): PerfTier {
 
 export function getGPURenderer(): string {
   return probeWebGLRenderer().renderer;
+}
+
+export function isSoftwareRenderer(): boolean {
+  return probeWebGLRenderer().isSoftware;
 }
