@@ -79,7 +79,7 @@ body {
   display: flex;
   flex-shrink: 0;
   animation-name: marquee-scroll;
-  animation-duration: 240s;
+  animation-duration: 600s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   animation-direction: normal;
