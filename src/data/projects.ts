@@ -78,7 +78,7 @@ export const projects: Project[] = [
     shortTitle: 'Come, Torment',
     year: '2024',
     tag: 'Personnel · Dark',
-    accent: '#E8E6EC',
+    accent: '#FF2A2A',
     blurb:
       'Registre dark fantasy. Volumes lourds, lumière dure, tension contenue.',
     description:
