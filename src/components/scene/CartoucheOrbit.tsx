@@ -1,8 +1,8 @@
 'use client';
 
 import { useFrame } from '@react-three/fiber';
-import { Float, RoundedBox, Text, useTexture } from '@react-three/drei';
-import { useEffect, useRef } from 'react';
+import { Float, Html, RoundedBox, Text, useTexture } from '@react-three/drei';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type {
   Group,
@@ -188,6 +188,9 @@ function Cartouche({
 
   const setHovered = useHubStore((s) => s.setHovered);
   const setActive = useHubStore((s) => s.setActive);
+  const startVideo = useHubStore((s) => s.startVideo);
+  const isActive = useHubStore((s) => s.activeId === project.id);
+  const videoStarted = useHubStore((s) => s.videoStarted);
 
   const angleOffset = (index / total) * Math.PI * 2;
   const orbitTarget = useRef(new THREE.Vector3());
@@ -538,6 +541,35 @@ function Cartouche({
             />
           </mesh>
         </group>
+        {isActive && !videoStarted && (
+          <Html
+            position={[0, 0, 0.12]}
+            center
+            zIndexRange={[100, 0]}
+            style={{ pointerEvents: 'auto' }}
+          >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                startVideo();
+              }}
+              aria-label={`Lire ${project.title}`}
+              className="group flex h-20 w-20 items-center justify-center rounded-full border border-chrome/40 bg-ink/55 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-ink/80 hover:border-chrome/80"
+              style={{ boxShadow: `0 0 32px -6px ${project.accent}` }}
+            >
+              <span
+                className="ml-1 text-2xl"
+                style={{
+                  color: project.accent,
+                  textShadow: `0 0 18px ${project.accent}`,
+                }}
+              >
+                ▶
+              </span>
+            </button>
+          </Html>
+        )}
       </Float>
     </group>
   );

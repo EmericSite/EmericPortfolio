@@ -4,24 +4,21 @@ import { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useHubStore } from '@/store/hub';
 import { projects } from '@/data/projects';
-import ProjectVideoPlayer from '@/components/ProjectVideoPlayer';
 import { useFocusTrap } from '@/lib/useFocusTrap';
 
 const TOTAL = projects.length;
 const pad2 = (n: number) => n.toString().padStart(2, '0');
 
 export default function HubOverlay() {
-  const { mode, activeId, scrollIndex, videoStarted, setMode, scrollNext, scrollPrev, startVideo } =
+  const { mode, activeId, scrollIndex, setMode, scrollNext, scrollPrev } =
     useHubStore(
       useShallow((s) => ({
         mode: s.mode,
         activeId: s.activeId,
         scrollIndex: s.scrollIndex,
-        videoStarted: s.videoStarted,
         setMode: s.setMode,
         scrollNext: s.scrollNext,
         scrollPrev: s.scrollPrev,
-        startVideo: s.startVideo,
       }))
     );
 
@@ -88,67 +85,6 @@ export default function HubOverlay() {
         </div>
       </div>
 
-      {/* Center play overlay — sits over the active cartouche */}
-      <div
-        className={`pointer-events-none absolute inset-0 z-15 hidden md:flex items-center justify-end pr-[480px] transition-opacity duration-500 ${
-          active && !videoStarted ? 'opacity-100' : 'opacity-0'
-        }`}
-        aria-hidden={!active}
-      >
-        <button
-          type="button"
-          onClick={startVideo}
-          aria-label={active ? `Lire ${active.title}` : 'Lire le projet'}
-          tabIndex={active ? 0 : -1}
-          className={`pointer-events-auto group flex h-20 w-20 items-center justify-center rounded-full border border-chrome/40 bg-ink/50 backdrop-blur transition-all duration-300 hover:scale-110 hover:bg-ink/80 ${
-            active ? 'hover:border-cyanglitch' : ''
-          }`}
-          style={{
-            boxShadow: active
-              ? `0 0 32px -8px ${active.accent}`
-              : undefined,
-          }}
-        >
-          <span
-            className="ml-1 text-2xl"
-            style={{
-              color: active?.accent ?? '#fff',
-              textShadow: active ? `0 0 18px ${active.accent}` : undefined,
-            }}
-          >
-            ▶
-          </span>
-        </button>
-      </div>
-
-      {/* Mobile play overlay — positioned above the panel transition */}
-      <div
-        className={`pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 z-15 flex md:hidden justify-center transition-opacity duration-500 ${
-          active && !videoStarted ? 'opacity-100' : 'opacity-0'
-        }`}
-        aria-hidden
-      >
-        <button
-          type="button"
-          onClick={startVideo}
-          aria-label={active ? `Lire ${active.title}` : 'Lire le projet'}
-          tabIndex={-1}
-          className="pointer-events-auto flex h-16 w-16 items-center justify-center rounded-full border border-chrome/40 bg-ink/60 backdrop-blur transition-all duration-300 hover:scale-110"
-          style={{
-            boxShadow: active
-              ? `0 0 28px -8px ${active.accent}`
-              : undefined,
-          }}
-        >
-          <span
-            className="ml-0.5 text-xl"
-            style={{ color: active?.accent ?? '#fff' }}
-          >
-            ▶
-          </span>
-        </button>
-      </div>
-
       {/* Project full content (when active) */}
       <div
         ref={projectPanelRef}
@@ -196,10 +132,6 @@ export default function HubOverlay() {
             </div>
 
             <div className="px-6 md:px-12 pt-8 pb-24 md:pb-32">
-              <div className="mb-8">
-                <ProjectVideoPlayer project={active} />
-              </div>
-
               <div className="flex items-center gap-3 mb-6 font-mono text-[10px] uppercase tracking-[0.25em] text-mist">
                 <span>{active.year}</span>
                 <span className="text-mist/40">·</span>
