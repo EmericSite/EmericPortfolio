@@ -7,6 +7,7 @@ import Loader from '@/components/Loader';
 import ScrollNav from '@/components/ScrollNav';
 import AccessibleProjectList from '@/components/AccessibleProjectList';
 import MarqueeBackground from '@/components/MarqueeBackground';
+import PerfDebug from '@/components/PerfDebug';
 
 export default function Home() {
   return (
@@ -26,6 +27,7 @@ export default function Home() {
       <ContactPanel />
       <ScrollNav />
       <AccessibleProjectList />
+      <PerfDebug />
 
       <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-12 pointer-events-none">
         <div className="max-w-3xl animate-fade-up">

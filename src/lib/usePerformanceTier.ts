@@ -84,6 +84,14 @@ export function usePerformanceTier(): PerfTier {
 export const tierBudget = {
   S: { dpr: [1, 1.75] as [number, number], postFX: 'full', fireflies: 1, sparkles: 1, hoverFX: true },
   A: { dpr: [1, 1.25] as [number, number], postFX: 'reduced', fireflies: 0.55, sparkles: 0.6, hoverFX: true },
-  B: { dpr: [0.75, 1] as [number, number], postFX: 'minimal', fireflies: 0.25, sparkles: 0.3, hoverFX: false },
-  C: { dpr: [0.5, 0.9] as [number, number], postFX: 'off', fireflies: 0, sparkles: 0.15, hoverFX: false },
+  B: { dpr: [0.75, 1] as [number, number], postFX: 'off', fireflies: 0, sparkles: 0.15, hoverFX: false },
+  C: { dpr: [0.5, 0.85] as [number, number], postFX: 'off', fireflies: 0, sparkles: 0, hoverFX: false },
 } as const;
+
+export function getDetectedTier(): PerfTier {
+  return detectTier();
+}
+
+export function getGPURenderer(): string {
+  return probeWebGLRenderer().renderer;
+}
