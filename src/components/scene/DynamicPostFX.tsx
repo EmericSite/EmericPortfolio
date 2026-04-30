@@ -156,14 +156,13 @@ export default function DynamicPostFX() {
   }
 
   return (
-    <EffectComposer>
+    <EffectComposer multisampling={0} stencilBuffer={false}>
       <Bloom
         ref={bloomRef as React.Ref<BloomLike>}
-        intensity={0.75}
-        luminanceThreshold={0.55}
+        intensity={0.7}
+        luminanceThreshold={0.6}
         luminanceSmoothing={0.3}
-        kernelSize={KernelSize.MEDIUM}
-        mipmapBlur
+        kernelSize={KernelSize.SMALL}
       />
       <ChromaticAberration
         ref={caRef as React.Ref<CALike>}
