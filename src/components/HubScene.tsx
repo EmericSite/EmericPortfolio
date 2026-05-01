@@ -182,12 +182,7 @@ function RevealDisk() {
   });
 
   return (
-    <mesh
-      ref={meshRef}
-      position={[0, 0, 0.005]}
-      visible={visible}
-      raycast={() => null}
-    >
+    <mesh ref={meshRef} position={[0, 0, 0.005]} visible={visible}>
       <circleGeometry args={[1.74, 128]} />
       <shaderMaterial
         ref={matRef}
@@ -274,7 +269,7 @@ function ShowreelPlayButton() {
             openShowreel();
           }}
           aria-label="Lire le showreel 2025"
-          className="play-breathe relative flex h-24 w-24 items-center justify-center rounded-full border border-chrome/50 transition-all duration-300 hover:scale-110 hover:border-chrome/90"
+          className="play-breathe relative flex h-24 w-24 items-center justify-center rounded-full border border-chrome/50 bg-ink/45 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-ink/75 hover:border-chrome/90"
           style={{ boxShadow: '0 0 36px -6px #F4D8E2' }}
         >
           <span
