@@ -280,7 +280,6 @@ function LogoDisk() {
     tex.colorSpace = THREE.SRGBColorSpace;
     if (matRef.current) {
       matRef.current.map = tex;
-      matRef.current.emissiveMap = tex;
       matRef.current.onBeforeCompile = (shader) => {
         shader.fragmentShader = shader.fragmentShader.replace(
           '#include <map_fragment>',
@@ -313,8 +312,6 @@ function LogoDisk() {
       <meshPhysicalMaterial
         ref={matRef}
         color="#ffffff"
-        emissive="#ffffff"
-        emissiveIntensity={1.4}
         metalness={0.15}
         roughness={0.55}
         clearcoat={0.6}
