@@ -188,6 +188,11 @@ function RevealDisk() {
           uniform float uRadius;
           uniform float uTime;
           void main() {
+            // CRITICAL: discard everything when radius is effectively zero.
+            // smoothstep(0, 0, x) is undefined in GLSL (div by zero in the
+            // edge1 - edge0 term) and was leaking the full texture over
+            // the logo at rest.
+            if (uRadius < 0.005) discard;
             vec2 toMouse = vUv - uMouse;
             float d = length(toMouse);
             float angle = atan(toMouse.y, toMouse.x);
@@ -198,7 +203,7 @@ function RevealDisk() {
               sin(angle * 9.0 + uTime * 1.1) * 0.04;
             // Slow breathe on overall radius too
             float breathe = sin(uTime * 0.55) * 0.04;
-            float r = uRadius * (1.0 + wobble + breathe);
+            float r = max(uRadius * (1.0 + wobble + breathe), 0.001);
             float mask = 1.0 - smoothstep(r * 0.62, r, d);
             if (mask < 0.001) discard;
             // Constrain to disk
