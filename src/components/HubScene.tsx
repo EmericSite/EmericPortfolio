@@ -102,16 +102,53 @@ function InnerRing() {
 }
 
 function RevealDisk() {
+  const meshRef = useRef<Mesh>(null);
   const matRef = useRef<ShaderMaterial>(null);
   const tex = useTexture('/showreel-still.webp');
   const target = useRef({ mouseX: 0.5, mouseY: 0.5, radius: 0 });
   const mode = useHubStore((s) => s.mode);
   const visible = mode === 'hub' || mode === 'hover';
+  const { raycaster, camera, gl } = useThree();
 
   useEffect(() => {
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = 16;
   }, [tex]);
+
+  // Track the pointer globally so HTML overlays (showreel play button,
+  // panels, navbar) don't swallow the mousemove and freeze the reveal.
+  useEffect(() => {
+    if (!visible) {
+      target.current.radius = 0;
+      return;
+    }
+    const ndc = new THREE.Vector2();
+    const onMove = (e: PointerEvent) => {
+      const canvas = gl.domElement;
+      const rect = canvas.getBoundingClientRect();
+      ndc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      ndc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(ndc, camera);
+      if (!meshRef.current) return;
+      const hits = raycaster.intersectObject(meshRef.current, false);
+      if (hits.length > 0 && hits[0].uv) {
+        target.current.mouseX = hits[0].uv.x;
+        target.current.mouseY = hits[0].uv.y;
+        target.current.radius = 0.28;
+      } else {
+        target.current.radius = 0;
+      }
+    };
+    const onLeave = () => {
+      target.current.radius = 0;
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerleave', onLeave);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerleave', onLeave);
+    };
+  }, [visible, gl, raycaster, camera]);
 
   const uniforms = useMemo(
     () => ({
@@ -146,26 +183,10 @@ function RevealDisk() {
 
   return (
     <mesh
+      ref={meshRef}
       position={[0, 0, 0.005]}
       visible={visible}
-      onPointerMove={(e) => {
-        if (!visible) return;
-        e.stopPropagation();
-        if (e.uv) {
-          target.current.mouseX = e.uv.x;
-          target.current.mouseY = e.uv.y;
-          target.current.radius = 0.28;
-        }
-      }}
-      onPointerOver={(e) => {
-        if (!visible) return;
-        e.stopPropagation();
-        target.current.radius = 0.28;
-      }}
-      onPointerOut={(e) => {
-        e.stopPropagation();
-        target.current.radius = 0;
-      }}
+      raycast={() => null}
     >
       <circleGeometry args={[1.74, 128]} />
       <shaderMaterial
