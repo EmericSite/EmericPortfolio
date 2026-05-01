@@ -118,11 +118,12 @@ function RevealDisk() {
       uTexture: { value: tex },
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uRadius: { value: 0 },
+      uTime: { value: 0 },
     }),
     [tex],
   );
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     if (!matRef.current) return;
     const u = matRef.current.uniforms;
     u.uMouse.value.x = THREE.MathUtils.lerp(
@@ -140,6 +141,7 @@ function RevealDisk() {
       target.current.radius,
       0.1,
     );
+    u.uTime.value = clock.elapsedTime;
   });
 
   return (
@@ -152,13 +154,13 @@ function RevealDisk() {
         if (e.uv) {
           target.current.mouseX = e.uv.x;
           target.current.mouseY = e.uv.y;
-          target.current.radius = 0.2;
+          target.current.radius = 0.28;
         }
       }}
       onPointerOver={(e) => {
         if (!visible) return;
         e.stopPropagation();
-        target.current.radius = 0.2;
+        target.current.radius = 0.28;
       }}
       onPointerOut={(e) => {
         e.stopPropagation();
@@ -184,9 +186,20 @@ function RevealDisk() {
           uniform sampler2D uTexture;
           uniform vec2 uMouse;
           uniform float uRadius;
+          uniform float uTime;
           void main() {
-            float d = distance(vUv, uMouse);
-            float mask = 1.0 - smoothstep(uRadius * 0.78, uRadius, d);
+            vec2 toMouse = vUv - uMouse;
+            float d = length(toMouse);
+            float angle = atan(toMouse.y, toMouse.x);
+            // Organic radius wobble — three desynced harmonics
+            float wobble =
+              sin(angle * 5.0 + uTime * 0.7) * 0.13 +
+              sin(angle * 3.0 - uTime * 0.43) * 0.085 +
+              sin(angle * 9.0 + uTime * 1.1) * 0.04;
+            // Slow breathe on overall radius too
+            float breathe = sin(uTime * 0.55) * 0.04;
+            float r = uRadius * (1.0 + wobble + breathe);
+            float mask = 1.0 - smoothstep(r * 0.62, r, d);
             if (mask < 0.001) discard;
             // Constrain to disk
             float disk = 1.0 - smoothstep(0.495, 0.5, distance(vUv, vec2(0.5)));
@@ -207,7 +220,9 @@ function ShowreelPlayButton() {
   return (
     <Html
       position={[0, 0, 0.05]}
+      transform
       center
+      scale={0.32}
       zIndexRange={[100, 0]}
       style={{ pointerEvents: 'auto' }}
     >
@@ -294,12 +309,12 @@ function LogoDisk() {
         ref={matRef}
         color="#ffffff"
         emissive="#ffffff"
-        emissiveIntensity={0.35}
-        metalness={0.2}
-        roughness={0.45}
-        clearcoat={1}
-        clearcoatRoughness={0.1}
-        envMapIntensity={0.9}
+        emissiveIntensity={0.65}
+        metalness={0}
+        roughness={0.7}
+        clearcoat={0.4}
+        clearcoatRoughness={0.25}
+        envMapIntensity={0.35}
         transparent
         toneMapped={false}
       />
@@ -447,12 +462,12 @@ export default function HubScene({
     >
       <fog attach="fog" args={['#08070C', 3.6, 11]} />
 
-      <ambientLight intensity={0.2} color="#F4D8E2" />
-      <pointLight position={[5, 4, 5]} intensity={2} color="#FF2D9C" />
-      <pointLight position={[-5, -2, 3]} intensity={0.55} color="#00F0FF" />
-      <pointLight position={[0, 6, -4]} intensity={1.3} color="#F4D8E2" />
-      <pointLight position={[0, -3, 4]} intensity={0.5} color="#E8E6EC" />
-      <pointLight position={[2.5, 0, 3]} intensity={0.65} color="#FFB6CB" />
+      <ambientLight intensity={0.25} color="#F4D8E2" />
+      <pointLight position={[5, 4, 5]} intensity={1.4} color="#FF2D9C" />
+      <pointLight position={[-5, -2, 3]} intensity={0.45} color="#00F0FF" />
+      <pointLight position={[0, 6, -4]} intensity={1.0} color="#F4D8E2" />
+      <pointLight position={[0, -3, 4]} intensity={0.4} color="#E8E6EC" />
+      <pointLight position={[2.5, 0, 3]} intensity={0.5} color="#FFB6CB" />
 
       <Suspense fallback={null}>
         <Relic />
