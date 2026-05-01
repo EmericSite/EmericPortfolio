@@ -1,3 +1,7 @@
+export type GalleryItem =
+  | { type: 'image'; src: string; alt?: string }
+  | { type: 'video'; src: string; poster?: string };
+
 export type Project = {
   id: string;
   title: string;
@@ -11,6 +15,7 @@ export type Project = {
   credits: { label: string; value: string }[];
   posterUrl: string;
   vimeoId: string;
+  gallery?: GalleryItem[];
 };
 
 export const projects: Project[] = [
@@ -33,6 +38,17 @@ export const projects: Project[] = [
     ],
     posterUrl: '/posters/gentle-mates.webp',
     vimeoId: '1170721004',
+    gallery: [
+      { type: 'video', src: '/projects/gentle-mates/g01.mp4' },
+      { type: 'image', src: '/projects/gentle-mates/s01.webp' },
+      { type: 'image', src: '/projects/gentle-mates/s03.webp' },
+      { type: 'video', src: '/projects/gentle-mates/g02.mp4' },
+      { type: 'image', src: '/projects/gentle-mates/s05.webp' },
+      { type: 'image', src: '/projects/gentle-mates/s06.webp' },
+      { type: 'video', src: '/projects/gentle-mates/g03.mp4' },
+      { type: 'image', src: '/projects/gentle-mates/s04.webp' },
+      { type: 'video', src: '/projects/gentle-mates/g04.mp4' },
+    ],
   },
   {
     id: 'dofus',
@@ -52,6 +68,16 @@ export const projects: Project[] = [
     ],
     posterUrl: '/posters/dofus.webp',
     vimeoId: '1169640652',
+    gallery: [
+      { type: 'image', src: '/projects/dofus/s01.webp' },
+      { type: 'image', src: '/projects/dofus/s02.webp' },
+      { type: 'image', src: '/projects/dofus/s03.webp' },
+      { type: 'image', src: '/projects/dofus/s04.webp' },
+      { type: 'image', src: '/projects/dofus/s05.webp' },
+      { type: 'image', src: '/projects/dofus/s06.webp' },
+      { type: 'image', src: '/projects/dofus/s07.webp' },
+      { type: 'image', src: '/projects/dofus/s08.webp' },
+    ],
   },
   {
     id: 'douce-melancolie',
@@ -71,6 +97,16 @@ export const projects: Project[] = [
     ],
     posterUrl: '/posters/douce-melancolie.webp',
     vimeoId: '1168061777',
+    gallery: [
+      { type: 'image', src: '/projects/douce-melancolie/s01.webp' },
+      { type: 'image', src: '/projects/douce-melancolie/s02.webp' },
+      { type: 'image', src: '/projects/douce-melancolie/s03.webp' },
+      { type: 'image', src: '/projects/douce-melancolie/s04.webp' },
+      { type: 'image', src: '/projects/douce-melancolie/s05.webp' },
+      { type: 'image', src: '/projects/douce-melancolie/s06.webp' },
+      { type: 'image', src: '/projects/douce-melancolie/s07.webp' },
+      { type: 'image', src: '/projects/douce-melancolie/s08.webp' },
+    ],
   },
   {
     id: 'come-torment',
@@ -90,5 +126,15 @@ export const projects: Project[] = [
     ],
     posterUrl: '/posters/come-torment.webp',
     vimeoId: '932641794',
+    gallery: [
+      { type: 'image', src: '/projects/come-torment/s01.webp' },
+      { type: 'image', src: '/projects/come-torment/s02.webp' },
+      { type: 'image', src: '/projects/come-torment/s03.webp' },
+      { type: 'image', src: '/projects/come-torment/s04.webp' },
+      { type: 'image', src: '/projects/come-torment/s05.webp' },
+      { type: 'image', src: '/projects/come-torment/s06.webp' },
+      { type: 'image', src: '/projects/come-torment/s07.webp' },
+      { type: 'image', src: '/projects/come-torment/s08.webp' },
+    ],
   },
 ];

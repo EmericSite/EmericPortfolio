@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useShallow } from 'zustand/react/shallow';
 import { useHubStore } from '@/store/hub';
 import { projects } from '@/data/projects';
@@ -117,6 +118,48 @@ export default function HubOverlay() {
               <p className="text-mist leading-relaxed mb-10">
                 {active.description}
               </p>
+
+              {active.gallery && active.gallery.length > 0 && (
+                <>
+                  <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-4 flex items-center justify-between">
+                    <span>Galerie</span>
+                    <span className="text-mist/50">
+                      {String(active.gallery.length).padStart(2, '0')} pièces
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mb-12">
+                    {active.gallery.map((item, i) =>
+                      item.type === 'video' ? (
+                        <video
+                          key={i}
+                          src={item.src}
+                          poster={item.poster}
+                          className="col-span-2 w-full rounded-sm border border-fog/60 bg-ink"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          preload="metadata"
+                          aria-hidden
+                        />
+                      ) : (
+                        <div
+                          key={i}
+                          className="relative aspect-square overflow-hidden rounded-sm border border-fog/60 bg-ink"
+                        >
+                          <Image
+                            src={item.src}
+                            alt={item.alt ?? ''}
+                            fill
+                            sizes="(max-width: 768px) 45vw, 220px"
+                            className="object-cover transition-transform duration-700 hover:scale-[1.04]"
+                          />
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </>
+              )}
 
               <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-4">
                 Crédits
