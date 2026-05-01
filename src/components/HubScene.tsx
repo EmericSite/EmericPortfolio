@@ -309,12 +309,12 @@ function LogoDisk() {
         ref={matRef}
         color="#ffffff"
         emissive="#ffffff"
-        emissiveIntensity={0.65}
-        metalness={0}
-        roughness={0.7}
-        clearcoat={0.4}
-        clearcoatRoughness={0.25}
-        envMapIntensity={0.35}
+        emissiveIntensity={1.4}
+        metalness={0.15}
+        roughness={0.55}
+        clearcoat={0.6}
+        clearcoatRoughness={0.18}
+        envMapIntensity={0.7}
         transparent
         toneMapped={false}
       />
@@ -462,12 +462,12 @@ export default function HubScene({
     >
       <fog attach="fog" args={['#08070C', 3.6, 11]} />
 
-      <ambientLight intensity={0.25} color="#F4D8E2" />
-      <pointLight position={[5, 4, 5]} intensity={1.4} color="#FF2D9C" />
-      <pointLight position={[-5, -2, 3]} intensity={0.45} color="#00F0FF" />
-      <pointLight position={[0, 6, -4]} intensity={1.0} color="#F4D8E2" />
-      <pointLight position={[0, -3, 4]} intensity={0.4} color="#E8E6EC" />
-      <pointLight position={[2.5, 0, 3]} intensity={0.5} color="#FFB6CB" />
+      <ambientLight intensity={0.45} color="#F4D8E2" />
+      <pointLight position={[5, 4, 5]} intensity={1.6} color="#FF2D9C" />
+      <pointLight position={[-5, -2, 3]} intensity={0.5} color="#00F0FF" />
+      <pointLight position={[0, 6, -4]} intensity={1.2} color="#F4D8E2" />
+      <pointLight position={[0, -3, 4]} intensity={0.45} color="#E8E6EC" />
+      <pointLight position={[2.5, 0, 3]} intensity={0.6} color="#FFB6CB" />
 
       <Suspense fallback={null}>
         <Relic />
