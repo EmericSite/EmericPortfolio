@@ -153,9 +153,9 @@ export default function AboutPanel() {
           </div>
         </div>
 
-        {/* STATS — oversized editorial */}
+        {/* INDEX — vertical colophon */}
         <div className="mb-14 md:mb-16">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-cyanglitch">
               ⎯ Index
             </span>
@@ -163,21 +163,26 @@ export default function AboutPanel() {
               2024 / 2026
             </span>
           </div>
-          <div className="grid grid-cols-3 border-t border-b border-fog/60 divide-x divide-fog/40">
+          <dl className="border-t border-fog/60">
             {STATS.map((s) => (
-              <div key={s.idx} className="relative px-3 py-5 md:py-6">
-                <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-magentaglitch mb-3">
-                  {s.idx}
-                </div>
-                <div className="font-display text-5xl md:text-6xl text-chrome leading-none mb-3 tabular-nums">
-                  {s.value}
-                </div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-mist/80 whitespace-pre-line leading-[1.6]">
+              <div
+                key={s.idx}
+                className="group flex items-baseline justify-between gap-6 py-5 border-b border-fog/40 transition-colors hover:bg-fog/5"
+              >
+                <dt className="flex items-baseline gap-4 min-w-0">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-magentaglitch">
+                    {s.idx}
+                  </span>
+                  <span className="font-display text-5xl md:text-6xl text-chrome leading-none tabular-nums transition-colors group-hover:text-pearl">
+                    {s.value}
+                  </span>
+                </dt>
+                <dd className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist text-right whitespace-pre-line leading-relaxed">
                   {s.label}
-                </div>
+                </dd>
               </div>
             ))}
-          </div>
+          </dl>
         </div>
 
         {/* CLIENTS — editorial table */}
