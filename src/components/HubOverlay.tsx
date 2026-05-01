@@ -10,17 +10,13 @@ const TOTAL = projects.length;
 const pad2 = (n: number) => n.toString().padStart(2, '0');
 
 export default function HubOverlay() {
-  const { mode, activeId, scrollIndex, setMode, scrollNext, scrollPrev } =
-    useHubStore(
-      useShallow((s) => ({
-        mode: s.mode,
-        activeId: s.activeId,
-        scrollIndex: s.scrollIndex,
-        setMode: s.setMode,
-        scrollNext: s.scrollNext,
-        scrollPrev: s.scrollPrev,
-      }))
-    );
+  const { activeId, scrollIndex, setMode } = useHubStore(
+    useShallow((s) => ({
+      activeId: s.activeId,
+      scrollIndex: s.scrollIndex,
+      setMode: s.setMode,
+    })),
+  );
 
   const active = activeId
     ? projects.find((p) => p.id === activeId) ?? null
@@ -50,34 +46,6 @@ export default function HubOverlay() {
 
   return (
     <>
-      {/* Bottom-right: project counter + scroll nav */}
-      <div
-        className={`absolute bottom-4 right-4 md:bottom-12 md:right-12 z-20 transition-opacity duration-500 ${
-          mode === 'about' || mode === 'contact'
-            ? 'opacity-0 pointer-events-none'
-            : 'opacity-100'
-        }`}
-      >
-        <div className="flex items-center gap-2 border border-fog rounded-full bg-ink/40 backdrop-blur p-1 pointer-events-auto">
-          <button
-            type="button"
-            onClick={scrollPrev}
-            aria-label="Projet précédent"
-            className="h-8 w-8 flex items-center justify-center rounded-full text-mist hover:text-cyanglitch hover:bg-fog/40 transition-colors"
-          >
-            <span className="font-mono text-xs">↑</span>
-          </button>
-          <button
-            type="button"
-            onClick={scrollNext}
-            aria-label="Projet suivant"
-            className="h-8 w-8 flex items-center justify-center rounded-full text-mist hover:text-cyanglitch hover:bg-fog/40 transition-colors"
-          >
-            <span className="font-mono text-xs">↓</span>
-          </button>
-        </div>
-      </div>
-
       {/* Project full content (when active) */}
       <div
         ref={projectPanelRef}
