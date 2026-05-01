@@ -6,16 +6,18 @@ import {
   AdaptiveEvents,
   Environment,
   Float,
+  Html,
   Sparkles,
   useTexture,
 } from '@react-three/drei';
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type {
   Mesh,
   Group,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  ShaderMaterial,
 } from 'three';
 import CartoucheOrbit from './scene/CartoucheOrbit';
 import CameraRig from './scene/CameraRig';
@@ -96,6 +98,156 @@ function InnerRing() {
         envMapIntensity={2.4}
       />
     </mesh>
+  );
+}
+
+function RevealDisk() {
+  const matRef = useRef<ShaderMaterial>(null);
+  const tex = useTexture('/showreel-still.webp');
+  const target = useRef({ mouseX: 0.5, mouseY: 0.5, radius: 0 });
+  const mode = useHubStore((s) => s.mode);
+  const visible = mode === 'hub' || mode === 'hover';
+
+  useEffect(() => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 16;
+  }, [tex]);
+
+  const uniforms = useMemo(
+    () => ({
+      uTexture: { value: tex },
+      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+      uRadius: { value: 0 },
+    }),
+    [tex],
+  );
+
+  useFrame(() => {
+    if (!matRef.current) return;
+    const u = matRef.current.uniforms;
+    u.uMouse.value.x = THREE.MathUtils.lerp(
+      u.uMouse.value.x,
+      target.current.mouseX,
+      0.18,
+    );
+    u.uMouse.value.y = THREE.MathUtils.lerp(
+      u.uMouse.value.y,
+      target.current.mouseY,
+      0.18,
+    );
+    u.uRadius.value = THREE.MathUtils.lerp(
+      u.uRadius.value,
+      target.current.radius,
+      0.1,
+    );
+  });
+
+  return (
+    <mesh
+      position={[0, 0, 0.005]}
+      visible={visible}
+      onPointerMove={(e) => {
+        if (!visible) return;
+        e.stopPropagation();
+        if (e.uv) {
+          target.current.mouseX = e.uv.x;
+          target.current.mouseY = e.uv.y;
+          target.current.radius = 0.2;
+        }
+      }}
+      onPointerOver={(e) => {
+        if (!visible) return;
+        e.stopPropagation();
+        target.current.radius = 0.2;
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        target.current.radius = 0;
+      }}
+    >
+      <circleGeometry args={[1.74, 128]} />
+      <shaderMaterial
+        ref={matRef}
+        uniforms={uniforms}
+        transparent
+        depthWrite={false}
+        toneMapped={false}
+        vertexShader={/* glsl */ `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `}
+        fragmentShader={/* glsl */ `
+          varying vec2 vUv;
+          uniform sampler2D uTexture;
+          uniform vec2 uMouse;
+          uniform float uRadius;
+          void main() {
+            float d = distance(vUv, uMouse);
+            float mask = 1.0 - smoothstep(uRadius * 0.78, uRadius, d);
+            if (mask < 0.001) discard;
+            // Constrain to disk
+            float disk = 1.0 - smoothstep(0.495, 0.5, distance(vUv, vec2(0.5)));
+            mask *= disk;
+            vec4 col = texture2D(uTexture, vUv);
+            gl_FragColor = vec4(col.rgb, mask);
+          }
+        `}
+      />
+    </mesh>
+  );
+}
+
+function ShowreelPlayButton() {
+  const openShowreel = useHubStore((s) => s.openShowreel);
+  const mode = useHubStore((s) => s.mode);
+  if (mode !== 'hub' && mode !== 'hover') return null;
+  return (
+    <Html
+      position={[0, 0, 0.05]}
+      center
+      zIndexRange={[100, 0]}
+      style={{ pointerEvents: 'auto' }}
+    >
+      <div className="relative flex items-center justify-center">
+        <span
+          className="play-ring absolute inset-0 rounded-full border-2"
+          style={{ borderColor: '#F4D8E2' }}
+          aria-hidden
+        />
+        <span
+          className="play-ring absolute inset-0 rounded-full border"
+          style={{
+            borderColor: '#F4D8E2',
+            animationDelay: '1.2s',
+            opacity: 0.4,
+          }}
+          aria-hidden
+        />
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            openShowreel();
+          }}
+          aria-label="Lire le showreel 2025"
+          className="play-breathe relative flex h-24 w-24 items-center justify-center rounded-full border border-chrome/40 bg-ink/45 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-ink/75 hover:border-chrome/80"
+          style={{ boxShadow: '0 0 36px -6px #F4D8E2' }}
+        >
+          <span
+            className="ml-1 text-3xl"
+            style={{ color: '#F4D8E2', textShadow: '0 0 22px #F4D8E2' }}
+          >
+            ▶
+          </span>
+          <span className="absolute -bottom-7 font-mono text-[9px] uppercase tracking-[0.3em] text-chrome/80 whitespace-nowrap">
+            showreel 2025
+          </span>
+        </button>
+      </div>
+    </Html>
   );
 }
 
@@ -252,6 +404,8 @@ function Relic() {
           <MidRing />
           <InnerRing />
           <LogoBackplate />
+          <RevealDisk />
+          <ShowreelPlayButton />
           <LogoDisk />
         </Float>
       </group>

@@ -14,6 +14,7 @@ type HubStore = {
   activeId: string | null;
   scrollIndex: number;
   videoStarted: boolean;
+  showreelOpen: boolean;
   setHovered: (id: string | null) => void;
   setActive: (id: string | null) => void;
   setMode: (mode: HubMode) => void;
@@ -22,6 +23,8 @@ type HubStore = {
   scrollPrev: () => void;
   startVideo: () => void;
   stopVideo: () => void;
+  openShowreel: () => void;
+  closeShowreel: () => void;
   reset: () => void;
 };
 
@@ -31,6 +34,7 @@ export const useHubStore = create<HubStore>((set) => ({
   activeId: null,
   scrollIndex: 0,
   videoStarted: false,
+  showreelOpen: false,
   setHovered: (id) =>
     set((s) => {
       if (!inProjectFlow(s.mode)) return {};
@@ -75,6 +79,14 @@ export const useHubStore = create<HubStore>((set) => ({
   scrollPrev: () => set((s) => ({ scrollIndex: wrap(s.scrollIndex - 1) })),
   startVideo: () => set({ videoStarted: true }),
   stopVideo: () => set({ videoStarted: false }),
+  openShowreel: () => set({ showreelOpen: true }),
+  closeShowreel: () => set({ showreelOpen: false }),
   reset: () =>
-    set({ mode: 'hub', hoveredId: null, activeId: null, videoStarted: false }),
+    set({
+      mode: 'hub',
+      hoveredId: null,
+      activeId: null,
+      videoStarted: false,
+      showreelOpen: false,
+    }),
 }));
