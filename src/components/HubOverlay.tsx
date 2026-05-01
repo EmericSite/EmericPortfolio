@@ -58,7 +58,7 @@ export default function HubOverlay() {
             : 'opacity-100'
         }`}
       >
-        <div className="flex items-center gap-4 border border-fog rounded-full bg-ink/40 backdrop-blur px-2 py-2 pointer-events-auto">
+        <div className="flex items-center gap-2 border border-fog rounded-full bg-ink/40 backdrop-blur p-1 pointer-events-auto">
           <button
             type="button"
             onClick={scrollPrev}
@@ -67,10 +67,6 @@ export default function HubOverlay() {
           >
             <span className="font-mono text-xs">↑</span>
           </button>
-          <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-chrome">
-            {pad2(scrollIndex + 1)}{' '}
-            <span className="text-mist/50">/ {pad2(TOTAL)}</span>
-          </div>
           <button
             type="button"
             onClick={scrollNext}
@@ -79,9 +75,6 @@ export default function HubOverlay() {
           >
             <span className="font-mono text-xs">↓</span>
           </button>
-        </div>
-        <div className="hidden md:block font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50 mt-3 text-center">
-          scroll · ← →
         </div>
       </div>
 
