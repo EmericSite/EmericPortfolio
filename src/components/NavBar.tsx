@@ -14,8 +14,9 @@ function NavBar() {
   const mode = useHubStore((s) => s.mode);
   const setMode = useHubStore((s) => s.setMode);
 
-  const activeNav: HubMode =
-    mode === 'hover' || mode === 'project' ? 'hub' : mode;
+  if (mode === 'project') return null;
+
+  const activeNav: HubMode = mode === 'hover' ? 'hub' : mode;
 
   return (
     <header className="absolute top-0 inset-x-0 z-30 flex items-center justify-between p-4 md:px-12 md:py-8 pointer-events-none">

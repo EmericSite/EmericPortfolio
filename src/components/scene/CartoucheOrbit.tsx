@@ -555,11 +555,29 @@ function Cartouche({
                 aria-hidden
               />
               <span
+                className="play-ring absolute inset-0 rounded-full border-2"
+                style={{
+                  borderColor: project.accent,
+                  animationDelay: '0.8s',
+                  opacity: 0.7,
+                }}
+                aria-hidden
+              />
+              <span
                 className="play-ring absolute inset-0 rounded-full border"
                 style={{
                   borderColor: project.accent,
-                  animationDelay: '1.2s',
+                  animationDelay: '1.6s',
                   opacity: 0.4,
+                }}
+                aria-hidden
+              />
+              <span
+                className="absolute inset-0 rounded-full blur-2xl pointer-events-none"
+                style={{
+                  background:
+                    'radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0) 75%)',
+                  transform: 'scale(1.35)',
                 }}
                 aria-hidden
               />
@@ -570,17 +588,26 @@ function Cartouche({
                   startVideo();
                 }}
                 aria-label={`Lire ${project.title}`}
-                className="play-breathe relative flex h-20 w-20 items-center justify-center rounded-full border border-chrome/40 bg-ink/55 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-ink/85 hover:border-chrome/80"
-                style={{ boxShadow: `0 0 32px -6px ${project.accent}` }}
+                className="play-breathe relative flex h-28 w-28 items-center justify-center rounded-full border-2 bg-ink/75 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-ink/90"
+                style={{
+                  borderColor: project.accent,
+                  boxShadow: `0 0 60px -2px rgba(255,255,255,0.35), 0 0 48px -4px ${project.accent}, inset 0 0 24px -12px ${project.accent}`,
+                }}
               >
                 <span
-                  className="ml-1 text-2xl"
+                  className="ml-1.5 text-4xl"
                   style={{
                     color: project.accent,
-                    textShadow: `0 0 18px ${project.accent}`,
+                    textShadow: `0 0 26px ${project.accent}, 0 0 12px ${project.accent}`,
                   }}
                 >
                   ▶
+                </span>
+                <span
+                  className="absolute -bottom-7 font-mono text-[9px] uppercase tracking-[0.3em] whitespace-nowrap"
+                  style={{ color: project.accent, opacity: 0.85 }}
+                >
+                  play
                 </span>
               </button>
             </div>
