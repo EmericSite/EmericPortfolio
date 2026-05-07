@@ -104,7 +104,7 @@ function InnerRing() {
 function RevealDisk() {
   const meshRef = useRef<Mesh>(null);
   const matRef = useRef<ShaderMaterial>(null);
-  const tex = useTexture('/showreel-still.webp');
+  const tex = useTexture('/showreel-reveal.webp');
   const target = useRef({ mouseX: 0.5, mouseY: 0.5, radius: 0 });
   const mode = useHubStore((s) => s.mode);
   const visible = mode === 'hub' || mode === 'hover';
@@ -156,9 +156,17 @@ function RevealDisk() {
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uRadius: { value: 0 },
       uTime: { value: 0 },
+      uAspect: { value: 1 },
     }),
     [tex],
   );
+
+  useEffect(() => {
+    const img = tex.image as { width?: number; height?: number } | undefined;
+    if (img?.width && img?.height && matRef.current) {
+      matRef.current.uniforms.uAspect.value = img.width / img.height;
+    }
+  }, [tex]);
 
   useFrame(({ clock }) => {
     if (!matRef.current) return;
@@ -203,6 +211,7 @@ function RevealDisk() {
           uniform vec2 uMouse;
           uniform float uRadius;
           uniform float uTime;
+          uniform float uAspect;
           void main() {
             // CRITICAL: discard everything when radius is effectively zero.
             // smoothstep(0, 0, x) is undefined in GLSL (div by zero in the
@@ -225,7 +234,10 @@ function RevealDisk() {
             // Constrain to disk
             float disk = 1.0 - smoothstep(0.495, 0.5, distance(vUv, vec2(0.5)));
             mask *= disk;
-            vec4 col = texture2D(uTexture, vUv);
+            // Cover-fit sampling so non-square textures aren't squished
+            vec2 scale = uAspect > 1.0 ? vec2(1.0 / uAspect, 1.0) : vec2(1.0, uAspect);
+            vec2 sampleUv = (vUv - 0.5) * scale + 0.5;
+            vec4 col = texture2D(uTexture, sampleUv);
             gl_FragColor = vec4(col.rgb, mask);
           }
         `}
