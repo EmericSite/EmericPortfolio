@@ -6,6 +6,7 @@ import {
   ChromaticAberration,
   DepthOfField,
   EffectComposer,
+  HueSaturation,
   Vignette,
 } from '@react-three/postprocessing';
 import { type DepthOfFieldEffect, KernelSize } from 'postprocessing';
@@ -19,6 +20,11 @@ type CALike = {
   offset: { x: number; y: number; set: (x: number, y: number) => unknown };
 };
 type DoFLike = { bokehScale: number };
+type HueSatLike = { hue: number; saturation: number };
+
+// Pink glitch tint — peak hue shift (rad, toward magenta) and saturation boost
+const GLITCH_HUE_PEAK = -0.18;
+const GLITCH_SAT_PEAK = 0.22;
 
 const ZERO_OFFSET = new THREE.Vector2(0, 0);
 
@@ -59,6 +65,7 @@ export default function DynamicPostFX() {
   const bloomRef = useRef<BloomLike>(null);
   const caRef = useRef<CALike>(null);
   const dofRef = useRef<DepthOfFieldEffect>(null);
+  const hueSatRef = useRef<HueSatLike>(null);
   const prevMode = useRef<HubMode>('hub');
   const modeChangedAt = useRef(0);
 
@@ -119,6 +126,21 @@ export default function DynamicPostFX() {
         0.06,
       );
     }
+    if (hueSatRef.current) {
+      const env =
+        elapsed < GLITCH_DURATION_MS ? Math.pow(1 - elapsed / GLITCH_DURATION_MS, 3) : 0;
+      const lerp = elapsed < GLITCH_DURATION_MS ? 0.35 : 0.12;
+      hueSatRef.current.hue = THREE.MathUtils.lerp(
+        hueSatRef.current.hue,
+        GLITCH_HUE_PEAK * env,
+        lerp,
+      );
+      hueSatRef.current.saturation = THREE.MathUtils.lerp(
+        hueSatRef.current.saturation,
+        GLITCH_SAT_PEAK * env,
+        lerp,
+      );
+    }
   });
 
   if (postFX === 'off') return null;
@@ -136,6 +158,7 @@ export default function DynamicPostFX() {
         ref={caRef as React.Ref<CALike>}
         offset={ZERO_OFFSET}
       />
+      <HueSaturation ref={hueSatRef as React.Ref<HueSatLike>} hue={0} saturation={0} />
       <DepthOfField
         ref={dofRef}
         focusDistance={0.003}
