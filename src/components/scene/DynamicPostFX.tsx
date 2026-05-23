@@ -3,30 +3,28 @@
 import { useFrame } from '@react-three/fiber';
 import {
   Bloom,
-  ChromaticAberration,
   DepthOfField,
   EffectComposer,
   HueSaturation,
   Vignette,
+  wrapEffect,
 } from '@react-three/postprocessing';
 import { type DepthOfFieldEffect, KernelSize } from 'postprocessing';
 import { useRef } from 'react';
 import * as THREE from 'three';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 import { useHubStore, type HubMode } from '@/store/hub';
+import { TintedGlitchEffect } from './TintedGlitchEffect';
 
 type BloomLike = { intensity: number };
-type CALike = {
-  offset: { x: number; y: number; set: (x: number, y: number) => unknown };
-};
 type DoFLike = { bokehScale: number };
 type HueSatLike = { hue: number; saturation: number };
+
+const TintedGlitch = wrapEffect(TintedGlitchEffect);
 
 // Pink glitch tint — peak hue shift (rad, toward magenta) and saturation boost
 const GLITCH_HUE_PEAK = -0.18;
 const GLITCH_SAT_PEAK = 0.22;
-
-const ZERO_OFFSET = new THREE.Vector2(0, 0);
 
 const BLOOM_BY_MODE: Record<HubMode, number> = {
   hub: 0.7,
@@ -36,9 +34,10 @@ const BLOOM_BY_MODE: Record<HubMode, number> = {
   contact: 0.55,
 };
 
+// Hover glitch slightly toned down — was reading a touch too aggressive.
 const CA_BY_MODE: Record<HubMode, number> = {
   hub: 0,
-  hover: 0.005,
+  hover: 0.0032,
   project: 0.0012,
   about: 0,
   contact: 0,
@@ -63,7 +62,7 @@ export default function DynamicPostFX() {
   const budget = tierBudget[tier];
 
   const bloomRef = useRef<BloomLike>(null);
-  const caRef = useRef<CALike>(null);
+  const glitchRef = useRef<TintedGlitchEffect>(null);
   const dofRef = useRef<DepthOfFieldEffect>(null);
   const hueSatRef = useRef<HueSatLike>(null);
   const prevMode = useRef<HubMode>('hub');
@@ -99,8 +98,8 @@ export default function DynamicPostFX() {
     if (mode === 'hover' && hoverFX) {
       const ct = clock.elapsedTime;
       hoverJitter =
-        Math.abs(Math.sin(ct * 19)) * 0.0015 +
-        (Math.sin(ct * 4.7) > 0.85 ? 0.003 : 0);
+        Math.abs(Math.sin(ct * 19)) * 0.0009 +
+        (Math.sin(ct * 4.7) > 0.85 ? 0.0018 : 0);
     }
     const targetCA = baseCA + glitchAdd + hoverJitter;
 
@@ -111,12 +110,12 @@ export default function DynamicPostFX() {
         0.06,
       );
     }
-    if (caRef.current?.offset) {
-      const cur = caRef.current.offset.x;
+    if (glitchRef.current?.offset) {
+      const cur = glitchRef.current.offset.x;
       // Faster lerp during the spike so the glitch reads instantly
       const lerp = elapsed < GLITCH_DURATION_MS ? 0.35 : 0.06;
       const next = THREE.MathUtils.lerp(cur, targetCA, lerp);
-      caRef.current.offset.set(next, next);
+      glitchRef.current.offset.set(next, next);
     }
     if (dofRef.current) {
       const dof = dofRef.current as unknown as DoFLike;
@@ -154,10 +153,7 @@ export default function DynamicPostFX() {
         luminanceSmoothing={0.3}
         kernelSize={KernelSize.SMALL}
       />
-      <ChromaticAberration
-        ref={caRef as React.Ref<CALike>}
-        offset={ZERO_OFFSET}
-      />
+      <TintedGlitch ref={glitchRef as React.Ref<TintedGlitchEffect>} />
       <HueSaturation ref={hueSatRef as React.Ref<HueSatLike>} hue={0} saturation={0} />
       <DepthOfField
         ref={dofRef}
