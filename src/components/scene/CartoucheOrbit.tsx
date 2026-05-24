@@ -2,7 +2,7 @@
 
 import { useFrame } from '@react-three/fiber';
 import { Float, Html, RoundedBox, Text, useTexture } from '@react-three/drei';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import type {
   Group,
@@ -14,13 +14,65 @@ import type {
 import { projects, type Project } from '@/data/projects';
 import { useHubStore } from '@/store/hub';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import type { CartoucheLayout } from '@/lib/useViewportScale';
 
 const PROJECT_BY_ID = new Map<string, Project>(projects.map((p) => [p.id, p]));
 
-const ORBIT_TILT = 0.4;
+// Flat rounded-rect geometry for the poster face. Built as a 2D shape so the
+// image texture isn't wrapped over any depth, and UVs are remapped to 0-1
+// over the bounding box so cover-fit (texture.repeat/offset) works as expected.
+const POSTER_W = 0.84;
+const POSTER_H = 1.22;
+const POSTER_R = 0.05;
+const POSTER_GEOMETRY = (() => {
+  const w = POSTER_W;
+  const h = POSTER_H;
+  const r = POSTER_R;
+  const s = new THREE.Shape();
+  s.moveTo(-w / 2 + r, -h / 2);
+  s.lineTo(w / 2 - r, -h / 2);
+  s.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+  s.lineTo(w / 2, h / 2 - r);
+  s.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+  s.lineTo(-w / 2 + r, h / 2);
+  s.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+  s.lineTo(-w / 2, -h / 2 + r);
+  s.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+  const geo = new THREE.ShapeGeometry(s, 8);
+  geo.computeBoundingBox();
+  const bbox = geo.boundingBox;
+  if (bbox) {
+    const bw = bbox.max.x - bbox.min.x;
+    const bh = bbox.max.y - bbox.min.y;
+    const pos = geo.attributes.position;
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++) {
+      uv.setXY(
+        i,
+        (pos.getX(i) - bbox.min.x) / bw,
+        (pos.getY(i) - bbox.min.y) / bh,
+      );
+    }
+    uv.needsUpdate = true;
+  }
+  return geo;
+})();
+
+const ORBIT_TILT = 0.42;
 const ORBIT_SPEED = 0.06;
 const ORBIT_CENTER_Z = 0.8;
+// Profondeur couplée à la position horizontale via -cos(angle) : parallaxe
+// symétrique gauche/droite, périodique. Ratio constant du rayon → cohérent à
+// tous les breakpoints. Remplace l'ancien sin(angle*1.4)*0.45 (fréquence non
+// entière, ni périodique ni symétrique → perçu comme aléatoire).
+const ORBIT_DEPTH_RATIO = 0.15;
+// Angle d'or : désynchronise la respiration de chaque carte de façon organique
+// (la répartition angulaire reste équiangulaire — la plus lisible pour un anneau).
+const GOLDEN_ANGLE = 2.399963229728653; // 137.5078° en radians
+// Stack (mobile) : espacement régulier + échelle géométrique (quarte ≈ 1.333).
+const STACK_GAP_X = 0.42;
+const STACK_SCALE_RATIO = 1.333;
 const ACTIVE_TARGET = new THREE.Vector3(-0.7, 0, 1.6);
 const ACTIVE_LOOK = new THREE.Vector3(0, 0, 4.6);
 const LOOK_AT = new THREE.Vector3(0, 0, 1.2);
@@ -175,16 +227,13 @@ function Cartouche({
   const chromeMatRef = useRef<MeshPhysicalMaterial>(null);
   const gemMatRef = useRef<MeshStandardMaterial>(null);
   const cachedMats = useRef<THREE.Material[]>([]);
-  const reducedMotion = useRef(
-    typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
+  const reducedMotion = usePrefersReducedMotion();
 
   // Fly-in: cartouches start far behind the camera (Z negative) and lerp to
   // their orbital position. Each one starts a bit further back than the next
   // so they arrive staggered.
   const FLY_IN_OFFSET_Z = -8 - index * 4;
-  const breathPhase = (index / total) * Math.PI * 2;
+  const breathPhase = index * GOLDEN_ANGLE;
 
   const setHovered = useHubStore((s) => s.setHovered);
   const setActive = useHubStore((s) => s.setActive);
@@ -195,14 +244,40 @@ function Cartouche({
   const angleOffset = (index / total) * Math.PI * 2;
   const orbitTarget = useRef(new THREE.Vector3());
 
-  // Load poster texture and apply imperatively (avoids RSC serialization)
-  const tex = useTexture(project.posterUrl);
+  // Load poster texture. La configuration se fait dans le callback onLoad du
+  // loader (là où la texture est construite) plutôt qu'en mutant la valeur
+  // renvoyée par le hook — ce que la règle react-hooks/immutability interdit.
+  const tex = useTexture(project.posterUrl, (loaded) => {
+    const t = (Array.isArray(loaded) ? loaded[0] : loaded) as THREE.Texture;
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 16;
+
+    // Cover-fit: preserve image aspect ratio, crop center to fill the panel.
+    // Panel face is 0.84 × 1.22 (portrait). Without this, posters with a
+    // different aspect get stretched.
+    const img = t.image as { width?: number; height?: number } | undefined;
+    if (img?.width && img?.height) {
+      const panelAspect = 0.84 / 1.22;
+      const imgAspect = img.width / img.height;
+      if (imgAspect > panelAspect) {
+        const r = panelAspect / imgAspect;
+        t.repeat.set(r, 1);
+        t.offset.set((1 - r) / 2, 0);
+      } else {
+        const r = imgAspect / panelAspect;
+        t.repeat.set(1, r);
+        t.offset.set(0, (1 - r) / 2);
+      }
+    }
+    t.needsUpdate = true;
+  });
+
+  // Affecter la map au matériau (mutation d'un ref three.js — autorisée).
   useEffect(() => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 16;
-    if (accentMatRef.current) {
-      accentMatRef.current.map = tex;
-      accentMatRef.current.needsUpdate = true;
+    const mat = accentMatRef.current;
+    if (mat) {
+      mat.map = tex;
+      mat.needsUpdate = true;
     }
   }, [tex]);
 
@@ -235,8 +310,8 @@ function Cartouche({
     const isDimmed = activeId !== null && !isActive;
     const isOffstage = mode === 'about' || mode === 'contact';
 
-    const positionLerp = reducedMotion.current ? 0.015 : 0.08;
-    const activeLerp = reducedMotion.current ? 0.015 : 0.06;
+    const positionLerp = reducedMotion ? 0.015 : 0.08;
+    const activeLerp = reducedMotion ? 0.015 : 0.06;
 
     // Compute wrapped stack offset (used both for positioning and scaling)
     let stackOffset = index - scrollIndex;
@@ -250,10 +325,12 @@ function Cartouche({
     } else if (layout === 'stack') {
       const sign = stackOffset === 0 ? 0 : Math.sign(stackOffset);
       const abs = Math.abs(stackOffset);
+      // Espacement régulier (GAP_X constant) au lieu de 0.5 + (abs-1)*0.18 qui
+      // créait un premier décalage disproportionné.
       orbitTarget.current.set(
-        sign * (0.5 + (abs - 1) * 0.18),
+        sign * STACK_GAP_X * abs,
         -abs * 0.05,
-        ORBIT_CENTER_Z + (isStackFront ? 0.4 : -0.35 * abs),
+        ORBIT_CENTER_Z + (isStackFront ? 0.4 : -0.28 * abs),
       );
       groupRef.current.position.lerp(orbitTarget.current, positionLerp);
       groupRef.current.lookAt(LOOK_AT);
@@ -262,15 +339,17 @@ function Cartouche({
       orbitTarget.current.set(
         Math.cos(angle) * orbitRadius,
         Math.sin(angle) * orbitRadius * ORBIT_TILT,
-        ORBIT_CENTER_Z + Math.sin(angle * 1.4) * 0.45,
+        ORBIT_CENTER_Z - Math.cos(angle) * orbitRadius * ORBIT_DEPTH_RATIO,
       );
       groupRef.current.position.lerp(orbitTarget.current, positionLerp);
       groupRef.current.lookAt(LOOK_AT);
     }
 
+    // Échelle modulaire : ratio géométrique constant (quarte ≈ 1.333) au lieu
+    // d'une décroissance linéaire — progression de tailles harmonieuse.
     const stackScale = isStackFront
       ? 1.4
-      : Math.max(0.45, 0.85 - Math.abs(stackOffset) * 0.18);
+      : Math.max(0.45, 1.4 / Math.pow(STACK_SCALE_RATIO, Math.abs(stackOffset)));
     const targetScale = isActive
       ? 1.5
       : layout === 'stack'
@@ -278,7 +357,7 @@ function Cartouche({
         : isFocused
           ? 1.18
           : 0.95;
-    const scaleLerp = reducedMotion.current ? 0.015 : 0.08;
+    const scaleLerp = reducedMotion ? 0.015 : 0.08;
     const s = THREE.MathUtils.lerp(
       innerRef.current.scale.x,
       targetScale,
@@ -308,7 +387,7 @@ function Cartouche({
     }
 
     // Breathing pulse on the gem (subtle, desynced per cartouche)
-    if (gemMatRef.current && !reducedMotion.current) {
+    if (gemMatRef.current && !reducedMotion) {
       const base = isFocused || isActive ? 1.9 : 1.4;
       gemMatRef.current.emissiveIntensity =
         base + Math.sin(clock.elapsedTime * 1.4 + breathPhase) * 0.35;
@@ -323,7 +402,7 @@ function Cartouche({
       : isOffstage
         ? 0.4
         : stackFade;
-    const opacityLerp = reducedMotion.current ? 0.015 : 0.08;
+    const opacityLerp = reducedMotion ? 0.015 : 0.08;
     const mats = cachedMats.current;
     for (let i = 0; i < mats.length; i++) {
       const mat = mats[i] as MeshStandardMaterial;
@@ -344,7 +423,7 @@ function Cartouche({
   return (
     <group ref={groupRef} position={[0, 0, FLY_IN_OFFSET_Z]} scale={cartoucheScale}>
       <Float
-        speed={reducedMotion.current ? 0 : 0.85}
+        speed={reducedMotion ? 0 : 0.85}
         rotationIntensity={0.05}
         floatIntensity={0.2}
       >
@@ -417,13 +496,9 @@ function Cartouche({
             </mesh>
           ))}
 
-          {/* Poster panel — accent body with project image as map */}
-          <RoundedBox
-            args={[0.84, 1.22, 0.04]}
-            radius={0.05}
-            smoothness={5}
-            position={[0, 0, 0.01]}
-          >
+          {/* Poster face — flat rounded shape, no side walls to stretch the
+              texture across. Sits just in front of the chrome backplate. */}
+          <mesh geometry={POSTER_GEOMETRY} position={[0, 0, 0.026]}>
             <meshStandardMaterial
               ref={accentMatRef}
               color="#ffffff"
@@ -434,7 +509,7 @@ function Cartouche({
               transparent
               opacity={1}
             />
-          </RoundedBox>
+          </mesh>
 
           {/* Top index chip */}
           <mesh position={[-0.3, 0.5, 0.038]}>
@@ -478,9 +553,9 @@ function Cartouche({
             {project.year}
           </Text>
 
-          {/* Bottom info banner — dark gradient overlay for legibility */}
+          {/* Bottom info banner — dark band spanning the full front width */}
           <mesh position={[0, -0.36, 0.038]}>
-            <planeGeometry args={[0.84, 0.5]} />
+            <planeGeometry args={[0.92, 0.5]} />
             <meshBasicMaterial
               color="#08070C"
               transparent
@@ -556,20 +631,12 @@ function Cartouche({
               />
               <span
                 className="play-ring absolute inset-0 rounded-full border-2"
-                style={{
-                  borderColor: project.accent,
-                  animationDelay: '0.8s',
-                  opacity: 0.7,
-                }}
+                style={{ borderColor: project.accent, animationDelay: '0.8s' }}
                 aria-hidden
               />
               <span
-                className="play-ring absolute inset-0 rounded-full border"
-                style={{
-                  borderColor: project.accent,
-                  animationDelay: '1.6s',
-                  opacity: 0.4,
-                }}
+                className="play-ring absolute inset-0 rounded-full border-2"
+                style={{ borderColor: project.accent, animationDelay: '1.6s' }}
                 aria-hidden
               />
               <span
