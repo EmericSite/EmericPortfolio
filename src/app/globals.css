@@ -83,17 +83,52 @@ body {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   animation-direction: normal;
+  /* Compositing GPU + rendu de texte stable pendant l'animation (sub-pixel iOS). */
+  will-change: transform;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 .marquee-track.marquee-track-reverse {
   animation-direction: reverse;
-}
-.marquee-track:hover {
-  animation-play-state: paused;
 }
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
   }
+}
+
+@keyframes eq-bounce {
+  0%, 100% { transform: scaleY(0.22); }
+  50% { transform: scaleY(1); }
+}
+.eq-bar {
+  transform-origin: bottom;
+  animation: eq-bounce 0.8s ease-in-out infinite;
+}
+
+/* Halo pulsé derrière la radio quand le son est actif */
+@keyframes radio-halo {
+  0% { transform: scale(1); opacity: 0.45; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+.radio-halo { animation: radio-halo 2.2s ease-out infinite; }
+
+/* Point "live" clignotant + balayage lumineux sur le pill */
+@keyframes live-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.65); }
+}
+.live-dot { animation: live-dot 1.3s ease-in-out infinite; }
+
+@keyframes radio-sheen {
+  0% { transform: translateX(-120%); }
+  60%, 100% { transform: translateX(220%); }
+}
+.radio-sheen { animation: radio-sheen 3.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .eq-bar { animation: none; transform: scaleY(0.7); }
+  .radio-halo, .live-dot, .radio-sheen { animation: none; }
 }
 
 @keyframes play-breathe {
@@ -111,7 +146,7 @@ body {
   animation-play-state: paused;
 }
 .play-ring {
-  animation: play-ring 2s ease-out infinite;
+  animation: play-ring 2.4s ease-out infinite;
   pointer-events: none;
 }
 @media (prefers-reduced-motion: reduce) {
