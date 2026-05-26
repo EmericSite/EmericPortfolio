@@ -11,7 +11,7 @@ import VideoOverlay from '@/components/VideoOverlay';
 
 export default function Home() {
   return (
-    <main id="main" className="relative h-screen min-h-[700px] w-full overflow-hidden bg-ink text-chrome">
+    <main id="main" className="relative isolate h-dvh min-h-[560px] w-full overflow-hidden text-chrome">
       <Loader />
 
       <MarqueeBackground />

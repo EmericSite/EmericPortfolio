@@ -87,7 +87,7 @@ export default function HubOverlay() {
                 type="button"
                 onClick={() => setMode('hub')}
                 aria-label="Fermer"
-                className="h-8 w-8 flex items-center justify-center rounded-full border border-fog text-chrome hover:border-magentaglitch hover:text-magentaglitch transition-colors"
+                className="h-11 w-11 flex items-center justify-center rounded-full border border-fog text-chrome hover:border-magentaglitch hover:text-magentaglitch transition-colors"
               >
                 <span className="font-mono text-xs">×</span>
               </button>

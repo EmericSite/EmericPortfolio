@@ -256,7 +256,7 @@ export default function AboutPanel() {
         type="button"
         onClick={() => setMode('hub')}
         aria-label="Fermer"
-        className="absolute top-6 right-6 md:top-10 md:right-10 h-10 w-10 flex items-center justify-center border border-fog rounded-full text-chrome hover:border-magentaglitch hover:text-magentaglitch transition-colors"
+        className="absolute top-6 right-6 md:top-10 md:right-10 h-11 w-11 flex items-center justify-center border border-fog rounded-full text-chrome hover:border-magentaglitch hover:text-magentaglitch transition-colors"
       >
         <span className="font-mono text-sm">×</span>
       </button>

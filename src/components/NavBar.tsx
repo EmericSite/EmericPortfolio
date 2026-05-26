@@ -50,7 +50,7 @@ function NavBar() {
               key={item.label}
               type="button"
               onClick={() => setMode(item.mode)}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-mono text-[10px] uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-colors ${
+              className={`inline-flex min-h-[44px] items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-mono text-[10px] uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-colors ${
                 isActive
                   ? 'bg-chrome text-ink'
                   : 'text-mist hover:text-chrome'
