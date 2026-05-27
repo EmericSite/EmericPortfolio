@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import FallbackHub from '@/components/FallbackHub';
 import { isSoftwareRenderer } from '@/lib/usePerformanceTier';
 
@@ -14,12 +14,22 @@ type HomeHubProps = {
   showCartouches?: boolean;
 };
 
-export default function HomeHub({ showCartouches }: HomeHubProps) {
-  const [mode, setMode] = useState<'pending' | 'webgl' | 'fallback'>('pending');
+const subscribe = () => () => {};
+// Sonde WebGL une seule fois côté client puis mémoïse : getSnapshot doit
+// renvoyer une valeur stable, sinon useSyncExternalStore boucle.
+let clientMode: 'webgl' | 'fallback' | null = null;
+function getClientMode(): 'webgl' | 'fallback' {
+  if (clientMode === null) {
+    clientMode = isSoftwareRenderer() ? 'fallback' : 'webgl';
+  }
+  return clientMode;
+}
+const getServerMode = () => 'pending' as const;
 
-  useEffect(() => {
-    setMode(isSoftwareRenderer() ? 'fallback' : 'webgl');
-  }, []);
+export default function HomeHub({ showCartouches }: HomeHubProps) {
+  // 'pending' au SSR + 1re hydratation → rend null ; puis bascule vers la
+  // valeur client (webgl/fallback). Remplace l'ancien useEffect+setState.
+  const mode = useSyncExternalStore(subscribe, getClientMode, getServerMode);
 
   if (mode === 'pending') return null;
   if (mode === 'fallback') return <FallbackHub />;
