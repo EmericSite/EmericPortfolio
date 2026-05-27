@@ -25,6 +25,7 @@ import DynamicPostFX from './scene/DynamicPostFX';
 import Fireflies from './scene/Fireflies';
 import { useHubStore } from '@/store/hub';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import { useViewportScale } from '@/lib/useViewportScale';
 
 // === Armillary halo system ===
@@ -387,14 +388,11 @@ function Relic() {
   const mode = useHubStore((s) => s.mode);
   const { mouse } = useThree();
   const { hubScale } = useViewportScale();
-  const reducedMotion = useRef(
-    typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
+  const reducedMotion = usePrefersReducedMotion();
 
   useFrame(() => {
     if (!groupRef.current) return;
-    if (!reducedMotion.current) {
+    if (!reducedMotion) {
       groupRef.current.rotation.y = THREE.MathUtils.lerp(
         groupRef.current.rotation.y,
         mouse.x * 0.18,
@@ -408,7 +406,7 @@ function Relic() {
     }
 
     const targetScale = mode === 'project' ? 0.55 : 1;
-    const scaleLerp = reducedMotion.current ? 0.015 : 0.05;
+    const scaleLerp = reducedMotion ? 0.015 : 0.05;
     const s = THREE.MathUtils.lerp(
       groupRef.current.scale.x,
       targetScale,
@@ -417,7 +415,7 @@ function Relic() {
     groupRef.current.scale.setScalar(s);
 
     const targetOpacity = mode === 'project' ? 0.25 : 1;
-    const opacityLerp = reducedMotion.current ? 0.015 : 0.05;
+    const opacityLerp = reducedMotion ? 0.015 : 0.05;
     groupRef.current.traverse((obj) => {
       const m = obj as Mesh;
       if (m.isMesh && m.material) {
@@ -441,7 +439,7 @@ function Relic() {
     <group ref={groupRef} position={[0, 0, -1.2]}>
       <group scale={hubScale}>
         <Float
-          speed={reducedMotion.current ? 0 : 0.85}
+          speed={reducedMotion ? 0 : 0.85}
           rotationIntensity={0.15}
           floatIntensity={0.55}
         >

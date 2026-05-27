@@ -25,7 +25,9 @@ export default function VideoOverlay() {
         closeShowreel: s.closeShowreel,
       })),
     );
-  const [iframeError, setIframeError] = useState(false);
+  // On mémorise quel vimeoId a échoué plutôt que de réinitialiser un booléen
+  // dans un effet quand la source change (dérivation > setState-dans-un-effet).
+  const [erroredId, setErroredId] = useState<string | null>(null);
 
   const project = activeId
     ? projects.find((p) => p.id === activeId) ?? null
@@ -51,9 +53,7 @@ export default function VideoOverlay() {
     close = stopVideo;
   }
 
-  useEffect(() => {
-    setIframeError(false);
-  }, [source?.vimeoId]);
+  const iframeError = source != null && erroredId === source.vimeoId;
 
   useEffect(() => {
     if (!source) return;
@@ -100,7 +100,7 @@ export default function VideoOverlay() {
             src={`https://player.vimeo.com/video/${source.vimeoId}?autoplay=1&title=0&byline=0&portrait=0&controls=1&dnt=1`}
             allow="autoplay; fullscreen; picture-in-picture"
             allowFullScreen
-            onError={() => setIframeError(true)}
+            onError={() => setErroredId(source.vimeoId)}
             className="absolute inset-0 h-full w-full border-0"
             title={source.title}
           />
