@@ -13,6 +13,20 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    // Règles "React Compiler" (eslint-plugin-react-hooks v6). Le compiler n'est
+    // pas activé (cf. next.config.ts) et ces règles produisent des faux positifs
+    // massifs sur react-three-fiber, dont le modèle impératif mute volontairement
+    // les objets three.js dans useFrame (caméra, matériaux, géométries) — un
+    // pattern non corrigeable côté code. On les désactive (immutability/purity)
+    // ou on les rétrograde en avertissement (refs/set-state-in-effect).
+    rules: {
+      "react-hooks/immutability": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/refs": "warn",
+      "react-hooks/set-state-in-effect": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;
