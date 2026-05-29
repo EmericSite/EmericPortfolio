@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { projects } from "@/data/projects";
+import BackgroundShowreel from "@/components/BackgroundShowreel";
+import DevErrorReporter from "@/components/DevErrorReporter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -97,6 +99,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ink text-chrome">
@@ -106,6 +109,8 @@ export default function RootLayout({
         >
           Aller au contenu
         </a>
+        <DevErrorReporter />
+        <BackgroundShowreel />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
