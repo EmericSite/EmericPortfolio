@@ -59,6 +59,88 @@ const POSTER_GEOMETRY = (() => {
   return geo;
 })();
 
+// ============================================================================
+// Bande titre conforme à la silhouette du poster.
+// Largeur 0.80 < POSTER_W (0.84) et coins BAS au MÊME rayon r=0.05 que le poster
+// => arcs bas strictement à l'intérieur de la silhouette : aucun débordement.
+// Coins HAUTS droits (invisibles : le dégradé y est ~transparent).
+// ============================================================================
+const BAND_W = 0.8; // < POSTER_W (0.84)
+const BAND_H = 0.5; // hauteur de la zone de fondu
+const BAND_R = POSTER_R; // 0.05 — même rayon que le poster
+const BAND_CENTER_Y = -0.36; // arête basse = -0.36 - 0.25 = -0.61 = bas poster
+
+// Builder rounded-rect générique (réutilisé par les chips).
+function makeRoundedRectShape(w: number, h: number, r: number): THREE.Shape {
+  const x = w / 2;
+  const y = h / 2;
+  const s = new THREE.Shape();
+  s.moveTo(-x + r, -y);
+  s.lineTo(x - r, -y);
+  s.quadraticCurveTo(x, -y, x, -y + r);
+  s.lineTo(x, y - r);
+  s.quadraticCurveTo(x, y, x - r, y);
+  s.lineTo(-x + r, y);
+  s.quadraticCurveTo(-x, y, -x, y - r);
+  s.lineTo(-x, -y + r);
+  s.quadraticCurveTo(-x, -y, -x + r, -y);
+  return s;
+}
+
+// Bande : coins BAS arrondis (mêmes arcs que le poster), coins HAUT droits.
+const BANNER_GEOMETRY = (() => {
+  const w = BAND_W / 2; // 0.40
+  const h = BAND_H / 2; // 0.25
+  const r = BAND_R; // 0.05
+  const s = new THREE.Shape();
+  s.moveTo(-w + r, -h); // début arc bas-gauche
+  s.lineTo(w - r, -h); // bord bas
+  s.quadraticCurveTo(w, -h, w, -h + r); // coin bas-droit arrondi (= poster)
+  s.lineTo(w, h); // montée droite (coin haut-droit DROIT)
+  s.lineTo(-w, h); // bord haut
+  s.lineTo(-w, -h + r); // descente gauche
+  s.quadraticCurveTo(-w, -h, -w + r, -h); // coin bas-gauche arrondi (= poster)
+  return new THREE.ShapeGeometry(s, 16);
+})();
+
+// Dégradé vertical via attribut color RGBA : opaque en BAS -> transparent en HAUT.
+// Calculé une seule fois au chargement du module (zéro coût/frame, zéro DOM).
+// alpha_final rendu = vertexAlpha × material.opacity (fade global du lerp existant).
+(() => {
+  const pos = BANNER_GEOMETRY.attributes.position;
+  const colors = new Float32Array(pos.count * 4);
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i); // de -h (bas) à +h (haut)
+    const t = (y + BAND_H / 2) / BAND_H; // 0 en bas, 1 en haut
+    // Bande noire bien visible : alpha élevé partout, léger fondu vers le haut.
+    const a = 0.95 - 0.28 * t; // 0.95 (bas) -> 0.67 (haut)
+    colors[i * 4 + 0] = 1; // R (teintée par material.color #08070C)
+    colors[i * 4 + 1] = 1; // G
+    colors[i * 4 + 2] = 1; // B
+    colors[i * 4 + 3] = a; // A vertex
+  }
+  BANNER_GEOMETRY.setAttribute('color', new THREE.BufferAttribute(colors, 4));
+})();
+
+// Chips index / année : rounded-rect conformes (4 coins arrondis fins).
+const CHIP_R = 0.018;
+const CHIP_INDEX_GEOMETRY = new THREE.ShapeGeometry(
+  makeRoundedRectShape(0.14, 0.075, CHIP_R),
+  8,
+);
+const CHIP_YEAR_GEOMETRY = new THREE.ShapeGeometry(
+  makeRoundedRectShape(0.18, 0.075, CHIP_R),
+  8,
+);
+
+// Plan z déterministe (repère carte). Poster = 0.026 (inchangé).
+// Overlays resserrés juste au-dessus (fini l'écart 0.012 -> effet autocollant).
+const Z_BANNER = 0.0285; // +0.0025 au-dessus du poster
+const Z_CHIP = 0.029;
+const Z_TEXT = 0.0315;
+const Z_EMBLEM = 0.034;
+// renderOrder : poster 0, banner 2, chips 4, texte 6, emblème 7.
+
 const ORBIT_TILT = 0.42;
 const ORBIT_SPEED = 0.06;
 const ORBIT_CENTER_Z = 0.8;
@@ -511,18 +593,26 @@ function Cartouche({
             />
           </mesh>
 
-          {/* Top index chip */}
-          <mesh position={[-0.3, 0.5, 0.038]}>
-            <planeGeometry args={[0.14, 0.075]} />
+          {/* Top index chip — rounded-rect conforme */}
+          <mesh
+            geometry={CHIP_INDEX_GEOMETRY}
+            position={[-0.3, 0.5, Z_CHIP]}
+            renderOrder={4}
+          >
             <meshBasicMaterial
               color="#08070C"
               transparent
               opacity={0.78}
               toneMapped={false}
+              depthWrite={false}
+              polygonOffset
+              polygonOffsetFactor={-2}
+              polygonOffsetUnits={-2}
             />
           </mesh>
           <Text
-            position={[-0.3, 0.5, 0.04]}
+            position={[-0.3, 0.5, Z_TEXT]}
+            renderOrder={6}
             fontSize={0.06}
             color="#E8E6EC"
             anchorX="center"
@@ -532,18 +622,26 @@ function Cartouche({
             {`0${index + 1}`}
           </Text>
 
-          {/* Top year chip */}
-          <mesh position={[0.3, 0.5, 0.038]}>
-            <planeGeometry args={[0.18, 0.075]} />
+          {/* Top year chip — rounded-rect conforme */}
+          <mesh
+            geometry={CHIP_YEAR_GEOMETRY}
+            position={[0.3, 0.5, Z_CHIP]}
+            renderOrder={4}
+          >
             <meshBasicMaterial
               color="#08070C"
               transparent
               opacity={0.78}
               toneMapped={false}
+              depthWrite={false}
+              polygonOffset
+              polygonOffsetFactor={-2}
+              polygonOffsetUnits={-2}
             />
           </mesh>
           <Text
-            position={[0.3, 0.5, 0.04]}
+            position={[0.3, 0.5, Z_TEXT]}
+            renderOrder={6}
             fontSize={0.05}
             color="#E8E6EC"
             anchorX="center"
@@ -553,20 +651,30 @@ function Cartouche({
             {project.year}
           </Text>
 
-          {/* Bottom info banner — dark band spanning the full front width */}
-          <mesh position={[0, -0.36, 0.038]}>
-            <planeGeometry args={[0.92, 0.5]} />
+          {/* Bande titre — ShapeGeometry coins bas arrondis (épouse le poster),
+              dégradé vertical via vertexColors. opacity = fade global (lerp). */}
+          <mesh
+            geometry={BANNER_GEOMETRY}
+            position={[0, BAND_CENTER_Y, Z_BANNER]}
+            renderOrder={2}
+          >
             <meshBasicMaterial
               color="#08070C"
+              vertexColors
               transparent
-              opacity={0.82}
+              opacity={1}
               toneMapped={false}
+              depthWrite={false}
+              polygonOffset
+              polygonOffsetFactor={-1}
+              polygonOffsetUnits={-1}
             />
           </mesh>
 
           {/* Title in banner */}
           <Text
-            position={[0, -0.22, 0.04]}
+            position={[0, -0.22, Z_TEXT]}
+            renderOrder={6}
             fontSize={0.105}
             color="#F4D8E2"
             anchorX="center"
@@ -575,24 +683,31 @@ function Cartouche({
             textAlign="center"
             lineHeight={1.0}
             letterSpacing={-0.005}
+            outlineWidth={0.004}
+            outlineColor="#08070C"
+            outlineOpacity={0.65}
           >
             {project.shortTitle}
           </Text>
 
           {/* Tag in banner */}
           <Text
-            position={[0, -0.4, 0.04]}
+            position={[0, -0.4, Z_TEXT]}
+            renderOrder={6}
             fontSize={0.038}
             color="#B8B0BE"
             anchorX="center"
             anchorY="middle"
             letterSpacing={0.18}
+            outlineWidth={0.002}
+            outlineColor="#08070C"
+            outlineOpacity={0.5}
           >
             {project.tag.toUpperCase()}
           </Text>
 
           {/* Bottom emblem — chrome ring with emissive accent gem */}
-          <mesh position={[0, -0.55, 0.05]}>
+          <mesh position={[0, -0.55, Z_EMBLEM]}>
             <torusGeometry args={[0.022, 0.005, 10, 28]} />
             <meshStandardMaterial
               color="#E8E6EC"
@@ -603,7 +718,7 @@ function Cartouche({
               opacity={1}
             />
           </mesh>
-          <mesh position={[0, -0.55, 0.05]}>
+          <mesh position={[0, -0.55, Z_EMBLEM]}>
             <circleGeometry args={[0.012, 32]} />
             <meshStandardMaterial
               ref={gemMatRef}
