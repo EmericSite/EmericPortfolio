@@ -12,18 +12,24 @@ export default function DevErrorReporter() {
     if (process.env.NODE_ENV === 'production') return;
 
     const onRejection = (e: PromiseRejectionEvent) => {
-      const r = e.reason as unknown;
-      const detail =
-        r instanceof Error
-          ? `${r.name}: ${r.message}\n${r.stack ?? ''}`
-          : (() => {
-              try {
-                return JSON.stringify(r);
-              } catch {
-                return String(r);
-              }
-            })();
-      console.error('[unhandledRejection détaillé]\n', detail, '\nraw:', r);
+      const r = e.reason as
+        | { name?: string; message?: string; stack?: string; type?: string; target?: unknown }
+        | undefined
+        | null;
+      const ctor =
+        r && typeof r === 'object' ? r.constructor?.name : typeof r;
+      const target = (r as { target?: { src?: string; currentSrc?: string; tagName?: string } })?.target;
+      console.error(
+        '[unhandledRejection détaillé]',
+        '\n  ctor   :', ctor,
+        '\n  name   :', r?.name,
+        '\n  message:', r?.message,
+        '\n  type   :', r?.type,
+        '\n  target :', target?.tagName, target?.currentSrc ?? target?.src,
+        '\n  keys   :', r && typeof r === 'object' ? Object.keys(r) : '(n/a)',
+        '\n  string :', String(r),
+        '\n  stack  :', r?.stack,
+      );
     };
 
     const onError = (e: ErrorEvent) => {

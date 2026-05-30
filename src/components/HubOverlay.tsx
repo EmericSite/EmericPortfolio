@@ -1,14 +1,66 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useShallow } from 'zustand/react/shallow';
 import { useHubStore } from '@/store/hub';
-import { projects } from '@/data/projects';
+import {
+  projects,
+  GALLERY_CATEGORIES,
+  type GalleryItem,
+} from '@/data/projects';
 import { useFocusTrap } from '@/lib/useFocusTrap';
+import Lightbox from '@/components/Lightbox';
+import AutoVideo from '@/components/AutoVideo';
 
 const TOTAL = projects.length;
 const pad2 = (n: number) => n.toString().padStart(2, '0');
+
+// Une vignette de galerie : conserve le ratio réel du média, zoom au survol,
+// clic pour agrandir. La hauteur de boîte suit width/height de l'item.
+function GalleryTile({
+  item,
+  onOpen,
+}: {
+  item: GalleryItem;
+  onOpen: () => void;
+}) {
+  const ratio =
+    item.width && item.height ? `${item.width} / ${item.height}` : '16 / 9';
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label="Agrandir le média"
+      className="media-tile mb-3 block w-full break-inside-avoid border border-fog/50 hover:border-chrome/70"
+      style={{ aspectRatio: ratio }}
+    >
+      {item.type === 'video' ? (
+        <AutoVideo src={item.src} poster={item.poster} />
+      ) : (
+        <Image
+          src={item.src}
+          alt={item.alt ?? ''}
+          width={item.width ?? 1600}
+          height={item.height ?? 900}
+          sizes="(max-width: 768px) 90vw, 30vw"
+          className="object-cover"
+        />
+      )}
+      <span className="media-tile__zoom" aria-hidden>
+        ⤢
+      </span>
+      {item.category && (
+        <span className="media-tile__cap" aria-hidden>
+          <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-chrome/90">
+            {item.type === 'video' ? '▶ ' : ''}
+            {item.category}
+          </span>
+        </span>
+      )}
+    </button>
+  );
+}
 
 export default function HubOverlay() {
   const { activeId, scrollIndex, setMode } = useHubStore(
@@ -26,34 +78,56 @@ export default function HubOverlay() {
   const projectPanelRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
+  // Lightbox : index dans la galerie complète (ordre d'affichage par sections).
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
   useFocusTrap(projectPanelRef, !!active);
+
+  // Galerie ordonnée par sections (= ordre du lightbox), + indices d'origine.
+  const orderedGallery = useMemo<GalleryItem[]>(() => {
+    if (!active?.gallery) return [];
+    const cats = [...GALLERY_CATEGORIES];
+    const known = active.gallery.filter(
+      (it) => it.category && cats.includes(it.category),
+    );
+    const unknown = active.gallery.filter(
+      (it) => !it.category || !cats.includes(it.category),
+    );
+    const sorted = cats.flatMap((c) =>
+      known.filter((it) => it.category === c),
+    );
+    return [...sorted, ...unknown];
+  }, [active]);
+
+  // Pas de projet actif => pas de lightbox (dérivation, sans setState en effet).
+  const effectiveLightboxIndex = active ? lightboxIndex : null;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMode('hub');
+      // Esc ferme d'abord la lightbox (gérée dans Lightbox), sinon le panneau.
+      if (e.key === 'Escape' && effectiveLightboxIndex === null) setMode('hub');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [setMode]);
+  }, [setMode, effectiveLightboxIndex]);
 
   useEffect(() => {
-    if (active) {
-      const id = window.setTimeout(() => {
-        closeButtonRef.current?.focus({ preventScroll: true });
-      }, 0);
-      return () => window.clearTimeout(id);
-    }
+    if (!active) return;
+    const id = window.setTimeout(() => {
+      closeButtonRef.current?.focus({ preventScroll: true });
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [active]);
 
   return (
     <>
-      {/* Project full content (when active) */}
+      {/* Project full content (when active) — panneau large (~45% de l'écran) */}
       <div
         ref={projectPanelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="project-title"
-        className={`absolute inset-y-0 right-0 z-20 w-full md:w-[480px] transition-all duration-700 ease-out ${
+        className={`absolute inset-y-0 right-0 z-20 w-full md:w-[46vw] md:min-w-[560px] md:max-w-[860px] transition-all duration-700 ease-out ${
           active
             ? 'translate-x-0 opacity-100'
             : 'translate-x-12 opacity-0 pointer-events-none'
@@ -93,7 +167,7 @@ export default function HubOverlay() {
               </button>
             </div>
 
-            <div className="px-6 md:px-12 pt-8 pb-24 md:pb-32">
+            <div className="px-6 md:px-12 pt-10 pb-24 md:pb-32">
               <div className="flex items-center gap-3 mb-6 font-mono text-[10px] uppercase tracking-[0.25em] text-mist">
                 <span>{active.year}</span>
                 <span className="text-mist/40">·</span>
@@ -102,63 +176,92 @@ export default function HubOverlay() {
 
               <h2
                 id="project-title"
-                className="font-display text-3xl md:text-5xl leading-[1.05] text-pearl mb-8"
+                className="font-display text-4xl md:text-6xl leading-[1.02] text-pearl mb-6"
               >
                 {active.title}
               </h2>
 
-              <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-3">
-                Rôle
-              </div>
-              <div className="text-chrome mb-8">{active.role}</div>
-
-              <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-3">
-                Description
-              </div>
-              <p className="text-mist leading-relaxed mb-10">
-                {active.description}
+              <p className="text-mist/90 text-lg md:text-xl leading-relaxed mb-12 max-w-2xl">
+                {active.blurb}
               </p>
 
-              {active.gallery && active.gallery.length > 0 && (
-                <>
-                  <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-4 flex items-center justify-between">
-                    <span>Galerie</span>
-                    <span className="text-mist/50">
-                      {String(active.gallery.length).padStart(2, '0')} pièces
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 mb-12">
-                    {active.gallery.map((item, i) =>
-                      item.type === 'video' ? (
-                        <video
-                          key={i}
-                          src={item.src}
-                          poster={item.poster}
-                          className="col-span-2 w-full rounded-sm border border-fog/60 bg-ink"
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          preload="metadata"
-                          aria-hidden
-                        />
-                      ) : (
-                        <div
-                          key={i}
-                          className="relative aspect-square overflow-hidden rounded-sm border border-fog/60 bg-ink"
-                        >
-                          <Image
-                            src={item.src}
-                            alt={item.alt ?? ''}
-                            fill
-                            sizes="(max-width: 768px) 45vw, 220px"
-                            className="object-cover transition-transform duration-700 hover:scale-[1.04]"
-                          />
+              <div className="grid sm:grid-cols-[160px_1fr] gap-x-8 gap-y-3 mb-12 border-t border-fog/40 pt-6">
+                <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch pt-1">
+                  Rôle
+                </div>
+                <div className="text-chrome">{active.role}</div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch pt-1">
+                  Description
+                </div>
+                <p className="text-mist leading-relaxed">
+                  {active.description}
+                </p>
+              </div>
+
+              {orderedGallery.length > 0 && (
+                <div className="mb-14 space-y-12">
+                  {GALLERY_CATEGORIES.map((category) => {
+                    const items = orderedGallery.filter(
+                      (it) => it.category === category,
+                    );
+                    if (items.length === 0) return null;
+                    return (
+                      <section key={category}>
+                        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-5 flex items-center justify-between border-b border-fog/40 pb-2">
+                          <span>{category}</span>
+                          <span className="text-mist/50">
+                            {pad2(items.length)}
+                          </span>
                         </div>
-                      ),
-                    )}
-                  </div>
-                </>
+                        {/* Grille maçonnée : chaque média garde son ratio. */}
+                        <div className="columns-2 gap-3 [&>*]:mb-3">
+                          {items.map((item) => {
+                            const idx = orderedGallery.indexOf(item);
+                            return (
+                              <GalleryTile
+                                key={item.src}
+                                item={item}
+                                onOpen={() => setLightboxIndex(idx)}
+                              />
+                            );
+                          })}
+                        </div>
+                      </section>
+                    );
+                  })}
+
+                  {/* Médias sans catégorie connue — filet de sécurité */}
+                  {(() => {
+                    const uncategorized = orderedGallery.filter(
+                      (it) =>
+                        !it.category ||
+                        !GALLERY_CATEGORIES.includes(it.category),
+                    );
+                    if (uncategorized.length === 0) return null;
+                    return (
+                      <section>
+                        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-5 flex items-center justify-between border-b border-fog/40 pb-2">
+                          <span>Galerie</span>
+                          <span className="text-mist/50">
+                            {pad2(uncategorized.length)}
+                          </span>
+                        </div>
+                        <div className="columns-2 gap-3 [&>*]:mb-3">
+                          {uncategorized.map((item) => {
+                            const idx = orderedGallery.indexOf(item);
+                            return (
+                              <GalleryTile
+                                key={item.src}
+                                item={item}
+                                onOpen={() => setLightboxIndex(idx)}
+                              />
+                            );
+                          })}
+                        </div>
+                      </section>
+                    );
+                  })()}
+                </div>
               )}
 
               <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-4">
@@ -168,7 +271,7 @@ export default function HubOverlay() {
                 {active.credits.map((c) => (
                   <div
                     key={c.label}
-                    className="grid grid-cols-[120px_1fr] gap-4 border-t border-fog/60 pt-2"
+                    className="grid grid-cols-[140px_1fr] gap-4 border-t border-fog/60 pt-2"
                   >
                     <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mist">
                       {c.label}
@@ -181,6 +284,16 @@ export default function HubOverlay() {
           </div>
         )}
       </div>
+
+      {active && (
+        <Lightbox
+          items={orderedGallery}
+          index={effectiveLightboxIndex}
+          accent={active.accent}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+        />
+      )}
     </>
   );
 }
