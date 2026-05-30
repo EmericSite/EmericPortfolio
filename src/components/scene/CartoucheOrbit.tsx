@@ -252,7 +252,7 @@ function FlareDriver({
       scanARef.current.position.y = isLit ? cycle : -2;
       scanAMatRef.current.opacity = THREE.MathUtils.lerp(
         scanAMatRef.current.opacity,
-        isLit ? 0.85 : 0,
+        isLit ? 0.5 : 0,
         0.25,
       );
     }
@@ -263,7 +263,7 @@ function FlareDriver({
       scanBRef.current.position.y = isLit ? cycle : -2;
       scanBMatRef.current.opacity = THREE.MathUtils.lerp(
         scanBMatRef.current.opacity,
-        isLit ? 0.5 : 0,
+        isLit ? 0.3 : 0,
         0.25,
       );
     }
@@ -277,7 +277,7 @@ function FlareDriver({
       scanCRef.current.position.y = isLit ? jumpY : -2;
       scanCMatRef.current.opacity = THREE.MathUtils.lerp(
         scanCMatRef.current.opacity,
-        isLit ? 0.95 * flashWindow : 0,
+        isLit ? 0.55 * flashWindow : 0,
         0.55,
       );
     }
@@ -437,7 +437,7 @@ function Cartouche({
       : layout === 'stack'
         ? stackScale
         : isFocused
-          ? 1.18
+          ? 1.12
           : 0.95;
     const scaleLerp = reducedMotion ? 0.015 : 0.08;
     const s = THREE.MathUtils.lerp(
@@ -448,7 +448,7 @@ function Cartouche({
     innerRef.current.scale.setScalar(s);
 
     // Active = clean image (no emissive wash). Focused = subtle accent halo.
-    const targetEmissive = isActive ? 0.0 : isFocused ? 0.22 : 0.0;
+    const targetEmissive = isActive ? 0.0 : isFocused ? 0.14 : 0.0;
     if (accentMatRef.current) {
       accentMatRef.current.emissiveIntensity = THREE.MathUtils.lerp(
         accentMatRef.current.emissiveIntensity,

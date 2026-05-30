@@ -28,7 +28,7 @@ const GLITCH_SAT_PEAK = 0.22;
 
 const BLOOM_BY_MODE: Record<HubMode, number> = {
   hub: 0.7,
-  hover: 1.3,
+  hover: 1.05,
   project: 0.55,
   about: 0.55,
   contact: 0.55,
@@ -37,7 +37,7 @@ const BLOOM_BY_MODE: Record<HubMode, number> = {
 // Hover glitch slightly toned down — was reading a touch too aggressive.
 const CA_BY_MODE: Record<HubMode, number> = {
   hub: 0,
-  hover: 0.0032,
+  hover: 0.002,
   project: 0.0012,
   about: 0,
   contact: 0,
@@ -98,8 +98,8 @@ export default function DynamicPostFX() {
     if (mode === 'hover' && hoverFX) {
       const ct = clock.elapsedTime;
       hoverJitter =
-        Math.abs(Math.sin(ct * 19)) * 0.0009 +
-        (Math.sin(ct * 4.7) > 0.85 ? 0.0018 : 0);
+        Math.abs(Math.sin(ct * 19)) * 0.0005 +
+        (Math.sin(ct * 4.7) > 0.85 ? 0.001 : 0);
     }
     const targetCA = baseCA + glitchAdd + hoverJitter;
 
