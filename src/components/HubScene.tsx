@@ -38,7 +38,7 @@ function HaloA() {
   });
   return (
     <mesh ref={ref} position={[0, 0, -0.5]}>
-      <torusGeometry args={[2.55, 0.04, 16, 128]} />
+      <torusGeometry args={[2.8, 0.045, 16, 160]} />
       <meshPhysicalMaterial
         color="#E8E6EC"
         metalness={1}
@@ -62,7 +62,7 @@ function MidRing() {
   });
   return (
     <mesh ref={ref} position={[0, 0, -0.32]}>
-      <torusGeometry args={[2.22, 0.018, 10, 96]} />
+      <torusGeometry args={[2.1, 0.018, 10, 96]} />
       <meshPhysicalMaterial
         color="#F4D8E2"
         metalness={1}
@@ -88,7 +88,7 @@ function InnerRing() {
   });
   return (
     <mesh ref={ref} position={[0, 0, -0.18]}>
-      <torusGeometry args={[1.95, 0.013, 8, 96]} />
+      <torusGeometry args={[1.84, 0.013, 8, 96]} />
       <meshStandardMaterial
         ref={matRef}
         color="#F4D8E2"
@@ -192,7 +192,7 @@ function RevealDisk() {
 
   return (
     <mesh ref={meshRef} position={[0, 0, 0.005]} visible={visible}>
-      <circleGeometry args={[1.74, 128]} />
+      <circleGeometry args={[1.6, 128]} />
       <shaderMaterial
         ref={matRef}
         uniforms={uniforms}
@@ -337,7 +337,7 @@ function LogoDisk() {
 
   return (
     <mesh>
-      <circleGeometry args={[1.75, 128]} />
+      <circleGeometry args={[1.6, 128]} />
       <meshPhysicalMaterial
         ref={matRef}
         color="#ffffff"
@@ -354,31 +354,32 @@ function LogoDisk() {
 }
 
 function LogoBackplate() {
-  // Dark chromed disk behind the logo with engraved concentric chrome rings
+  // Un seul pin propre : corps sombre légèrement bombé + un liseré chromé au
+  // bord (plus de disques empilés ni d'anneaux gravés multiples).
   return (
-    <group position={[0, 0, -0.06]}>
+    <group position={[0, 0, -0.05]}>
+      {/* Corps du pin */}
       <mesh>
-        <circleGeometry args={[1.92, 96]} />
+        <circleGeometry args={[1.72, 96]} />
         <meshPhysicalMaterial
           color="#13111A"
-          metalness={0.9}
-          roughness={0.4}
-          clearcoat={0.6}
-          envMapIntensity={0.8}
+          metalness={0.92}
+          roughness={0.33}
+          clearcoat={0.85}
+          clearcoatRoughness={0.22}
+          envMapIntensity={1.05}
         />
       </mesh>
-      {/* Engraved concentric chrome rings on the backplate */}
-      {[1.86, 1.82, 1.78].map((r, i) => (
-        <mesh key={i} position={[0, 0, 0.001 + i * 0.001]}>
-          <torusGeometry args={[r, 0.004, 6, 64]} />
-          <meshStandardMaterial
-            color="#E8E6EC"
-            metalness={1}
-            roughness={0.15}
-            envMapIntensity={1.4}
-          />
-        </mesh>
-      ))}
+      {/* Liseré chromé unique (rim du pin) */}
+      <mesh position={[0, 0, 0.012]}>
+        <torusGeometry args={[1.68, 0.022, 16, 200]} />
+        <meshStandardMaterial
+          color="#E8E6EC"
+          metalness={1}
+          roughness={0.11}
+          envMapIntensity={2}
+        />
+      </mesh>
     </group>
   );
 }
