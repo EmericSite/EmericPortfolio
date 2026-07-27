@@ -4,22 +4,9 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useHubStore } from '@/store/hub';
 import { useFocusTrap } from '@/lib/useFocusTrap';
 import { useSwipeToClose } from '@/lib/useSwipeToClose';
+import { contact } from '@/content/site';
 
-const EMAIL = 'hello@emericressy.com';
-
-const SOCIALS = [
-  {
-    label: 'Instagram',
-    handle: '@fumir._o',
-    href: 'https://www.instagram.com/fumir._o/?hl=fr',
-  },
-  { label: 'X', handle: '@fumir_o', href: 'https://x.com/fumir_o' },
-  {
-    label: 'LinkedIn',
-    handle: 'emeric-ressy',
-    href: 'https://www.linkedin.com/in/emeric-ressy-a05b0a194/',
-  },
-];
+const EMAIL = contact.email;
 
 export default function ContactPanel() {
   const mode = useHubStore((s) => s.mode);
@@ -31,34 +18,47 @@ export default function ContactPanel() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  // Champ piège pour les robots : masqué, jamais rempli par un visiteur.
+  const [website, setWebsite] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useFocusTrap(sectionRef, isOpen);
   useSwipeToClose(sectionRef, isOpen, 'left', () => setMode('hub'));
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !message.trim() || sending) return;
 
     setSending(true);
+    setError(null);
 
-    const subject = `Nouveau message — ${name}`;
-    const body = `Nom: ${name}\nEmail: ${email}\n\n${message}`;
-    const url = `mailto:${EMAIL}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`;
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message, website }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+      };
 
-    window.location.href = url;
+      if (!res.ok) {
+        setError(data.error ?? "Le message n'a pas pu être envoyé.");
+        return;
+      }
 
-    setSent(true);
-    window.setTimeout(() => {
+      setSent(true);
       setName('');
       setEmail('');
       setMessage('');
-      setSent(false);
+      window.setTimeout(() => setSent(false), 6000);
+    } catch {
+      setError('Connexion impossible. Réessaie ou écris-moi directement.');
+    } finally {
       setSending(false);
-    }, 3000);
+    }
   };
 
   useEffect(() => {
@@ -92,22 +92,20 @@ export default function ContactPanel() {
 
         <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist mb-4 inline-flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-cyanglitch animate-pulse" />
-          Disponible · 2026
+          {contact.disponibilite}
         </div>
 
         <h2
           id="contact-title"
           className="font-display text-4xl sm:text-5xl md:text-6xl leading-[0.95] mb-8 md:mb-10"
         >
-          Parlons d&rsquo;un
+          {contact.titreLigne1}
           <br />
-          <span className="italic text-pearl">projet.</span>
+          <span className="italic text-pearl">{contact.titreLigne2}</span>
         </h2>
 
         <p className="text-mist text-base leading-relaxed mb-10 max-w-md">
-          Direction artistique, motion 3D, identité visuelle. Pour les briefs
-          gaming/esport, anime, ou les pièces plus narratives — écris-moi
-          directement.
+          {contact.accroche}
         </p>
 
         <a
@@ -129,7 +127,7 @@ export default function ContactPanel() {
         >
           <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist inline-flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-cyanglitch" />
-            Ou écris-moi ici
+            {contact.formulaireIntro}
           </div>
 
           <div className="space-y-2">
@@ -194,11 +192,33 @@ export default function ContactPanel() {
             />
           </div>
 
+          {/* Honeypot : hors flux visuel mais pas display:none, que les robots
+              qui remplissent tout le formulaire tombent dedans. */}
+          <div aria-hidden className="absolute left-[-9999px] top-0 h-0 w-0 overflow-hidden">
+            <label htmlFor="contact-website">Site web</label>
+            <input
+              id="contact-website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+            />
+          </div>
+
           <div className="flex items-center justify-between gap-4 pt-1">
             {sent ? (
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch inline-flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-cyanglitch animate-pulse" />
                 Envoyé. Merci.
+              </span>
+            ) : error ? (
+              <span
+                role="alert"
+                className="font-mono text-[10px] uppercase tracking-[0.25em] text-magentaglitch inline-flex items-center gap-2"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-magentaglitch" />
+                {error}
               </span>
             ) : (
               <span />
@@ -209,7 +229,7 @@ export default function ContactPanel() {
               disabled={sending}
               className="group inline-flex items-center gap-3 border border-fog rounded-full px-6 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-chrome hover:border-cyanglitch hover:text-cyanglitch transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Envoyer
+              {sending ? 'Envoi…' : 'Envoyer'}
               <span className="transition-transform group-hover:translate-x-1">
                 →
               </span>
@@ -218,7 +238,7 @@ export default function ContactPanel() {
         </form>
 
         <div className="space-y-px bg-fog/40 border border-fog/40 mb-10">
-          {SOCIALS.map((s) => (
+          {contact.reseaux.map((s) => (
             <a
               key={s.label}
               href={s.href}
@@ -242,7 +262,7 @@ export default function ContactPanel() {
         </div>
 
         <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-mist/60">
-          Paris · UTC+1
+          {contact.fuseau}
         </div>
       </div>
 
