@@ -2,6 +2,7 @@
 
 import { useShallow } from 'zustand/react/shallow';
 import { useHubStore } from '@/store/hub';
+import PlayGlyph from '@/components/PlayGlyph';
 
 // Bouton showreel. Rendu en DOM 2D par-dessus le canvas, et non plus via
 // <Html transform> à l'intérieur de la scène : drei rasterisait le bouton à
@@ -51,12 +52,13 @@ export default function ShowreelPlayButton() {
           className="play-breathe pointer-events-auto relative flex h-full w-full items-center justify-center rounded-full border border-chrome/40 bg-ink/20 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-chrome/80 hover:bg-ink/50"
           style={{ boxShadow: '0 0 44px -6px #F4D8E2' }}
         >
-          <span
-            className="ml-1 text-4xl md:text-5xl leading-none"
-            style={{ color: '#F4D8E2', textShadow: '0 0 22px #F4D8E2' }}
-          >
-            ▶
-          </span>
+          <PlayGlyph
+            className="h-9 w-9 md:h-11 md:w-11"
+            style={{
+              color: '#F4D8E2',
+              filter: 'drop-shadow(0 0 14px rgba(244,216,226,0.85))',
+            }}
+          />
         </button>
         {/* Pas de label sous le bouton : l'affiche porte déjà « SHOWREEL
             2025 ». L'intitulé reste dans l'aria-label pour les lecteurs

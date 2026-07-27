@@ -13,12 +13,21 @@ type HubStore = {
   hoveredId: string | null;
   activeId: string | null;
   scrollIndex: number;
+  /**
+   * Décalage continu pendant un glissement tactile, exprimé en nombre de
+   * cartes (0.5 = le doigt a parcouru une demi-carte). Permet aux cartouches
+   * de suivre le doigt au lieu de sauter d'un cran au relâchement.
+   */
+  dragOffset: number;
   videoStarted: boolean;
   showreelOpen: boolean;
   setHovered: (id: string | null) => void;
   setActive: (id: string | null) => void;
   setMode: (mode: HubMode) => void;
   setScrollIndex: (i: number) => void;
+  setDragOffset: (d: number) => void;
+  /** Termine un glissement : avance de `steps` crans et remet le décalage à 0. */
+  commitDrag: (steps: number) => void;
   scrollNext: () => void;
   scrollPrev: () => void;
   startVideo: () => void;
@@ -33,6 +42,7 @@ export const useHubStore = create<HubStore>((set) => ({
   hoveredId: null,
   activeId: null,
   scrollIndex: 0,
+  dragOffset: 0,
   videoStarted: false,
   showreelOpen: false,
   setHovered: (id) =>
@@ -75,8 +85,13 @@ export const useHubStore = create<HubStore>((set) => ({
       return { mode };
     }),
   setScrollIndex: (i) => set({ scrollIndex: wrap(i) }),
-  scrollNext: () => set((s) => ({ scrollIndex: wrap(s.scrollIndex + 1) })),
-  scrollPrev: () => set((s) => ({ scrollIndex: wrap(s.scrollIndex - 1) })),
+  setDragOffset: (d) => set({ dragOffset: d }),
+  commitDrag: (steps) =>
+    set((s) => ({ scrollIndex: wrap(s.scrollIndex + steps), dragOffset: 0 })),
+  scrollNext: () =>
+    set((s) => ({ scrollIndex: wrap(s.scrollIndex + 1), dragOffset: 0 })),
+  scrollPrev: () =>
+    set((s) => ({ scrollIndex: wrap(s.scrollIndex - 1), dragOffset: 0 })),
   startVideo: () => set({ videoStarted: true }),
   stopVideo: () => set({ videoStarted: false }),
   openShowreel: () => set({ showreelOpen: true }),

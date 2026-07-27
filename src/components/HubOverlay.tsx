@@ -14,6 +14,7 @@ import {
 import { useFocusTrap } from '@/lib/useFocusTrap';
 import Lightbox from '@/components/Lightbox';
 import AutoVideo from '@/components/AutoVideo';
+import PlayGlyph from '@/components/PlayGlyph';
 
 const TOTAL = projects.length;
 const pad2 = (n: number) => n.toString().padStart(2, '0');
@@ -54,8 +55,8 @@ function GalleryTile({
       </span>
       {item.category && (
         <span className="media-tile__cap" aria-hidden>
-          <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-chrome/90">
-            {item.type === 'video' ? '▶ ' : ''}
+          <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-chrome/90 inline-flex items-center gap-1.5">
+            {item.type === 'video' && <PlayGlyph className="h-2.5 w-2.5" />}
             {item.category}
           </span>
         </span>

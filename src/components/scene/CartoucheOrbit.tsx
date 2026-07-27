@@ -16,6 +16,7 @@ import { useHubStore } from '@/store/hub';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import type { CartoucheLayout } from '@/lib/useViewportScale';
+import PlayGlyph from '@/components/PlayGlyph';
 
 const PROJECT_BY_ID = new Map<string, Project>(projects.map((p) => [p.id, p]));
 
@@ -392,7 +393,8 @@ function Cartouche({
   useFrame(({ clock, camera }) => {
     if (!groupRef.current || !innerRef.current) return;
 
-    const { mode, hoveredId, activeId, scrollIndex } = useHubStore.getState();
+    const { mode, hoveredId, activeId, scrollIndex, dragOffset } =
+      useHubStore.getState();
     const isActive = activeId === project.id;
     const isHovered = hoveredId === project.id;
     const isFocused =
@@ -404,26 +406,33 @@ function Cartouche({
     const positionLerp = reducedMotion ? 0.015 : 0.08;
     const activeLerp = reducedMotion ? 0.015 : 0.06;
 
-    // Compute wrapped stack offset (used both for positioning and scaling)
-    let stackOffset = index - scrollIndex;
+    // Position dans la pile, en nombre de cartes. Le décalage du doigt en
+    // cours est une fraction, ce qui rend toutes les formules ci-dessous
+    // continues : la pile suit le glissement au lieu de sauter d'un cran.
+    let stackOffset = index - scrollIndex - dragOffset;
     if (stackOffset > total / 2) stackOffset -= total;
     if (stackOffset < -total / 2) stackOffset += total;
-    const isStackFront = layout === 'stack' && stackOffset === 0;
+    const stackAbs = Math.abs(stackOffset);
+    // Poids de mise en avant : 1 pile pile au centre, 0 dès une carte d'écart.
+    const frontWeight = Math.max(0, 1 - stackAbs);
 
     if (isActive) {
       groupRef.current.position.lerp(ACTIVE_TARGET, activeLerp);
       groupRef.current.lookAt(ACTIVE_LOOK);
     } else if (layout === 'stack') {
-      const sign = stackOffset === 0 ? 0 : Math.sign(stackOffset);
-      const abs = Math.abs(stackOffset);
       // Espacement régulier (GAP_X constant) au lieu de 0.5 + (abs-1)*0.18 qui
       // créait un premier décalage disproportionné.
       orbitTarget.current.set(
-        sign * STACK_GAP_X * abs,
-        -abs * 0.05,
-        ORBIT_CENTER_Z + (isStackFront ? 0.4 : -0.28 * abs),
+        STACK_GAP_X * stackOffset,
+        -stackAbs * 0.05,
+        ORBIT_CENTER_Z + 0.4 * frontWeight - 0.28 * stackAbs,
       );
-      groupRef.current.position.lerp(orbitTarget.current, positionLerp);
+      // Pendant le glissement, la pile colle au doigt ; hors glissement, elle
+      // rejoint sa cible en douceur.
+      groupRef.current.position.lerp(
+        orbitTarget.current,
+        dragOffset !== 0 ? 0.45 : positionLerp,
+      );
       groupRef.current.lookAt(LOOK_AT);
     } else {
       const angle = angleOffset + clock.elapsedTime * ORBIT_SPEED;
@@ -459,9 +468,12 @@ function Cartouche({
 
     // Échelle modulaire : ratio géométrique constant (quarte ≈ 1.333) au lieu
     // d'une décroissance linéaire — progression de tailles harmonieuse.
-    const stackScale = isStackFront
-      ? 1.4
-      : Math.max(0.45, 1.4 / Math.pow(STACK_SCALE_RATIO, Math.abs(stackOffset)));
+    // À stackAbs = 0 la formule vaut déjà 1.4 : pas de cas particulier, donc
+    // la taille grandit progressivement pendant que la carte se recentre.
+    const stackScale = Math.max(
+      0.45,
+      1.4 / Math.pow(STACK_SCALE_RATIO, stackAbs),
+    );
     const targetScale = isActive
       ? 1.5
       : layout === 'stack'
@@ -505,10 +517,9 @@ function Cartouche({
         base + Math.sin(clock.elapsedTime * 1.4 + breathPhase) * 0.35;
     }
 
+    // Idem : vaut 1 au centre, donc pas de rupture quand la carte arrive.
     const stackFade =
-      layout === 'stack' && !isStackFront
-        ? Math.max(0.25, 1 - Math.abs(stackOffset) * 0.3)
-        : 1;
+      layout === 'stack' ? Math.max(0.25, 1 - stackAbs * 0.3) : 1;
     const targetOpacity = isDimmed
       ? 0.05
       : isOffstage
@@ -806,15 +817,13 @@ function Cartouche({
                   boxShadow: `0 0 60px -2px rgba(255,255,255,0.35), 0 0 48px -4px ${project.accent}, inset 0 0 24px -12px ${project.accent}`,
                 }}
               >
-                <span
-                  className="ml-1.5 text-4xl"
+                <PlayGlyph
+                  className="h-10 w-10"
                   style={{
                     color: project.accent,
-                    textShadow: `0 0 26px ${project.accent}, 0 0 12px ${project.accent}`,
+                    filter: `drop-shadow(0 0 16px ${project.accent})`,
                   }}
-                >
-                  ▶
-                </span>
+                />
                 <span
                   className="absolute -bottom-7 font-mono text-[9px] uppercase tracking-[0.3em] whitespace-nowrap"
                   style={{ color: project.accent, opacity: 0.85 }}
