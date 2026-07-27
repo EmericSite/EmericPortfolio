@@ -45,10 +45,7 @@ function Loader() {
       }`}
     >
       <div className="flex flex-col items-center gap-8">
-        <div
-          className="relative h-20 w-20 animate-[spin_8s_linear_infinite]"
-          style={{ willChange: 'transform' }}
-        >
+        <div className="relative h-20 w-20">
           <Image
             src="/logo-mark.png"
             alt="Loading"
