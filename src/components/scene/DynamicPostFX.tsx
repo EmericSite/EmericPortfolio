@@ -10,7 +10,7 @@ import {
   wrapEffect,
 } from '@react-three/postprocessing';
 import { type DepthOfFieldEffect, KernelSize } from 'postprocessing';
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import * as THREE from 'three';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 import { useHubStore, type HubMode } from '@/store/hub';
@@ -70,6 +70,27 @@ export default function DynamicPostFX() {
 
   const postFX = budget.postFX;
   const hoverFX = budget.hoverFX;
+
+  // Les composants issus de wrapEffect (Bloom, HueSaturation, et notre
+  // TintedGlitch) ne sont pas des forwardRef. Sous React 19, `ref` leur arrive
+  // donc comme une prop ordinaire, et wrapEffect la ramasse dans le rest qu'il
+  // passe à `JSON.stringify` pour mémoïser ses args. Une fois la ref peuplée,
+  // cette sérialisation part sur un objet circulaire et fait tomber le canvas
+  // au premier re-rendu venu, typiquement un redimensionnement de fenêtre ou
+  // une rotation d'écran.
+  //
+  // Des callback refs contournent le problème : JSON.stringify ignore les
+  // fonctions. Bug présent jusqu'en 3.0.4 incluse, la dernière version.
+  // DepthOfField, lui, est un vrai forwardRef et n'est pas concerné.
+  const setBloom = useCallback((el: BloomLike | null) => {
+    bloomRef.current = el;
+  }, []);
+  const setGlitch = useCallback((el: TintedGlitchEffect | null) => {
+    glitchRef.current = el;
+  }, []);
+  const setHueSat = useCallback((el: HueSatLike | null) => {
+    hueSatRef.current = el;
+  }, []);
 
   useFrame(({ clock }) => {
     if (postFX === 'off') return;
@@ -147,14 +168,18 @@ export default function DynamicPostFX() {
   return (
     <EffectComposer multisampling={0} stencilBuffer={false}>
       <Bloom
-        ref={bloomRef as React.Ref<BloomLike>}
+        ref={setBloom as React.Ref<BloomLike>}
         intensity={0.7}
         luminanceThreshold={0.6}
         luminanceSmoothing={0.3}
         kernelSize={KernelSize.SMALL}
       />
-      <TintedGlitch ref={glitchRef as React.Ref<TintedGlitchEffect>} />
-      <HueSaturation ref={hueSatRef as React.Ref<HueSatLike>} hue={0} saturation={0} />
+      <TintedGlitch ref={setGlitch as React.Ref<TintedGlitchEffect>} />
+      <HueSaturation
+        ref={setHueSat as React.Ref<HueSatLike>}
+        hue={0}
+        saturation={0}
+      />
       <DepthOfField
         ref={dofRef}
         focusDistance={0.003}
