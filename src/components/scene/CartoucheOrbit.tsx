@@ -158,6 +158,9 @@ const STACK_SCALE_RATIO = 1.333;
 const ACTIVE_TARGET = new THREE.Vector3(-0.7, 0, 1.6);
 const ACTIVE_LOOK = new THREE.Vector3(0, 0, 4.6);
 const LOOK_AT = new THREE.Vector3(0, 0, 1.2);
+// Part d'orientation vers la caméra ajoutée au survol : 0 = orientation
+// d'orbite habituelle, 1 = carte entièrement de face.
+const HOVER_FACE_AMOUNT = 0.4;
 
 function LensFlare({ accent }: { accent: string }) {
   // Stacked scanlines that sweep the card vertically + glitchy effects.
@@ -326,6 +329,12 @@ function Cartouche({
   const angleOffset = (index / total) * Math.PI * 2;
   const orbitTarget = useRef(new THREE.Vector3());
 
+  // Orientation au survol. Quaternions stables hoistés hors de useFrame pour
+  // ne pas allouer à chaque image.
+  const hoverFace = useRef(0);
+  const baseQuat = useRef(new THREE.Quaternion());
+  const faceQuat = useRef(new THREE.Quaternion());
+
   // Load poster texture. La configuration se fait dans le callback onLoad du
   // loader (là où la texture est construite) plutôt qu'en mutant la valeur
   // renvoyée par le hook — ce que la règle react-hooks/immutability interdit.
@@ -380,7 +389,7 @@ function Cartouche({
     cachedMats.current = mats;
   }, []);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
     if (!groupRef.current || !innerRef.current) return;
 
     const { mode, hoveredId, activeId, scrollIndex } = useHubStore.getState();
@@ -425,6 +434,27 @@ function Cartouche({
       );
       groupRef.current.position.lerp(orbitTarget.current, positionLerp);
       groupRef.current.lookAt(LOOK_AT);
+    }
+
+    // Survol : la carte se tourne un peu vers le spectateur, et revient à son
+    // orientation d'orbite dès que la souris la quitte. On mélange les deux
+    // orientations plutôt que d'en imposer une, pour que le mouvement reste
+    // léger et suive la caméra où qu'elle soit.
+    const targetFace = isHovered && !isActive ? HOVER_FACE_AMOUNT : 0;
+    hoverFace.current = THREE.MathUtils.lerp(
+      hoverFace.current,
+      targetFace,
+      reducedMotion ? 0.02 : 0.09,
+    );
+    if (!isActive && hoverFace.current > 0.001) {
+      baseQuat.current.copy(groupRef.current.quaternion);
+      groupRef.current.lookAt(camera.position);
+      faceQuat.current.copy(groupRef.current.quaternion);
+      groupRef.current.quaternion.slerpQuaternions(
+        baseQuat.current,
+        faceQuat.current,
+        hoverFace.current,
+      );
     }
 
     // Échelle modulaire : ratio géométrique constant (quarte ≈ 1.333) au lieu
