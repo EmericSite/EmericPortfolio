@@ -14,6 +14,7 @@ import type { Mesh, Group, MeshStandardMaterial } from 'three';
 import CartoucheOrbit from './scene/CartoucheOrbit';
 import CameraRig from './scene/CameraRig';
 import DynamicPostFX from './scene/DynamicPostFX';
+import { PLAY_TRIANGLE } from './scene/playTriangle';
 import { useHubStore } from '@/store/hub';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
@@ -124,6 +125,87 @@ function LogoBackplate() {
   );
 }
 
+function ShowreelPlayMesh() {
+  // Bouton posé sur le disque du pin, en 3D : il suit son inclinaison et son
+  // flottement, contrairement à un overlay 2D qui restait plaqué à l'écran.
+  // Rendu en meshes plutôt qu'en <Html transform>, qui rasterisait le bouton
+  // à travers une transform CSS et le rendait flou.
+  const groupRef = useRef<Group>(null);
+  const openShowreel = useHubStore((s) => s.openShowreel);
+  const mode = useHubStore((s) => s.mode);
+  const reducedMotion = usePrefersReducedMotion();
+  const hovered = useRef(false);
+  const visible = mode === 'hub' || mode === 'hover';
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current) return;
+    const breathe = reducedMotion
+      ? 1
+      : 1 + Math.sin(clock.elapsedTime * 2.2) * 0.045;
+    const target = (hovered.current ? 1.12 : 1) * breathe;
+    groupRef.current.scale.setScalar(
+      THREE.MathUtils.lerp(groupRef.current.scale.x, target, 0.15),
+    );
+  });
+
+  if (!visible) return null;
+
+  return (
+    <group ref={groupRef} position={[0, 0, 0.02]}>
+      {/* Disque de fond, capte aussi le clic */}
+      <mesh
+        onClick={(e) => {
+          e.stopPropagation();
+          openShowreel();
+        }}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          hovered.current = true;
+          if (typeof document !== 'undefined') {
+            document.body.style.cursor = 'pointer';
+          }
+        }}
+        onPointerOut={() => {
+          hovered.current = false;
+          if (typeof document !== 'undefined') {
+            document.body.style.cursor = '';
+          }
+        }}
+      >
+        <circleGeometry args={[0.42, 64]} />
+        <meshBasicMaterial
+          color="#08070C"
+          transparent
+          opacity={0.28}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Contour */}
+      <mesh position={[0, 0, 0.001]}>
+        <ringGeometry args={[0.4, 0.425, 64]} />
+        <meshBasicMaterial
+          color="#F4D8E2"
+          transparent
+          opacity={0.55}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Triangle */}
+      <mesh geometry={PLAY_TRIANGLE} position={[0, 0, 0.002]}>
+        <meshBasicMaterial
+          color="#F4D8E2"
+          transparent
+          opacity={0.95}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function ShowreelDisk() {
   // Affiche du showreel posée sur le pin, à la place de l'ancien logo. Plus
   // de révélation au survol : le visuel est visible en permanence.
@@ -160,7 +242,7 @@ function Relic() {
   const groupRef = useRef<Group>(null);
   const mode = useHubStore((s) => s.mode);
   const { mouse } = useThree();
-  const { hubScale } = useViewportScale();
+  const { hubScale, layout } = useViewportScale();
   const reducedMotion = usePrefersReducedMotion();
 
   useFrame(() => {
@@ -216,12 +298,16 @@ function Relic() {
           rotationIntensity={0.15}
           floatIntensity={0.55}
         >
-          {/* Le pin porte l'affiche du showreel à la place du logo. */}
+          {/* Le pin porte l'affiche du showreel à la place du logo. Le bouton
+              de lecture n'est posé dessus qu'en disposition orbite : en pile,
+              le pin est réduit et masqué par les cartouches, c'est une
+              cartouche showreel dédiée qui prend le relais. */}
           <HaloA />
           <MidRing />
           <InnerRing />
           <LogoBackplate />
           <ShowreelDisk />
+          {layout === 'orbit' && <ShowreelPlayMesh />}
         </Float>
       </group>
     </group>

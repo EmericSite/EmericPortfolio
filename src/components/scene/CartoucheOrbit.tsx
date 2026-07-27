@@ -17,6 +17,7 @@ import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import type { CartoucheLayout } from '@/lib/useViewportScale';
 import PlayGlyph from '@/components/PlayGlyph';
+import { PLAY_TRIANGLE } from './playTriangle';
 
 const PROJECT_BY_ID = new Map<string, Project>(projects.map((p) => [p.id, p]));
 
@@ -154,7 +155,26 @@ const ORBIT_DEPTH_RATIO = 0.15;
 // (la répartition angulaire reste équiangulaire — la plus lisible pour un anneau).
 const GOLDEN_ANGLE = 2.399963229728653; // 137.5078° en radians
 // Stack (mobile) : espacement régulier + échelle géométrique (quarte ≈ 1.333).
-const STACK_GAP_X = 0.42;
+// Écart horizontal entre deux cartouches de la pile (mobile). Élargi pour que
+// les voisines respirent au lieu de se chevaucher.
+const STACK_GAP_X = 0.66;
+
+// Carte du showreel, en pile seulement. Ce n'est pas un projet : elle n'entre
+// pas dans `projects`, n'ouvre aucune fiche et ne porte que l'affiche.
+const SHOWREEL_CARD: Project = {
+  id: '__showreel__',
+  title: 'Showreel 2025',
+  shortTitle: 'Showreel 2025',
+  year: '2025',
+  tag: '',
+  accent: '#F4D8E2',
+  blurb: '',
+  description: '',
+  role: '',
+  credits: [],
+  posterUrl: '/showreel-poster.webp',
+  vimeoId: '',
+};
 const STACK_SCALE_RATIO = 1.333;
 const ACTIVE_TARGET = new THREE.Vector3(-0.7, 0, 1.6);
 const ACTIVE_LOOK = new THREE.Vector3(0, 0, 4.6);
@@ -298,6 +318,7 @@ function Cartouche({
   orbitRadius,
   cartoucheScale,
   layout,
+  showreel = false,
 }: {
   project: Project;
   index: number;
@@ -306,6 +327,8 @@ function Cartouche({
   orbitRadius: number;
   cartoucheScale: number;
   layout: CartoucheLayout;
+  /** Carte du showreel : affiche et bouton seuls, lecture directe au clic. */
+  showreel?: boolean;
 }) {
   const groupRef = useRef<Group>(null);
   const innerRef = useRef<Group>(null);
@@ -323,8 +346,9 @@ function Cartouche({
 
   const setHovered = useHubStore((s) => s.setHovered);
   const setActive = useHubStore((s) => s.setActive);
+  const openShowreel = useHubStore((s) => s.openShowreel);
   const startVideo = useHubStore((s) => s.startVideo);
-  const isActive = useHubStore((s) => s.activeId === project.id);
+  const isActive = useHubStore((s) => !showreel && s.activeId === project.id);
   const videoStarted = useHubStore((s) => s.videoStarted);
 
   const angleOffset = (index / total) * Math.PI * 2;
@@ -406,12 +430,20 @@ function Cartouche({
     const positionLerp = reducedMotion ? 0.015 : 0.08;
     const activeLerp = reducedMotion ? 0.015 : 0.06;
 
-    // Position dans la pile, en nombre de cartes. Le décalage du doigt en
-    // cours est une fraction, ce qui rend toutes les formules ci-dessous
-    // continues : la pile suit le glissement au lieu de sauter d'un cran.
-    let stackOffset = index - scrollIndex - dragOffset;
-    if (stackOffset > total / 2) stackOffset -= total;
-    if (stackOffset < -total / 2) stackOffset += total;
+    // Position dans la pile, en nombre de cartes.
+    //
+    // Le repli circulaire s'applique au rang entier UNIQUEMENT, avant d'y
+    // ajouter le décalage du doigt. Replier la valeur continue faisait sauter
+    // une carte d'un bout à l'autre de la pile en plein geste dès qu'elle
+    // franchissait la demi-longueur : quatre projets, donc un bond de quatre
+    // crans, très visible avec le lerp serré du glissement.
+    let base = index - scrollIndex;
+    if (base > total / 2) base -= total;
+    if (base < -total / 2) base += total;
+    // Le repli ne bouge donc plus qu'au relâchement, quand scrollIndex change
+    // et que le décalage revient à zéro : la carte concernée est alors la plus
+    // lointaine, réduite et estompée, son saut passe inaperçu.
+    const stackOffset = base - dragOffset;
     const stackAbs = Math.abs(stackOffset);
     // Poids de mise en avant : 1 pile pile au centre, 0 dès une carte d'écart.
     const frontWeight = Math.max(0, 1 - stackAbs);
@@ -555,21 +587,25 @@ function Cartouche({
           ref={innerRef}
           onPointerOver={(e) => {
             e.stopPropagation();
-            setHovered(project.id);
+            // La cartouche showreel n'est pas un projet : la signaler comme
+            // survolée fausserait l'index courant et les effets de survol.
+            if (!showreel) setHovered(project.id);
             if (typeof document !== 'undefined') {
               document.body.style.cursor = 'pointer';
             }
           }}
           onPointerOut={(e) => {
             e.stopPropagation();
-            setHovered(null);
+            if (!showreel) setHovered(null);
             if (typeof document !== 'undefined') {
               document.body.style.cursor = '';
             }
           }}
           onClick={(e) => {
             e.stopPropagation();
-            setActive(project.id);
+            // Le showreel se lit directement, il n'ouvre pas de fiche projet.
+            if (showreel) openShowreel();
+            else setActive(project.id);
           }}
         >
           {/* Chrome backplate */}
@@ -634,6 +670,55 @@ function Cartouche({
             />
           </mesh>
 
+          {/* Cartouche showreel : rien que l'affiche et le bouton. Pas de
+              titre, pas d'année, pas de tag. */}
+          {showreel && (
+            <group position={[0, 0, Z_EMBLEM]}>
+              {/* renderOrder explicite : sans lui, trois transparents à la
+                  même profondeur sont triés arbitrairement et le disque de
+                  fond finissait par recouvrir le triangle. */}
+              <mesh renderOrder={7}>
+                <circleGeometry args={[0.22, 48]} />
+                <meshBasicMaterial
+                  color="#08070C"
+                  transparent
+                  opacity={0.32}
+                  depthWrite={false}
+                  depthTest={false}
+                  toneMapped={false}
+                />
+              </mesh>
+              <mesh position={[0, 0, 0.001]} renderOrder={8}>
+                <ringGeometry args={[0.208, 0.222, 48]} />
+                <meshBasicMaterial
+                  color={project.accent}
+                  transparent
+                  opacity={0.7}
+                  depthWrite={false}
+                  depthTest={false}
+                  toneMapped={false}
+                />
+              </mesh>
+              <mesh
+                geometry={PLAY_TRIANGLE}
+                position={[0, 0, 0.002]}
+                scale={0.85}
+                renderOrder={9}
+              >
+                <meshBasicMaterial
+                  color={project.accent}
+                  transparent
+                  opacity={0.95}
+                  depthWrite={false}
+                  depthTest={false}
+                  toneMapped={false}
+                />
+              </mesh>
+            </group>
+          )}
+
+          {!showreel && (
+            <>
           {/* Top index chip — rounded-rect conforme */}
           <mesh
             geometry={CHIP_INDEX_GEOMETRY}
@@ -746,6 +831,8 @@ function Cartouche({
           >
             {project.tag.toUpperCase()}
           </Text>
+            </>
+          )}
 
           {/* Bottom emblem — chrome ring with emissive accent gem */}
           <mesh position={[0, -0.55, Z_EMBLEM]}>
@@ -850,6 +937,19 @@ export default function CartoucheOrbit({
 } = {}) {
   const tier = usePerformanceTier();
   const hoverFXEnabled = tierBudget[tier].hoverFX;
+  const setCardCount = useHubStore((s) => s.setCardCount);
+
+  // En pile, une cartouche showreel s'ajoute en fin de liste : le pin central
+  // y est trop réduit et masqué par les cartes pour porter le bouton de
+  // lecture. En orbite, c'est le pin qui le porte, la carte n'a pas lieu
+  // d'être. Placée en dernier, elle ne décale pas les index des projets.
+  const withShowreel = layout === 'stack';
+  const total = projects.length + (withShowreel ? 1 : 0);
+
+  useEffect(() => {
+    setCardCount(total);
+  }, [total, setCardCount]);
+
   return (
     <group>
       {projects.map((p, i) => (
@@ -857,13 +957,26 @@ export default function CartoucheOrbit({
           key={p.id}
           project={p}
           index={i}
-          total={projects.length}
+          total={total}
           hoverFXEnabled={hoverFXEnabled}
           orbitRadius={orbitRadius}
           cartoucheScale={cartoucheScale}
           layout={layout}
         />
       ))}
+      {withShowreel && (
+        <Cartouche
+          key={SHOWREEL_CARD.id}
+          project={SHOWREEL_CARD}
+          index={projects.length}
+          total={total}
+          hoverFXEnabled={hoverFXEnabled}
+          orbitRadius={orbitRadius}
+          cartoucheScale={cartoucheScale}
+          layout={layout}
+          showreel
+        />
+      )}
     </group>
   );
 }

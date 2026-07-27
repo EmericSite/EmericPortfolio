@@ -5,8 +5,7 @@ export type HubMode = 'hub' | 'hover' | 'project' | 'about' | 'contact';
 
 const PROJECT_FLOW: HubMode[] = ['hub', 'hover', 'project'];
 const inProjectFlow = (m: HubMode) => PROJECT_FLOW.includes(m);
-const TOTAL = projects.length;
-const wrap = (i: number) => ((i % TOTAL) + TOTAL) % TOTAL;
+const wrap = (i: number, total: number) => ((i % total) + total) % total;
 
 type HubStore = {
   mode: HubMode;
@@ -19,12 +18,19 @@ type HubStore = {
    * de suivre le doigt au lieu de sauter d'un cran au relâchement.
    */
   dragOffset: number;
+  /**
+   * Nombre de cartes du carrousel. Vaut le nombre de projets en orbite, un de
+   * plus en pile où s'ajoute la carte du showreel. Déclaré par la scène, qui
+   * seule connaît la disposition courante.
+   */
+  cardCount: number;
   videoStarted: boolean;
   showreelOpen: boolean;
   setHovered: (id: string | null) => void;
   setActive: (id: string | null) => void;
   setMode: (mode: HubMode) => void;
   setScrollIndex: (i: number) => void;
+  setCardCount: (n: number) => void;
   setDragOffset: (d: number) => void;
   /** Termine un glissement : avance de `steps` crans et remet le décalage à 0. */
   commitDrag: (steps: number) => void;
@@ -43,6 +49,7 @@ export const useHubStore = create<HubStore>((set) => ({
   activeId: null,
   scrollIndex: 0,
   dragOffset: 0,
+  cardCount: projects.length,
   videoStarted: false,
   showreelOpen: false,
   setHovered: (id) =>
@@ -84,14 +91,34 @@ export const useHubStore = create<HubStore>((set) => ({
         return { mode, hoveredId: null, activeId: null, videoStarted: false };
       return { mode };
     }),
-  setScrollIndex: (i) => set({ scrollIndex: wrap(i) }),
-  setDragOffset: (d) => set({ dragOffset: d }),
+  setScrollIndex: (i) => set((s) => ({ scrollIndex: wrap(i, s.cardCount) })),
+  // Le nombre de cartes change avec la disposition : on ramène l'index dans
+  // les bornes, sinon passer de la pile à l'orbite laisserait le carrousel
+  // pointé sur une carte showreel qui n'existe plus.
+  setCardCount: (n) =>
+    set((s) => ({
+      cardCount: n,
+      scrollIndex: wrap(s.scrollIndex, n),
+      dragOffset: 0,
+    })),
+  // Borné à une carte : un geste très long ne doit pas expédier la pile à
+  // l'autre bout, on n'avance jamais que d'un cran à la fois.
+  setDragOffset: (d) => set({ dragOffset: Math.max(-1, Math.min(1, d)) }),
   commitDrag: (steps) =>
-    set((s) => ({ scrollIndex: wrap(s.scrollIndex + steps), dragOffset: 0 })),
+    set((s) => ({
+      scrollIndex: wrap(s.scrollIndex + steps, s.cardCount),
+      dragOffset: 0,
+    })),
   scrollNext: () =>
-    set((s) => ({ scrollIndex: wrap(s.scrollIndex + 1), dragOffset: 0 })),
+    set((s) => ({
+      scrollIndex: wrap(s.scrollIndex + 1, s.cardCount),
+      dragOffset: 0,
+    })),
   scrollPrev: () =>
-    set((s) => ({ scrollIndex: wrap(s.scrollIndex - 1), dragOffset: 0 })),
+    set((s) => ({
+      scrollIndex: wrap(s.scrollIndex - 1, s.cardCount),
+      dragOffset: 0,
+    })),
   startVideo: () => set({ videoStarted: true }),
   stopVideo: () => set({ videoStarted: false }),
   openShowreel: () => set({ showreelOpen: true }),

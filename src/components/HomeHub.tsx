@@ -3,7 +3,6 @@
 import dynamic from 'next/dynamic';
 import { useSyncExternalStore } from 'react';
 import FallbackHub from '@/components/FallbackHub';
-import ShowreelPlayButton from '@/components/ShowreelPlayButton';
 import { isSoftwareRenderer } from '@/lib/usePerformanceTier';
 
 const HubScene = dynamic(() => import('@/components/HubScene'), {
@@ -34,11 +33,5 @@ export default function HomeHub({ showCartouches }: HomeHubProps) {
 
   if (mode === 'pending') return null;
   if (mode === 'fallback') return <FallbackHub />;
-  return (
-    <>
-      <HubScene showCartouches={showCartouches} />
-      {/* Hors du Canvas : rendu DOM net, cible tactile fiable. */}
-      <ShowreelPlayButton />
-    </>
-  );
+  return <HubScene showCartouches={showCartouches} />;
 }

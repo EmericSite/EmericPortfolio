@@ -30,7 +30,9 @@ function computeScale(width: number, height: number): ViewportScale {
     return {
       hubScale: 0.45,
       orbitRadius: 1.55,
-      cartoucheScale: 1.05,
+      // Cartouches rétrécies : la carte centrale mangeait tout l'écran et ses
+      // voisines n'étaient plus lisibles.
+      cartoucheScale: 0.78,
       cameraZ: 5.1,
       isCompact: true,
       layout: 'stack',
@@ -40,7 +42,7 @@ function computeScale(width: number, height: number): ViewportScale {
     return {
       hubScale: 0.55,
       orbitRadius: 1.75,
-      cartoucheScale: 1.0,
+      cartoucheScale: 0.82,
       cameraZ: 4.9,
       isCompact: true,
       layout: 'stack',
