@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "scan-media": "node tools/scan-media.mjs",
+    "build-logos": "node tools/build-logos.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

@@ -1,3 +1,14 @@
+// ---------------------------------------------------------------------------
+// FICHES PROJETS
+//
+// C'est le fichier à éditer pour ajouter un projet ou changer un texte.
+// Les images et vidéos ne se déclarent PAS ici : elles sont détectées
+// automatiquement dans public/projects/<id>/<categorie>/ par `npm run
+// scan-media`. Voir CONTENU.md pour la marche à suivre.
+// ---------------------------------------------------------------------------
+
+import { generatedGallery } from './gallery.generated';
+
 // Catégories de médias affichées en sections dans le panneau projet.
 // L'ordre ci-dessous est l'ordre d'affichage des sections.
 export const GALLERY_CATEGORIES = [
@@ -40,8 +51,31 @@ export type Project = {
   credits: { label: string; value: string }[];
   posterUrl: string;
   vimeoId: string;
+  /**
+   * Ordre des sections propre à ce projet. Facultatif : sans lui, on suit
+   * l'ordre global de GALLERY_CATEGORIES. Permet par exemple de faire
+   * remonter le storyboard en premier sur un projet en particulier.
+   */
+  categories?: readonly GalleryCategory[];
+  /**
+   * Médias saisis à la main. Normalement inutile : la galerie vient de
+   * `npm run scan-media`. Sert de porte de sortie pour un cas particulier.
+   */
   gallery?: GalleryItem[];
 };
+
+/**
+ * Médias d'un projet : ceux détectés par le scan, complétés par ceux
+ * éventuellement saisis à la main dans la fiche.
+ */
+export function galleryFor(project: Project): GalleryItem[] {
+  return [...(generatedGallery[project.id] ?? []), ...(project.gallery ?? [])];
+}
+
+/** Ordre des sections à afficher pour un projet donné. */
+export function categoriesFor(project: Project): readonly GalleryCategory[] {
+  return project.categories ?? GALLERY_CATEGORIES;
+}
 
 export const projects: Project[] = [
   {
@@ -63,30 +97,6 @@ export const projects: Project[] = [
     ],
     posterUrl: '/posters/gentle-mates.webp',
     vimeoId: '1170721004',
-    gallery: [
-      { type: 'image', src: '/projects/gentle-mates/still01.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still02.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still03.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still04.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still05.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still06.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still07.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still08.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still09.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still10.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still11.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still12.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still13.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still14.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still15.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still16.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/gentle-mates/still17.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'video', src: '/projects/gentle-mates/scrap01.mp4', category: 'SCRAPS & RESEARCH', width: 400, height: 224 },
-      { type: 'video', src: '/projects/gentle-mates/scrap02.mp4', category: 'SCRAPS & RESEARCH', width: 400, height: 224 },
-      { type: 'video', src: '/projects/gentle-mates/scrap03.mp4', category: 'SCRAPS & RESEARCH', width: 400, height: 224 },
-      { type: 'video', src: '/projects/gentle-mates/scrap04.mp4', category: 'SCRAPS & RESEARCH', width: 400, height: 224 },
-      { type: 'video', src: '/projects/gentle-mates/scrap05.mp4', category: 'SCRAPS & RESEARCH', width: 400, height: 224 },
-    ],
   },
   {
     id: 'dofus',
@@ -106,35 +116,6 @@ export const projects: Project[] = [
     ],
     posterUrl: '/posters/dofus.webp',
     vimeoId: '1169640652',
-    gallery: [
-      { type: 'image', src: '/projects/dofus/still01.webp', category: 'STILLFRAMES', width: 802, height: 803 },
-      { type: 'image', src: '/projects/dofus/still02.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still03.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still04.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still05.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still06.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still07.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still08.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still09.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still10.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still11.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still12.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still13.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still14.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still15.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still16.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still17.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still18.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'image', src: '/projects/dofus/still19.webp', category: 'STILLFRAMES', width: 1080, height: 1080 },
-      { type: 'video', src: '/projects/dofus/bts01.mp4', category: 'BEHIND THE SCENE', width: 1080, height: 608 },
-      { type: 'video', src: '/projects/dofus/bts02.mp4', category: 'BEHIND THE SCENE', width: 1080, height: 608 },
-      { type: 'video', src: '/projects/dofus/bts03.mp4', category: 'BEHIND THE SCENE', width: 1080, height: 608 },
-      { type: 'video', src: '/projects/dofus/bts04.mp4', category: 'BEHIND THE SCENE', width: 1080, height: 608 },
-      { type: 'video', src: '/projects/dofus/bts05.mp4', category: 'BEHIND THE SCENE', width: 1080, height: 608 },
-      { type: 'video', src: '/projects/dofus/bts06.mp4', category: 'BEHIND THE SCENE', width: 1080, height: 608 },
-      { type: 'video', src: '/projects/dofus/bts07.mp4', category: 'BEHIND THE SCENE', width: 1080, height: 608 },
-      { type: 'video', src: '/projects/dofus/bts08.mp4', category: 'BEHIND THE SCENE', width: 1080, height: 608 },
-    ],
   },
   {
     id: 'douce-melancolie',
@@ -154,27 +135,6 @@ export const projects: Project[] = [
     ],
     posterUrl: '/posters/douce-melancolie.webp',
     vimeoId: '1168061777',
-    gallery: [
-      { type: 'image', src: '/projects/douce-melancolie/board01.webp', category: 'STORYBOARD', width: 974, height: 1600 },
-      { type: 'image', src: '/projects/douce-melancolie/still01.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still02.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still03.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still04.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still05.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still06.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still07.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still08.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still09.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still10.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still11.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still12.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still13.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still14.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still15.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still16.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still17.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/douce-melancolie/still18.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-    ],
   },
   {
     id: 'come-torment',
@@ -194,22 +154,5 @@ export const projects: Project[] = [
     ],
     posterUrl: '/posters/come-torment.webp',
     vimeoId: '932641794',
-    gallery: [
-      { type: 'image', src: '/projects/come-torment/board01.webp', category: 'STORYBOARD', width: 1074, height: 960 },
-      { type: 'image', src: '/projects/come-torment/still01.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still02.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still03.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still04.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still05.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still06.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still07.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still08.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still09.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still10.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still11.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still12.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still13.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-      { type: 'image', src: '/projects/come-torment/still14.webp', category: 'STILLFRAMES', width: 1600, height: 900 },
-    ],
   },
 ];

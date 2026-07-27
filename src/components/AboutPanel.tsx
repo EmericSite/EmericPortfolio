@@ -4,25 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useHubStore } from '@/store/hub';
 import { useFocusTrap } from '@/lib/useFocusTrap';
 import { useSwipeToClose } from '@/lib/useSwipeToClose';
-
-const STATS = [
-  { idx: '01', value: '04', label: 'Projets phares\n2024 — 2026' },
-  { idx: '02', value: '02', label: 'Registres\nGaming · Poétique' },
-  { idx: '03', value: '01', label: 'Studio\nParis' },
-];
-
-const APPROACH = [
-  {
-    tag: 'Méthode',
-    body: 'Je construis des images qui ne s\u2019oublient pas. Chaque pièce part d\u2019une atmosphère, d\u2019un grain, d\u2019une intuition narrative — la 3D n\u2019est qu\u2019un moyen.',
-  },
-  {
-    tag: 'Direction',
-    body: 'Je travaille en direction artistique sur le motion : composition, lumière, rythme, sound design. La technique sert le sentiment, jamais l\u2019inverse.',
-  },
-];
-
-const CLIENTS = ['Ankama', 'Gentle Mates', 'HoYoverse'];
+import { about, identite } from '@/content/site';
 
 export default function AboutPanel() {
   const mode = useHubStore((s) => s.mode);
@@ -71,14 +53,14 @@ export default function AboutPanel() {
         {/* ID CARD */}
         <div className="mb-10 md:mb-12">
           <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.3em] text-mist/70 pb-3 border-b border-fog/40">
-            <span>Emeric Ressy</span>
-            <span className="text-magentaglitch">ST# 01</span>
-            <span>Paris · 2026</span>
+            <span>{identite.nom}</span>
+            <span className="text-magentaglitch">{about.reference}</span>
+            <span>{about.lieuEtAnnee}</span>
           </div>
           <div className="flex items-center gap-3 pt-3 font-mono text-[9px] uppercase tracking-[0.3em] text-magentaglitch">
             <span className="h-px w-6 bg-magentaglitch" />
             About
-            <span className="ml-auto text-mist/40">v.04 — rev.26</span>
+            <span className="ml-auto text-mist/40">{about.version}</span>
           </div>
         </div>
 
@@ -87,17 +69,17 @@ export default function AboutPanel() {
           id="about-title"
           className="font-display text-5xl sm:text-6xl md:text-[5.25rem] leading-[0.92] tracking-tight mb-2"
         >
-          Motion
+          {about.titreLigne1}
           <br />
           <span className="inline-flex items-baseline gap-3">
-            <span className="text-chrome">Designer,</span>
+            <span className="text-chrome">{about.titreLigne2}</span>
             <span aria-hidden className="hidden sm:inline-block h-[1px] w-12 bg-fog translate-y-[-0.6em]" />
           </span>
           <br />
-          <span className="italic text-pearl">based in Paris.</span>
+          <span className="italic text-pearl">{about.titreLigne3}</span>
         </h2>
         <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50 mb-10 md:mb-14">
-          ⎯⎯ 3D · Direction Artistique · Motion
+          {about.sousTitre}
         </div>
 
         {/* QUOTE — magazine block */}
@@ -115,11 +97,10 @@ export default function AboutPanel() {
             className="absolute -left-[3px] bottom-1 h-[2px] w-2 bg-magentaglitch/40"
           />
           <blockquote className="font-display italic text-xl md:text-[1.7rem] text-pearl/95 leading-[1.25]">
-            Through motion design, I explore narrative, atmosphere, and visual
-            identity to create striking and memorable imagery.
+            {about.citation}
           </blockquote>
           <figcaption className="mt-4 font-mono text-[9px] uppercase tracking-[0.3em] text-mist/60">
-            — Statement / EN
+            {about.citationLegende}
           </figcaption>
         </figure>
 
@@ -130,11 +111,11 @@ export default function AboutPanel() {
               ⎯ Approach
             </span>
             <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
-              02 entrées
+              {String(about.approche.length).padStart(2, '0')} entrées
             </span>
           </div>
           <div className="divide-y divide-fog/40 border-y border-fog/40">
-            {APPROACH.map((p, i) => (
+            {about.approche.map((p, i) => (
               <div
                 key={i}
                 className="grid grid-cols-[auto_1fr] gap-4 md:gap-6 py-5 md:py-6"
@@ -147,7 +128,7 @@ export default function AboutPanel() {
                     {p.tag}
                   </span>
                 </div>
-                <p className="text-mist text-base leading-relaxed">{p.body}</p>
+                <p className="text-mist text-base leading-relaxed">{p.texte}</p>
               </div>
             ))}
           </div>
@@ -160,11 +141,11 @@ export default function AboutPanel() {
               ⎯ Index
             </span>
             <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
-              2024 / 2026
+              {about.indexPeriode}
             </span>
           </div>
           <dl className="border-t border-fog/60">
-            {STATS.map((s) => (
+            {about.index.map((s) => (
               <div
                 key={s.idx}
                 className="group flex items-baseline justify-between gap-6 py-5 border-b border-fog/40 transition-colors hover:bg-fog/5"
@@ -174,7 +155,7 @@ export default function AboutPanel() {
                     {s.idx}
                   </span>
                   <span className="font-display text-5xl md:text-6xl text-chrome leading-none tabular-nums transition-colors group-hover:text-pearl">
-                    {s.value}
+                    {s.valeur}
                   </span>
                 </dt>
                 <dd className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist text-right whitespace-pre-line leading-relaxed">
@@ -196,7 +177,7 @@ export default function AboutPanel() {
             </span>
           </div>
           <ul className="border-t border-fog/60">
-            {CLIENTS.map((c, i) => (
+            {about.clients.map((c, i) => (
               <li
                 key={c}
                 className="group flex items-baseline gap-4 border-b border-fog/40 py-3 md:py-4"
@@ -212,7 +193,7 @@ export default function AboutPanel() {
                   className="flex-1 mx-2 border-b border-dotted border-fog/50 translate-y-[-0.35em]"
                 />
                 <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50">
-                  Direction · Motion
+                  {about.clientsMention}
                 </span>
               </li>
             ))}
@@ -231,10 +212,10 @@ export default function AboutPanel() {
           >
             <span className="flex flex-col items-start text-left">
               <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-cyanglitch mb-1">
-                /Contact
+                {about.ctaSurtitre}
               </span>
               <span className="font-display italic text-2xl md:text-3xl text-chrome group-hover:text-cyanglitch transition-colors">
-                Discuter d&rsquo;un projet
+                {about.ctaTexte}
               </span>
             </span>
             <span className="font-mono text-2xl text-chrome group-hover:text-cyanglitch transition-all group-hover:translate-x-1">

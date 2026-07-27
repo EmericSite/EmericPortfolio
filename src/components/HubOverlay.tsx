@@ -7,6 +7,8 @@ import { useHubStore } from '@/store/hub';
 import {
   projects,
   GALLERY_CATEGORIES,
+  categoriesFor,
+  galleryFor,
   type GalleryItem,
 } from '@/data/projects';
 import { useFocusTrap } from '@/lib/useFocusTrap';
@@ -83,21 +85,27 @@ export default function HubOverlay() {
 
   useFocusTrap(projectPanelRef, !!active);
 
+  // Sections à afficher pour ce projet, dans l'ordre voulu.
+  const sections = useMemo(
+    () => (active ? categoriesFor(active) : GALLERY_CATEGORIES),
+    [active],
+  );
+
   // Galerie ordonnée par sections (= ordre du lightbox), + indices d'origine.
   const orderedGallery = useMemo<GalleryItem[]>(() => {
-    if (!active?.gallery) return [];
-    const cats = [...GALLERY_CATEGORIES];
-    const known = active.gallery.filter(
+    if (!active) return [];
+    const media = galleryFor(active);
+    if (media.length === 0) return [];
+    const cats = [...sections];
+    const known = media.filter(
       (it) => it.category && cats.includes(it.category),
     );
-    const unknown = active.gallery.filter(
+    const unknown = media.filter(
       (it) => !it.category || !cats.includes(it.category),
     );
-    const sorted = cats.flatMap((c) =>
-      known.filter((it) => it.category === c),
-    );
+    const sorted = cats.flatMap((c) => known.filter((it) => it.category === c));
     return [...sorted, ...unknown];
-  }, [active]);
+  }, [active, sections]);
 
   // Pas de projet actif => pas de lightbox (dérivation, sans setState en effet).
   const effectiveLightboxIndex = active ? lightboxIndex : null;
@@ -200,7 +208,7 @@ export default function HubOverlay() {
 
               {orderedGallery.length > 0 && (
                 <div className="mb-14 space-y-12">
-                  {GALLERY_CATEGORIES.map((category) => {
+                  {sections.map((category) => {
                     const items = orderedGallery.filter(
                       (it) => it.category === category,
                     );
@@ -233,9 +241,7 @@ export default function HubOverlay() {
                   {/* Médias sans catégorie connue — filet de sécurité */}
                   {(() => {
                     const uncategorized = orderedGallery.filter(
-                      (it) =>
-                        !it.category ||
-                        !GALLERY_CATEGORIES.includes(it.category),
+                      (it) => !it.category || !sections.includes(it.category),
                     );
                     if (uncategorized.length === 0) return null;
                     return (
