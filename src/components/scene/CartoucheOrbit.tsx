@@ -17,7 +17,6 @@ import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import type { CartoucheLayout } from '@/lib/useViewportScale';
 import PlayGlyph from '@/components/PlayGlyph';
-import { PLAY_TRIANGLE } from './playTriangle';
 
 const PROJECT_BY_ID = new Map<string, Project>(projects.map((p) => [p.id, p]));
 
@@ -465,7 +464,11 @@ function Cartouche({
         orbitTarget.current,
         dragOffset !== 0 ? 0.45 : positionLerp,
       );
-      groupRef.current.lookAt(LOOK_AT);
+      // En pile, les cartes regardent la caméra et non un point fixe devant la
+      // scène : viser un point fixe les faisait pivoter d'autant qu'elles
+      // s'écartaient du centre, si bien que celle de devant elle-même ne se
+      // présentait jamais franchement de face.
+      groupRef.current.lookAt(camera.position);
     } else {
       const angle = angleOffset + clock.elapsedTime * ORBIT_SPEED;
       orbitTarget.current.set(
@@ -669,53 +672,6 @@ function Cartouche({
               opacity={1}
             />
           </mesh>
-
-          {/* Cartouche showreel : rien que l'affiche et le bouton. Pas de
-              titre, pas d'année, pas de tag. */}
-          {showreel && (
-            <group position={[0, 0, Z_EMBLEM]}>
-              {/* renderOrder explicite : sans lui, trois transparents à la
-                  même profondeur sont triés arbitrairement et le disque de
-                  fond finissait par recouvrir le triangle. */}
-              <mesh renderOrder={7}>
-                <circleGeometry args={[0.22, 48]} />
-                <meshBasicMaterial
-                  color="#08070C"
-                  transparent
-                  opacity={0.32}
-                  depthWrite={false}
-                  depthTest={false}
-                  toneMapped={false}
-                />
-              </mesh>
-              <mesh position={[0, 0, 0.001]} renderOrder={8}>
-                <ringGeometry args={[0.208, 0.222, 48]} />
-                <meshBasicMaterial
-                  color={project.accent}
-                  transparent
-                  opacity={0.7}
-                  depthWrite={false}
-                  depthTest={false}
-                  toneMapped={false}
-                />
-              </mesh>
-              <mesh
-                geometry={PLAY_TRIANGLE}
-                position={[0, 0, 0.002]}
-                scale={0.85}
-                renderOrder={9}
-              >
-                <meshBasicMaterial
-                  color={project.accent}
-                  transparent
-                  opacity={0.95}
-                  depthWrite={false}
-                  depthTest={false}
-                  toneMapped={false}
-                />
-              </mesh>
-            </group>
-          )}
 
           {!showreel && (
             <>
