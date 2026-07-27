@@ -6,19 +6,12 @@ import {
   AdaptiveEvents,
   Environment,
   Float,
-  Html,
   Sparkles,
   useTexture,
 } from '@react-three/drei';
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import type {
-  Mesh,
-  Group,
-  MeshPhysicalMaterial,
-  MeshStandardMaterial,
-  ShaderMaterial,
-} from 'three';
+import type { Mesh, Group, MeshStandardMaterial } from 'three';
 import CartoucheOrbit from './scene/CartoucheOrbit';
 import CameraRig from './scene/CameraRig';
 import DynamicPostFX from './scene/DynamicPostFX';
@@ -102,257 +95,6 @@ function InnerRing() {
   );
 }
 
-function RevealDisk() {
-  const meshRef = useRef<Mesh>(null);
-  const matRef = useRef<ShaderMaterial>(null);
-  const tex = useTexture('/showreel-reveal.webp');
-  const target = useRef({ mouseX: 0.5, mouseY: 0.5, radius: 0 });
-  const mode = useHubStore((s) => s.mode);
-  const visible = mode === 'hub' || mode === 'hover';
-  const { raycaster, camera, gl } = useThree();
-
-  useEffect(() => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 16;
-  }, [tex]);
-
-  // Track the pointer globally so HTML overlays (showreel play button,
-  // panels, navbar) don't swallow the mousemove and freeze the reveal.
-  useEffect(() => {
-    if (!visible) {
-      target.current.radius = 0;
-      return;
-    }
-    const ndc = new THREE.Vector2();
-    const onMove = (e: PointerEvent) => {
-      const canvas = gl.domElement;
-      const rect = canvas.getBoundingClientRect();
-      ndc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      ndc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-      raycaster.setFromCamera(ndc, camera);
-      if (!meshRef.current) return;
-      const hits = raycaster.intersectObject(meshRef.current, false);
-      if (hits.length > 0 && hits[0].uv) {
-        target.current.mouseX = hits[0].uv.x;
-        target.current.mouseY = hits[0].uv.y;
-        target.current.radius = 0.28;
-      } else {
-        target.current.radius = 0;
-      }
-    };
-    const onLeave = () => {
-      target.current.radius = 0;
-    };
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerleave', onLeave);
-    return () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerleave', onLeave);
-    };
-  }, [visible, gl, raycaster, camera]);
-
-  const uniforms = useMemo(
-    () => ({
-      uTexture: { value: tex },
-      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
-      uRadius: { value: 0 },
-      uTime: { value: 0 },
-      uAspect: { value: 1 },
-    }),
-    [tex],
-  );
-
-  useEffect(() => {
-    const img = tex.image as { width?: number; height?: number } | undefined;
-    if (img?.width && img?.height && matRef.current) {
-      matRef.current.uniforms.uAspect.value = img.width / img.height;
-    }
-  }, [tex]);
-
-  useFrame(({ clock }) => {
-    if (!matRef.current) return;
-    const u = matRef.current.uniforms;
-    u.uMouse.value.x = THREE.MathUtils.lerp(
-      u.uMouse.value.x,
-      target.current.mouseX,
-      0.18,
-    );
-    u.uMouse.value.y = THREE.MathUtils.lerp(
-      u.uMouse.value.y,
-      target.current.mouseY,
-      0.18,
-    );
-    u.uRadius.value = THREE.MathUtils.lerp(
-      u.uRadius.value,
-      target.current.radius,
-      0.1,
-    );
-    u.uTime.value = clock.elapsedTime;
-  });
-
-  return (
-    <mesh ref={meshRef} position={[0, 0, 0.005]} visible={visible}>
-      <circleGeometry args={[1.6, 128]} />
-      <shaderMaterial
-        ref={matRef}
-        uniforms={uniforms}
-        transparent
-        depthWrite={false}
-        toneMapped={false}
-        vertexShader={/* glsl */ `
-          varying vec2 vUv;
-          void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `}
-        fragmentShader={/* glsl */ `
-          varying vec2 vUv;
-          uniform sampler2D uTexture;
-          uniform vec2 uMouse;
-          uniform float uRadius;
-          uniform float uTime;
-          uniform float uAspect;
-          void main() {
-            // CRITICAL: discard everything when radius is effectively zero.
-            // smoothstep(0, 0, x) is undefined in GLSL (div by zero in the
-            // edge1 - edge0 term) and was leaking the full texture over
-            // the logo at rest.
-            if (uRadius < 0.005) discard;
-            vec2 toMouse = vUv - uMouse;
-            float d = length(toMouse);
-            float angle = atan(toMouse.y, toMouse.x);
-            // Organic radius wobble — three desynced harmonics
-            float wobble =
-              sin(angle * 5.0 + uTime * 0.7) * 0.13 +
-              sin(angle * 3.0 - uTime * 0.43) * 0.085 +
-              sin(angle * 9.0 + uTime * 1.1) * 0.04;
-            // Slow breathe on overall radius too
-            float breathe = sin(uTime * 0.55) * 0.04;
-            float r = max(uRadius * (1.0 + wobble + breathe), 0.001);
-            float mask = 1.0 - smoothstep(r * 0.62, r, d);
-            if (mask < 0.001) discard;
-            // Constrain to disk
-            float disk = 1.0 - smoothstep(0.495, 0.5, distance(vUv, vec2(0.5)));
-            mask *= disk;
-            // Cover-fit sampling so non-square textures aren't squished
-            vec2 scale = uAspect > 1.0 ? vec2(1.0 / uAspect, 1.0) : vec2(1.0, uAspect);
-            vec2 sampleUv = (vUv - 0.5) * scale + 0.5;
-            vec4 col = texture2D(uTexture, sampleUv);
-            gl_FragColor = vec4(col.rgb, mask);
-          }
-        `}
-      />
-    </mesh>
-  );
-}
-
-function ShowreelPlayButton() {
-  const openShowreel = useHubStore((s) => s.openShowreel);
-  const mode = useHubStore((s) => s.mode);
-  if (mode !== 'hub' && mode !== 'hover') return null;
-  return (
-    <Html
-      position={[0, 0, 0.05]}
-      transform
-      center
-      scale={0.32}
-      zIndexRange={[100, 0]}
-      style={{ pointerEvents: 'auto' }}
-    >
-      <div className="relative flex items-center justify-center">
-        <span
-          className="play-ring absolute inset-0 rounded-full border-2"
-          style={{ borderColor: '#F4D8E2' }}
-          aria-hidden
-        />
-        <span
-          className="play-ring absolute inset-0 rounded-full border"
-          style={{
-            borderColor: '#F4D8E2',
-            animationDelay: '1.2s',
-            opacity: 0.4,
-          }}
-          aria-hidden
-        />
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            openShowreel();
-          }}
-          aria-label="Lire le showreel 2025"
-          className="play-breathe relative flex h-24 w-24 items-center justify-center rounded-full border border-chrome/50 bg-ink/45 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-ink/75 hover:border-chrome/90"
-          style={{ boxShadow: '0 0 36px -6px #F4D8E2' }}
-        >
-          <span
-            className="ml-1 text-3xl"
-            style={{ color: '#F4D8E2', textShadow: '0 0 22px #F4D8E2' }}
-          >
-            ▶
-          </span>
-          <span className="absolute -bottom-7 font-mono text-[9px] uppercase tracking-[0.3em] text-chrome/80 whitespace-nowrap">
-            showreel 2025
-          </span>
-        </button>
-      </div>
-    </Html>
-  );
-}
-
-function LogoDisk() {
-  const matRef = useRef<MeshPhysicalMaterial>(null);
-  const tex = useTexture('/logo.png');
-
-  useEffect(() => {
-    tex.anisotropy = 16;
-    tex.colorSpace = THREE.SRGBColorSpace;
-    if (matRef.current) {
-      matRef.current.map = tex;
-      matRef.current.onBeforeCompile = (shader) => {
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <map_fragment>',
-          /* glsl */ `
-          #include <map_fragment>
-          // Boost saturation + contrast + vibrance on the logo texture
-          {
-            vec3 _c = diffuseColor.rgb;
-            float _luma = dot(_c, vec3(0.299, 0.587, 0.114));
-            // Vibrance: saturate less aggressively for already-saturated pixels
-            float _maxC = max(max(_c.r, _c.g), _c.b);
-            float _minC = min(min(_c.r, _c.g), _c.b);
-            float _sat = _maxC - _minC;
-            float _vibrance = 0.55 * (1.0 - _sat);
-            _c = mix(vec3(_luma), _c, 1.35 + _vibrance);
-            // Contrast around mid grey
-            _c = (_c - 0.5) * 1.22 + 0.5;
-            diffuseColor.rgb = clamp(_c, 0.0, 1.0);
-          }
-          `,
-        );
-      };
-      matRef.current.needsUpdate = true;
-    }
-  }, [tex]);
-
-  return (
-    <mesh>
-      <circleGeometry args={[1.6, 128]} />
-      <meshPhysicalMaterial
-        ref={matRef}
-        color="#ffffff"
-        metalness={0.15}
-        roughness={0.55}
-        clearcoat={0.6}
-        clearcoatRoughness={0.18}
-        envMapIntensity={0.7}
-        transparent
-        toneMapped={false}
-      />
-    </mesh>
-  );
-}
-
 function LogoBackplate() {
   // Un seul pin propre : corps sombre légèrement bombé + un liseré chromé au
   // bord (plus de disques empilés ni d'anneaux gravés multiples).
@@ -381,6 +123,38 @@ function LogoBackplate() {
         />
       </mesh>
     </group>
+  );
+}
+
+function ShowreelDisk() {
+  // Affiche du showreel posée sur le pin, à la place de l'ancien logo. Plus
+  // de révélation au survol : le visuel est visible en permanence.
+  const tex = useTexture('/showreel-poster.webp');
+
+  useEffect(() => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 16;
+    // Cadrage « cover » : la source est en 3:2 et le disque est carré en UV,
+    // on rogne la largeur et on recentre pour ne pas écraser l'image.
+    const img = tex.image as { width?: number; height?: number } | undefined;
+    if (img?.width && img?.height) {
+      const aspect = img.width / img.height;
+      if (aspect > 1) {
+        tex.repeat.set(1 / aspect, 1);
+        tex.offset.set((1 - 1 / aspect) / 2, 0);
+      } else {
+        tex.repeat.set(1, aspect);
+        tex.offset.set(0, (1 - aspect) / 2);
+      }
+      tex.needsUpdate = true;
+    }
+  }, [tex]);
+
+  return (
+    <mesh position={[0, 0, 0.005]}>
+      <circleGeometry args={[1.6, 128]} />
+      <meshBasicMaterial map={tex} toneMapped={false} transparent />
+    </mesh>
   );
 }
 
@@ -444,13 +218,12 @@ function Relic() {
           rotationIntensity={0.15}
           floatIntensity={0.55}
         >
+          {/* Le pin porte l'affiche du showreel à la place du logo. */}
           <HaloA />
           <MidRing />
           <InnerRing />
           <LogoBackplate />
-          <RevealDisk />
-          <ShowreelPlayButton />
-          <LogoDisk />
+          <ShowreelDisk />
         </Float>
       </group>
     </group>

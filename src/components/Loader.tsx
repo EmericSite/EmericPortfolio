@@ -3,6 +3,7 @@
 import { memo, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useProgress } from '@react-three/drei';
+import { loader } from '@/content/site';
 
 function Loader() {
   const { progress, active } = useProgress();
@@ -49,7 +50,7 @@ function Loader() {
           style={{ willChange: 'transform' }}
         >
           <Image
-            src="/logo.png"
+            src="/logo-mark.png"
             alt="Loading"
             fill
             className="object-contain opacity-90"
@@ -59,7 +60,7 @@ function Loader() {
         </div>
 
         <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-mist flex flex-col items-center gap-3">
-          <span>Mélancolie électrique</span>
+          <span>{loader.texte}</span>
           <span className="text-magentaglitch">
             {Math.floor(bootProgress).toString().padStart(3, '0')}%
           </span>

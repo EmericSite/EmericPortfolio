@@ -33,7 +33,9 @@ export default function ScrollNav() {
     const onWheel = (e: WheelEvent) => {
       if (!isHubFlow()) return;
       e.preventDefault();
-      acc += e.deltaY;
+      // Molette verticale ou glissement horizontal sur trackpad : on prend
+      // l'axe dominant, cohérent avec le swipe tactile horizontal.
+      acc += Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if (rAFPending) return;
       rAFPending = true;
       rAFId = requestAnimationFrame(() => {
@@ -56,24 +58,30 @@ export default function ScrollNav() {
       }
     };
 
-    let touchStartY: number | null = null;
+    // Tactile : on navigue à l'horizontale (glisser vers la gauche = projet
+    // suivant), plus intuitif qu'un défilement vertical sur un carrousel.
+    let touchStart: { x: number; y: number } | null = null;
 
     const onTouchStart = (e: TouchEvent) => {
       if (!isHubFlow()) return;
       if (e.touches.length === 0) return;
-      touchStartY = e.touches[0].clientY;
+      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     };
 
     const onTouchEnd = (e: TouchEvent) => {
-      if (touchStartY === null) return;
-      const startY = touchStartY;
-      touchStartY = null;
+      if (touchStart === null) return;
+      const start = touchStart;
+      touchStart = null;
       if (!isHubFlow()) return;
-      const endY = e.changedTouches[0]?.clientY;
-      if (endY === undefined) return;
-      const deltaY = startY - endY;
-      if (Math.abs(deltaY) < TOUCH_THRESHOLD) return;
-      advance(deltaY > 0 ? 1 : -1);
+      const touch = e.changedTouches[0];
+      if (!touch) return;
+      const deltaX = start.x - touch.clientX;
+      const deltaY = start.y - touch.clientY;
+      // Geste clairement vertical : on ignore, pour ne pas déclencher une
+      // navigation sur un scroll involontaire.
+      if (Math.abs(deltaY) > Math.abs(deltaX)) return;
+      if (Math.abs(deltaX) < TOUCH_THRESHOLD) return;
+      advance(deltaX > 0 ? 1 : -1);
     };
 
     window.addEventListener('wheel', onWheel, { passive: false });

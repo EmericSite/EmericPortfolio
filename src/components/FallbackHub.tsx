@@ -23,7 +23,7 @@ export default function FallbackHub() {
         <div className="absolute inset-x-0 -top-24 sm:-top-28 flex justify-center pointer-events-none">
           <div className="relative h-24 w-24 sm:h-32 sm:w-32 opacity-90">
             <Image
-              src="/logo.png"
+              src="/logo-mark.png"
               alt=""
               fill
               sizes="128px"

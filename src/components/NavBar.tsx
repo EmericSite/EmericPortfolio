@@ -3,12 +3,9 @@
 import { memo } from 'react';
 import Image from 'next/image';
 import { useHubStore, type HubMode } from '@/store/hub';
+import { identite, navigation } from '@/content/site';
 
-const NAV_ITEMS: { label: string; mode: HubMode }[] = [
-  { label: 'Work', mode: 'hub' },
-  { label: 'About', mode: 'about' },
-  { label: 'Contact', mode: 'contact' },
-];
+const NAV_ITEMS: readonly { label: string; mode: HubMode }[] = navigation;
 
 function NavBar() {
   const mode = useHubStore((s) => s.mode);
@@ -25,20 +22,22 @@ function NavBar() {
         onClick={() => setMode('hub')}
         className="pointer-events-auto flex items-center gap-3 group"
       >
-        <div className="relative h-8 w-8 md:h-10 md:w-10 transition-transform group-hover:rotate-12">
+        <div className="relative h-10 w-10 md:h-14 md:w-14 transition-transform group-hover:rotate-12">
           <Image
-            src="/logo.png"
-            alt="Emeric Ressy"
+            src="/logo-mark.png"
+            alt={identite.nom}
             fill
             className="object-contain"
-            sizes="(max-width: 768px) 32px, 40px"
+            sizes="(max-width: 768px) 40px, 56px"
             priority
           />
         </div>
         <div className="text-left font-mono text-[10px] sm:text-xs uppercase tracking-[0.18em] text-mist">
-          Emeric Ressy
+          {identite.nom}
           <br className="hidden sm:inline" />
-          <span className="hidden sm:inline text-chrome/50">Motion Designer · Paris</span>
+          <span className="hidden sm:inline text-chrome/50">
+            {identite.metier}
+          </span>
         </div>
       </button>
 
