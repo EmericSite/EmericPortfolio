@@ -1,102 +1,195 @@
 # Modifier le contenu du site
 
-Ce guide s'adresse à Emeric. Aucune notion de code n'est nécessaire : tout se
-joue dans deux fichiers et un dossier d'images.
+Ce guide s'adresse à Emeric. Aucune notion de code n'est nécessaire.
 
-| Je veux… | Fichier à ouvrir |
+Tout le contenu du site vit dans **un seul dossier : `content/`**. Rien d'autre
+n'est à ouvrir.
+
+```
+content/
+├── site.yml                    ← tous les textes du site
+└── projets/
+    ├── 01_gentle-mates/        ← un dossier = un projet
+    ├── 02_dofus/
+    ├── 03_douce-melancolie/
+    └── 04_come-torment/
+```
+
+| Je veux… | Ce que je fais |
 | --- | --- |
-| changer un texte (accueil, About, contact) | `src/content/site.ts` |
-| ajouter ou modifier un projet | `src/data/projects.ts` |
-| ajouter des images ou vidéos à un projet | dossier `public/projects/` |
-| changer le logo | dossier `ASSETS_EMERIC/00_LOGO/` puis une commande |
+| changer un texte (accueil, About, contact) | j'ouvre `content/site.yml` |
+| changer la vidéo du showreel | `content/site.yml`, bloc `showreel` |
+| modifier un projet | j'ouvre son `projet.yml` |
+| ajouter un projet | je duplique un dossier de projet |
+| enlever un projet | je jette son dossier à la corbeille |
+| changer l'ordre des projets | je renomme les numéros `01_`, `02_`… |
 
-Après chaque modification, il faut **publier** le site. Voir la dernière
-section.
+Il n'y a **aucun texte ailleurs**. Tout ce qui s'affiche vient de ces fichiers,
+jusqu'au titre de l'onglet du navigateur et aux messages d'erreur.
+
+Après une modification, il faut **publier**. Voir la section 5.
 
 ---
 
 ## 1. Changer un texte
 
-Ouvrir `src/content/site.ts`. Chaque texte est entre guillemets. Il suffit de
-remplacer ce qu'il y a **entre** les guillemets, sans y toucher.
+Ouvrir `content/site.yml`. Chaque ligne est de la forme `nom du champ: le
+texte`. Il suffit de remplacer ce qui est écrit **après les deux-points**.
 
-```ts
-export const accueil = {
-  surtitre: 'Mélancolie électrique',
-  titreLigne1: 'Motion · 3D ·',
-  titreLigne2: 'Direction artistique.',
-};
+```yaml
+accueil:
+  surtitre: Mélancolie électrique
+  titreLigne1: Motion · 3D ·
+  titreLigne2: Direction artistique.
 ```
 
-Trois règles à respecter :
+Deux choses seulement à respecter :
 
-1. Ne pas supprimer les guillemets `'` autour du texte.
-2. Ne pas supprimer la virgule `,` en fin de ligne.
-3. Pour une apostrophe dans un texte, écrire `’` (l'apostrophe courbe) et non
-   `'`. Exemple : `'Discuter d’un projet'`. Si on écrit `'` le site casse.
+1. **Ne pas déplacer les décalages** en début de ligne. Ce sont eux qui disent
+   à quel bloc appartient chaque ligne.
+2. Si le texte commence par un caractère spécial (`#`, `@`, `-`, `*`, `:`),
+   l'entourer de guillemets droits : `handle: "@fumir._o"`.
+
+Les apostrophes, les accents et les caractères comme `×` ou `·` s'écrivent
+normalement. Il n'y a plus rien à échapper.
+
+### Écrire un texte long
+
+Pour un paragraphe, utiliser `>` puis décaler les lignes en dessous. Les
+retours à la ligne sont recollés automatiquement en un seul paragraphe.
+
+```yaml
+accroche: >
+  Direction artistique, motion 3D, identité visuelle.
+  Pour les briefs gaming/esport, anime, ou les pièces plus narratives.
+```
+
+`|-` à la place de `>` conserve les retours à la ligne dans le texte, mais un
+seul champ les affiche vraiment : le `label` des `index` du bloc `about` (les
+chiffres clés). Partout ailleurs, l'affichage recolle les lignes en une seule,
+même avec `|-` : pour découper un texte, il faut donc des champs séparés.
 
 ### Ajouter ou retirer un réseau social
 
-Dans la section `contact`, la liste `reseaux`. Copier un bloc, changer les
+Dans `contact`, la liste `reseaux`. Copier un bloc de trois lignes, changer les
 valeurs, ou supprimer un bloc entier pour le faire disparaître du site.
 
-```ts
-{
-  label: 'Instagram',
-  handle: '@fumir._o',
-  href: 'https://www.instagram.com/fumir._o/?hl=fr',
-},
+```yaml
+  reseaux:
+    - label: Instagram
+      handle: "@fumir._o"
+      href: https://www.instagram.com/fumir._o/?hl=fr
 ```
 
 ### Ajouter un bloc « Approach » dans About
 
-Dans la section `about`, la liste `approche`. La numérotation (#01, #02…) et
-le compteur « 02 entrées » se mettent à jour tout seuls.
+Dans `about`, la liste `approche`. La numérotation (#01, #02…) et le compteur
+« 02 entrées » se mettent à jour tout seuls.
+
+### Les autres blocs de `site.yml`
+
+| Bloc | Ce qu'il pilote |
+| --- | --- |
+| `identite` | le nom et le métier affichés dans la barre du haut |
+| `loader` | le texte affiché pendant le chargement du site |
+| `navigation` | les trois onglets du haut (Work, About, Contact) |
+| `showreel` | la vidéo qui tourne en fond et se lance au centre du hub |
+| `marquee` | le texte répété en très grand derrière la page |
+| `formulaire` | les textes du formulaire de contact |
+| `partage` | le titre de l'onglet, et la vignette quand on partage le lien |
+| `interface` | les libellés lus par les lecteurs d'écran (rarement utile) |
+| `erreur` | les deux pages affichées si le site rencontre un problème |
+
+Dans `navigation`, on peut renommer un libellé ou retirer une ligne, mais pas
+toucher au `mode` : il indique quel écran ouvrir et ne peut valoir que `hub`,
+`about` ou `contact`.
+
+Le bloc `showreel` a cinq lignes, toutes obligatoires. Changer le showreel,
+c'est remplacer le numéro Vimeo, les titres et l'année :
+
+```yaml
+showreel:
+  vimeoId: 1172501942
+  titre: Showreel 2025
+  titreCourt: Showreel · 2025
+  annee: 2025
+  accent: "#F4D8E2"                # couleur d'accent, avec les guillemets
+```
+
+`accent` est la couleur qui teinte la carte du showreel dans le hub. Elle
+s'écrit comme celle des projets : un dièse suivi de six caractères, entre
+guillemets. Si cette ligne manque, rien n'est publié.
+
+L'image de la carte showreel dans le hub est `public/showreel-poster.webp`.
 
 ---
 
 ## 2. Ajouter un projet
 
-### Étape A — la fiche
+### Étape A — le dossier
 
-Ouvrir `src/data/projects.ts` et copier un bloc existant, du `{` au `},`, puis
-changer les valeurs :
-
-```ts
-{
-  id: 'mon-nouveau-projet',        // sans espace ni accent, en minuscules
-  title: 'Titre complet du projet',
-  shortTitle: 'Titre court',        // affiché sur la carte 3D
-  year: '2026',
-  tag: 'Client · Type',
-  accent: '#FF2D9C',                // couleur d'accent, code hexadécimal
-  blurb: 'Une phrase de résumé.',
-  description: 'Le texte long qui décrit le projet.',
-  role: 'Direction artistique · Motion 3D',
-  credits: [
-    { label: 'Client', value: 'Nom du client' },
-    { label: 'Direction artistique', value: 'Emeric Ressy' },
-  ],
-  posterUrl: '/posters/mon-nouveau-projet.webp',
-  vimeoId: '1234567890',            // l'identifiant dans l'URL Vimeo
-},
-```
-
-L'ordre des projets dans ce fichier est l'ordre dans lequel ils tournent sur
-le site.
-
-### Étape B — l'image de couverture
-
-Déposer une image dans `public/posters/` en la nommant exactement comme dans
-`posterUrl`. Format conseillé : `.webp`, environ 1400 px de large.
-
-### Étape C — les médias du projet
-
-Créer un dossier au nom de l'`id` du projet dans `public/projects/`, puis des
-sous-dossiers par catégorie. Il suffit d'y glisser les fichiers :
+Dupliquer un dossier de projet existant dans `content/projets/`, et le renommer
+avec **le numéro suivant** et un nom court :
 
 ```
-public/projects/mon-nouveau-projet/
+content/projets/05_mon-nouveau-projet/
+```
+
+Le numéro donne la position du projet sur le site. Le nom après le `_` sert
+d'adresse : uniquement des lettres minuscules, des chiffres et des tirets, sans
+espace ni accent.
+
+> **Le renommage n'est pas facultatif.** Deux dossiers ne peuvent pas avoir le
+> même nom après le numéro : `01_gentle-mates` et `05_gentle-mates` sont en
+> conflit, parce que c'est cette partie qui sert d'adresse. Tant que ce n'est
+> pas corrigé, rien n'est publié et `npm run dev` refuse de démarrer en
+> l'indiquant. Renommer le dossier suffit, et tout repart tout seul.
+
+### Étape B — la fiche
+
+Ouvrir le `projet.yml` du dossier dupliqué et remplacer les valeurs :
+
+```yaml
+title: Titre complet du projet
+shortTitle: Titre court           # affiché sur la carte 3D
+year: 2026
+tag: Client · Type
+accent: "#FF2D9C"                 # couleur d'accent, avec les guillemets
+vimeoId: 1234567890               # le numéro à la fin de l'adresse Vimeo
+role: Direction artistique · Motion 3D
+kind: personal                    # personal ou client
+
+blurb: >
+  Une phrase de résumé.
+
+description: >
+  Le texte long qui décrit le projet.
+
+credits:
+  Client: Nom du client
+  Direction artistique: Emeric Ressy
+```
+
+`kind` dit si la pièce est personnelle (`personal`) ou une commande (`client`).
+Elle s'affiche sur la fiche, ligne « Nature ». Toute autre valeur est refusée.
+
+Dans `credits`, chaque ligne est un `Rôle: Nom`. En ajouter ou en retirer
+autant que nécessaire.
+
+### Étape C — l'image de couverture
+
+Remplacer le fichier **`poster`** à la racine du dossier du projet. Il peut être
+en `.png`, `.jpg` ou `.webp`, à n'importe quelle taille : il sera redimensionné
+tout seul. Le nom doit rester `poster`.
+
+### Étape D — les médias
+
+Glisser les fichiers dans les sous-dossiers, par catégorie :
+
+```
+content/projets/05_mon-nouveau-projet/
+├── projet.yml
+├── poster.png
 ├── motion/
 ├── stillframes/
 ├── storyboard/
@@ -107,54 +200,54 @@ public/projects/mon-nouveau-projet/
 Ces cinq noms de dossiers sont les seuls reconnus. Un dossier vide ou absent
 n'affiche simplement pas de section.
 
-Formats acceptés : `.webp`, `.png`, `.jpg`, `.avif` pour les images,
-`.mp4`, `.webm`, `.mov` pour les vidéos.
+Formats acceptés : `.png`, `.jpg`, `.jpeg`, `.webp`, `.avif`, `.tif` pour les
+images, `.mp4`, `.mov`, `.webm` pour les vidéos, et `.gif`. Un fichier dans un
+autre format est laissé de côté, et le Terminal le signale.
 
-L'ordre d'affichage à l'intérieur d'une section suit l'ordre alphabétique des
-noms de fichiers. Pour maîtriser l'ordre, nommer `01-...`, `02-...`, etc.
+Pas besoin de préparer les fichiers : ils peuvent être en pleine résolution et
+peser plusieurs mégaoctets. Ils sont redimensionnés et allégés automatiquement
+pour le site, et les originaux restent intacts dans `content/`.
 
-### Étape D — lancer le scan
+> Une exception : un fichier `.webp` est publié tel quel, sans retouche. C'est
+> voulu, pour les cas où on veut maîtriser soi-même la compression.
 
-Dans le Terminal, à la racine du projet :
+L'ordre d'affichage dans une section suit l'ordre alphabétique des noms de
+fichiers. Pour maîtriser l'ordre, nommer `01-...`, `02-...`, etc.
 
-```bash
-npm run scan-media
-```
+### Étape E — publier
 
-Le script parcourt les dossiers, mesure chaque fichier et met le site à jour.
-Il affiche un récapitulatif :
-
-```
-=== mon-nouveau-projet ===
-  STILLFRAMES            12
-  BEHIND THE SCENE        4
-```
-
-Si un fichier est signalé `[ignoré]`, c'est qu'il n'est pas dans un des cinq
-dossiers, ou que son format n'est pas géré.
-
-> Ne jamais modifier `src/data/gallery.generated.ts` à la main : ce fichier est
-> réécrit à chaque scan.
+Voir la section 5.
 
 ### Changer l'ordre des sections d'un projet
 
-Par défaut, l'ordre est : MOTION, STILLFRAMES, STORYBOARD, BEHIND THE SCENE,
+Par défaut : MOTION, STILLFRAMES, STORYBOARD, BEHIND THE SCENE,
 SCRAPS & RESEARCH. Pour un projet en particulier, ajouter une ligne
 `categories` dans sa fiche :
 
-```ts
-categories: ['STORYBOARD', 'STILLFRAMES', 'MOTION'],
+```yaml
+categories: [storyboard, stillframes, motion]
 ```
 
 Seules les sections listées seront affichées, dans cet ordre.
 
 ---
 
-## 3. Remplacer le logo
+## 3. Enlever ou déplacer un projet
+
+**Enlever** : jeter le dossier du projet à la corbeille, puis publier. Ses
+images sont retirées du site automatiquement.
+
+**Déplacer** : renommer les numéros au début des dossiers. Par exemple, pour
+faire passer DOFUS en premier, renommer `02_dofus` en `01_dofus` et
+`01_gentle-mates` en `02_gentle-mates`.
+
+---
+
+## 4. Remplacer le logo
 
 Déposer les nouveaux fichiers dans `ASSETS_EMERIC/00_LOGO/` en gardant les noms
 `Logo_White.png` (glyphe détouré sur fond transparent) et `LOGO_DEF_NET.png`
-(version définitive). Puis :
+(version définitive). Puis, dans le Terminal :
 
 ```bash
 npm run build-logos
@@ -165,7 +258,75 @@ Cela régénère `public/logo-mark.png` (navbar et écran de chargement) et
 
 ---
 
-## 4. Le formulaire de contact
+## 5. Publier les modifications
+
+Dans le Terminal, à la racine du projet :
+
+```bash
+npm run contenu     # prépare les images et vérifie que tout est correct
+git add -A
+git commit -m "contenu: description de ce qui a changé"
+git push
+```
+
+Le site se met à jour automatiquement quelques minutes après le `push`.
+
+**Si on n'a changé que du texte**, `npm run contenu` n'est pas obligatoire :
+les textes sont relus à chaque publication. Il ne sert que quand on touche à
+des images ou à des vidéos. Dans le doute, le lancer ne coûte rien.
+
+### Si la commande signale un problème
+
+Rien n'est publié tant qu'il reste une erreur. Le message indique le fichier,
+la ligne et ce qu'il faut corriger :
+
+```
+✗ content/projets/02_dofus/projet.yml  ligne 7
+  « bleu » n'est pas une couleur valide
+  il faut un dièse suivi de six caractères, entre guillemets : accent: "#FF2D9C".
+```
+
+Corriger, relancer la commande, recommencer jusqu'à voir la ligne verte :
+
+```
+✓ site à jour — 4 projet(s), 83 média(s), 14081 Ko
+```
+
+---
+
+## 6. Vérifier avant de publier
+
+Pour voir le site en local avant de publier :
+
+```bash
+npm run dev
+```
+
+Puis ouvrir **l'adresse affichée dans le Terminal**. C'est en général
+`http://localhost:3000`, mais si ce port est déjà pris, Next en choisit un
+autre et l'annonce :
+
+```
+⚠ Port 3000 is in use, using available port 3001 instead.
+- Local:   http://localhost:3001
+```
+
+Toute modification de `content/` est reprise aussitôt : textes, fiches projet
+et images comprises. Il n'y a rien à relancer, et le Terminal confirme chaque
+prise en compte :
+
+```
+✓ contenu rechargé — 4 projet(s), 83 média(s)
+```
+
+Si une saisie est incorrecte, l'erreur s'affiche dans le Terminal et le site
+reste sur sa dernière version valide. Dès que c'est corrigé, il repart.
+
+Pour tout arrêter : `Ctrl+C`.
+
+---
+
+## 7. Le formulaire de contact
 
 Les messages arrivent par mail via le service **Resend**. Trois réglages sont
 nécessaires, à déclarer une seule fois sur Vercel :
@@ -184,33 +345,22 @@ visiteur, et un champ invisible qui piège les robots.
 
 ---
 
-## 5. Publier les modifications
+## Pour les curieux : ce qui se passe côté technique
 
-Une fois les changements faits, dans le Terminal :
+`content/` est la seule source. `npm run contenu` en tire cinq fichiers dans
+`src/`, marqués « GÉNÉRÉ AUTOMATIQUEMENT » :
 
-```bash
-npm run build     # vérifie que rien n'est cassé
-git add -A
-git commit -m "contenu: description de ce qui a changé"
-git push
-```
+| Fichier | Ce qu'il contient |
+| --- | --- |
+| `src/content/site.generated.ts` | tous les textes de `site.yml` |
+| `src/data/projects.generated.ts` | les fiches `projet.yml` |
+| `src/data/gallery.generated.ts` | le pont vers la liste des médias |
+| `src/data/gallery.generated.json` | la liste des médias publiés |
+| `src/data/categories.generated.ts` | les noms et l'ordre des sections |
 
-Le site se met à jour automatiquement quelques minutes après le `push`.
+Ces fichiers ne doivent jamais être édités à la main : ils sont réécrits à
+chaque publication.
 
-**Si `npm run build` affiche une erreur**, ne pas pousser : c'est en général un
-guillemet ou une virgule manquante dans un des fichiers modifiés. Le message
-d'erreur indique le fichier et le numéro de ligne.
-
----
-
-## 6. Vérifier avant de publier
-
-Pour voir le site en local avant de publier :
-
-```bash
-npm run dev
-```
-
-Puis ouvrir l'adresse affichée dans le Terminal (en général
-`http://localhost:3000`). Les modifications de texte apparaissent
-immédiatement, sans avoir à relancer.
+Les médias déposés dans `content/` ne sont pas envoyés sur le dépôt : ils
+peuvent donc être aussi lourds que nécessaire. Ce sont leurs versions allégées,
+dans `public/`, qui partent en ligne.

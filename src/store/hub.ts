@@ -1,3 +1,6 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Single source of truth for what the home page shows: screen, focused project, carousel position
+
 import { create } from 'zustand';
 import { projects } from '@/data/projects';
 
@@ -13,15 +16,13 @@ type HubStore = {
   activeId: string | null;
   scrollIndex: number;
   /**
-   * Décalage continu pendant un glissement tactile, exprimé en nombre de
-   * cartes (0.5 = le doigt a parcouru une demi-carte). Permet aux cartouches
-   * de suivre le doigt au lieu de sauter d'un cran au relâchement.
+   * Live drag distance in cards (0.5 = half a card travelled), so the cards
+   * follow the finger instead of jumping one step on release.
    */
   dragOffset: number;
   /**
-   * Nombre de cartes du carrousel. Vaut le nombre de projets en orbite, un de
-   * plus en pile où s'ajoute la carte du showreel. Déclaré par la scène, qui
-   * seule connaît la disposition courante.
+   * Carousel card count, set by the scene since it alone knows the layout:
+   * one per project in orbit, plus the showreel card in stack layout.
    */
   cardCount: number;
   videoStarted: boolean;
@@ -29,10 +30,9 @@ type HubStore = {
   setHovered: (id: string | null) => void;
   setActive: (id: string | null) => void;
   setMode: (mode: HubMode) => void;
-  setScrollIndex: (i: number) => void;
   setCardCount: (n: number) => void;
   setDragOffset: (d: number) => void;
-  /** Termine un glissement : avance de `steps` crans et remet le décalage à 0. */
+  /** Ends a drag: moves by `steps` and resets the offset. */
   commitDrag: (steps: number) => void;
   scrollNext: () => void;
   scrollPrev: () => void;
@@ -40,10 +40,9 @@ type HubStore = {
   stopVideo: () => void;
   openShowreel: () => void;
   closeShowreel: () => void;
-  reset: () => void;
 };
 
-export const useHubStore = create<HubStore>((set) => ({
+export const useHubStore = create<HubStore>((set, get) => ({
   mode: 'hub',
   hoveredId: null,
   activeId: null,
@@ -69,7 +68,7 @@ export const useHubStore = create<HubStore>((set) => ({
   setActive: (id) =>
     set((s) => {
       if (!inProjectFlow(s.mode)) return {};
-      // Re-click on the already-active card = trigger video playback
+      // Clicking the already-active card starts the video.
       if (id !== null && id === s.activeId) {
         return { videoStarted: true };
       }
@@ -83,52 +82,33 @@ export const useHubStore = create<HubStore>((set) => ({
         scrollIndex: idx >= 0 ? idx : s.scrollIndex,
       };
     }),
+  // Only 'hover' and 'project' carry a selection: any other mode drops it.
   setMode: (mode) =>
-    set(() => {
-      if (mode === 'hub')
-        return { mode, hoveredId: null, activeId: null, videoStarted: false };
-      if (mode === 'about' || mode === 'contact')
-        return { mode, hoveredId: null, activeId: null, videoStarted: false };
-      return { mode };
-    }),
-  setScrollIndex: (i) => set((s) => ({ scrollIndex: wrap(i, s.cardCount) })),
-  // Le nombre de cartes change avec la disposition : on ramène l'index dans
-  // les bornes, sinon passer de la pile à l'orbite laisserait le carrousel
-  // pointé sur une carte showreel qui n'existe plus.
+    set(() =>
+      mode === 'hover' || mode === 'project'
+        ? { mode }
+        : { mode, hoveredId: null, activeId: null, videoStarted: false },
+    ),
+  // Re-wrap the index, otherwise going from stack to orbit leaves the carousel
+  // pointing at a showreel card that no longer exists.
   setCardCount: (n) =>
     set((s) => ({
       cardCount: n,
       scrollIndex: wrap(s.scrollIndex, n),
       dragOffset: 0,
     })),
-  // Borné à une carte : un geste très long ne doit pas expédier la pile à
-  // l'autre bout, on n'avance jamais que d'un cran à la fois.
+  // Clamped to one card so a long gesture never throws the stack across
+  // several steps at once.
   setDragOffset: (d) => set({ dragOffset: Math.max(-1, Math.min(1, d)) }),
   commitDrag: (steps) =>
     set((s) => ({
       scrollIndex: wrap(s.scrollIndex + steps, s.cardCount),
       dragOffset: 0,
     })),
-  scrollNext: () =>
-    set((s) => ({
-      scrollIndex: wrap(s.scrollIndex + 1, s.cardCount),
-      dragOffset: 0,
-    })),
-  scrollPrev: () =>
-    set((s) => ({
-      scrollIndex: wrap(s.scrollIndex - 1, s.cardCount),
-      dragOffset: 0,
-    })),
+  scrollNext: () => get().commitDrag(1),
+  scrollPrev: () => get().commitDrag(-1),
   startVideo: () => set({ videoStarted: true }),
   stopVideo: () => set({ videoStarted: false }),
   openShowreel: () => set({ showreelOpen: true }),
   closeShowreel: () => set({ showreelOpen: false }),
-  reset: () =>
-    set({
-      mode: 'hub',
-      hoveredId: null,
-      activeId: null,
-      videoStarted: false,
-      showreelOpen: false,
-    }),
 }));

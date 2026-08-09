@@ -1,9 +1,11 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Neon glitch filter that splits the image into pink, cyan and red fringes
+
 import { Effect } from 'postprocessing';
 import * as THREE from 'three';
 
-// Three-color glitch — like ChromaticAberration but the fringe samples are
-// tinted pink, cyan, red instead of pure R/G/B. Output at offset=(0,0) is the
-// untouched input (samples match base, all differences clamp to zero).
+// Chromatic aberration with pink, cyan and red fringes instead of plain R/G/B.
+// At offset=(0,0) every difference clamps to zero, so the input passes through.
 const fragmentShader = /* glsl */ `
   uniform vec2 offset;
   uniform float strength;
@@ -13,7 +15,6 @@ const fragmentShader = /* glsl */ `
 
     vec3 sPink = texture2D(inputBuffer, uv + offset).rgb;
     vec3 sCyan = texture2D(inputBuffer, uv - offset).rgb;
-    // Third sample on the perpendicular axis, slightly attenuated
     vec3 sRed  = texture2D(inputBuffer, uv + vec2(-offset.y, offset.x) * 0.7).rgb;
 
     vec3 dPink = max(vec3(0.0), sPink - base);

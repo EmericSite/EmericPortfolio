@@ -1,3 +1,5 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// The 3D hub itself: chrome halo, lighting and the carousel of project cartridges
 'use client';
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
@@ -8,21 +10,23 @@ import {
   Float,
   useTexture,
 } from '@react-three/drei';
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useRef } from 'react';
 import * as THREE from 'three';
 import type { Mesh, Group, MeshStandardMaterial } from 'three';
 import CartoucheOrbit from './scene/CartoucheOrbit';
 import CameraRig from './scene/CameraRig';
 import DynamicPostFX from './scene/DynamicPostFX';
+import { fadeOpacity, preparePosterTexture } from './scene/materials';
+import { useCachedMaterials } from './scene/useCachedMaterials';
 import { useHubStore } from '@/store/hub';
+import { showreelPosterUrl } from '@/data/showreel';
+import { palette } from '@/lib/palette';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import { useViewportScale } from '@/lib/useViewportScale';
 
-// === Armillary halo system ===
-
+// Outermost ring of the armillary halo.
 function HaloA() {
-  // Front-facing main ring (largest, iridescent)
   const ref = useRef<Mesh>(null);
   useFrame((_, dt) => {
     if (ref.current) ref.current.rotation.z += dt * 0.05;
@@ -31,7 +35,7 @@ function HaloA() {
     <mesh ref={ref} position={[0, 0, -0.5]}>
       <torusGeometry args={[2.8, 0.045, 16, 160]} />
       <meshPhysicalMaterial
-        color="#E8E6EC"
+        color={palette.chrome}
         metalness={1}
         roughness={0.04}
         clearcoat={1}
@@ -46,7 +50,6 @@ function HaloA() {
 }
 
 function MidRing() {
-  // Concentric front-facing ring between outer halo and inner ring
   const ref = useRef<Mesh>(null);
   useFrame((_, dt) => {
     if (ref.current) ref.current.rotation.z += dt * 0.09;
@@ -55,7 +58,7 @@ function MidRing() {
     <mesh ref={ref} position={[0, 0, -0.32]}>
       <torusGeometry args={[2.1, 0.018, 10, 96]} />
       <meshPhysicalMaterial
-        color="#F4D8E2"
+        color={palette.pearl}
         metalness={1}
         roughness={0.08}
         clearcoat={1}
@@ -72,7 +75,7 @@ function InnerRing() {
   useFrame(({ clock }, dt) => {
     if (ref.current) ref.current.rotation.z -= dt * 0.16;
     if (matRef.current) {
-      // Subtle breathing pulse — pearl emissive desynced from MidRing
+      // Breathing pulse, kept out of sync with the other rings.
       matRef.current.emissiveIntensity =
         0.08 + Math.sin(clock.elapsedTime * 0.55) * 0.06;
     }
@@ -82,8 +85,8 @@ function InnerRing() {
       <torusGeometry args={[1.84, 0.013, 8, 96]} />
       <meshStandardMaterial
         ref={matRef}
-        color="#F4D8E2"
-        emissive="#F4D8E2"
+        color={palette.pearl}
+        emissive={palette.pearl}
         emissiveIntensity={0.08}
         metalness={1}
         roughness={0.08}
@@ -94,11 +97,8 @@ function InnerRing() {
 }
 
 function LogoBackplate() {
-  // Un seul pin propre : corps sombre légèrement bombé + un liseré chromé au
-  // bord (plus de disques empilés ni d'anneaux gravés multiples).
   return (
     <group position={[0, 0, -0.05]}>
-      {/* Corps du pin */}
       <mesh>
         <circleGeometry args={[1.72, 96]} />
         <meshPhysicalMaterial
@@ -110,11 +110,10 @@ function LogoBackplate() {
           envMapIntensity={1.05}
         />
       </mesh>
-      {/* Liseré chromé unique (rim du pin) */}
       <mesh position={[0, 0, 0.012]}>
         <torusGeometry args={[1.68, 0.022, 16, 200]} />
         <meshStandardMaterial
-          color="#E8E6EC"
+          color={palette.chrome}
           metalness={1}
           roughness={0.11}
           envMapIntensity={2}
@@ -124,30 +123,12 @@ function LogoBackplate() {
   );
 }
 
-
+// Showreel poster laid on the pin.
 function ShowreelDisk() {
-  // Affiche du showreel posée sur le pin, à la place de l'ancien logo. Plus
-  // de révélation au survol : le visuel est visible en permanence.
-  const tex = useTexture('/showreel-poster.webp');
-
-  useEffect(() => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 16;
-    // Cadrage « cover » : la source est en 3:2 et le disque est carré en UV,
-    // on rogne la largeur et on recentre pour ne pas écraser l'image.
-    const img = tex.image as { width?: number; height?: number } | undefined;
-    if (img?.width && img?.height) {
-      const aspect = img.width / img.height;
-      if (aspect > 1) {
-        tex.repeat.set(1 / aspect, 1);
-        tex.offset.set((1 - 1 / aspect) / 2, 0);
-      } else {
-        tex.repeat.set(1, aspect);
-        tex.offset.set(0, (1 - aspect) / 2);
-      }
-      tex.needsUpdate = true;
-    }
-  }, [tex]);
+  // The disc is square in UV space, so the long side of the poster is cropped.
+  const tex = useTexture(showreelPosterUrl, (loaded) =>
+    preparePosterTexture(loaded, 1),
+  );
 
   return (
     <mesh position={[0, 0, 0.005]}>
@@ -159,8 +140,9 @@ function ShowreelDisk() {
 
 function Relic() {
   const groupRef = useRef<Group>(null);
+  const cachedMats = useCachedMaterials(groupRef);
   const mode = useHubStore((s) => s.mode);
-  const { mouse } = useThree();
+  const { pointer } = useThree();
   const { hubScale } = useViewportScale();
   const reducedMotion = usePrefersReducedMotion();
 
@@ -169,12 +151,12 @@ function Relic() {
     if (!reducedMotion) {
       groupRef.current.rotation.y = THREE.MathUtils.lerp(
         groupRef.current.rotation.y,
-        mouse.x * 0.18,
+        pointer.x * 0.18,
         0.045,
       );
       groupRef.current.rotation.x = THREE.MathUtils.lerp(
         groupRef.current.rotation.x,
-        -mouse.y * 0.12,
+        -pointer.y * 0.12,
         0.045,
       );
     }
@@ -190,23 +172,7 @@ function Relic() {
 
     const targetOpacity = mode === 'project' ? 0.25 : 1;
     const opacityLerp = reducedMotion ? 0.015 : 0.05;
-    groupRef.current.traverse((obj) => {
-      const m = obj as Mesh;
-      if (m.isMesh && m.material) {
-        const mat = m.material as MeshStandardMaterial;
-        if ('opacity' in mat) {
-          const next = THREE.MathUtils.lerp(
-            mat.opacity,
-            targetOpacity,
-            opacityLerp,
-          );
-          if (Math.abs(mat.opacity - next) > 0.001) {
-            if (!mat.transparent) mat.transparent = true;
-            mat.opacity = next;
-          }
-        }
-      }
-    });
+    fadeOpacity(cachedMats.current, targetOpacity, opacityLerp);
   });
 
   return (
@@ -217,12 +183,11 @@ function Relic() {
           rotationIntensity={0.15}
           floatIntensity={0.55}
         >
-          {/* Le pin porte l'affiche du showreel à la place du logo. Le bouton
-              de lecture est un overlay DOM, cf. ShowreelPlayButton. */}
           <HaloA />
           <MidRing />
           <InnerRing />
           <LogoBackplate />
+          {/* The play button is a DOM overlay, see ShowreelPlayButton. */}
           <ShowreelDisk />
         </Float>
       </group>
@@ -230,11 +195,7 @@ function Relic() {
   );
 }
 
-export default function HubScene({
-  showCartouches = true,
-}: {
-  showCartouches?: boolean;
-}) {
+export default function HubScene() {
   const tier = usePerformanceTier();
   const budget = tierBudget[tier];
   const { cameraZ, orbitRadius, cartoucheScale, layout } = useViewportScale();
@@ -242,7 +203,7 @@ export default function HubScene({
   return (
     <Canvas
       camera={{ position: [0, 0, cameraZ], fov: 45 }}
-      dpr={budget.dpr as [number, number]}
+      dpr={budget.dpr}
       gl={{
         antialias: true,
         powerPreference: 'high-performance',
@@ -256,24 +217,22 @@ export default function HubScene({
         if (activeId) setMode('hub');
       }}
     >
-      <fog attach="fog" args={['#08070C', 3.6, 11]} />
+      <fog attach="fog" args={[palette.ink, 3.6, 11]} />
 
-      <ambientLight intensity={0.45} color="#F4D8E2" />
-      <pointLight position={[5, 4, 5]} intensity={1.6} color="#FF2D9C" />
-      <pointLight position={[-5, -2, 3]} intensity={0.5} color="#00F0FF" />
-      <pointLight position={[0, 6, -4]} intensity={1.2} color="#F4D8E2" />
-      <pointLight position={[0, -3, 4]} intensity={0.45} color="#E8E6EC" />
+      <ambientLight intensity={0.45} color={palette.pearl} />
+      <pointLight position={[5, 4, 5]} intensity={1.6} color={palette.magenta} />
+      <pointLight position={[-5, -2, 3]} intensity={0.5} color={palette.cyan} />
+      <pointLight position={[0, 6, -4]} intensity={1.2} color={palette.pearl} />
+      <pointLight position={[0, -3, 4]} intensity={0.45} color={palette.chrome} />
       <pointLight position={[2.5, 0, 3]} intensity={0.6} color="#FFB6CB" />
 
       <Suspense fallback={null}>
         <Relic />
-        {showCartouches && (
-          <CartoucheOrbit
-            orbitRadius={orbitRadius}
-            cartoucheScale={cartoucheScale}
-            layout={layout}
-          />
-        )}
+        <CartoucheOrbit
+          orbitRadius={orbitRadius}
+          cartoucheScale={cartoucheScale}
+          layout={layout}
+        />
       </Suspense>
 
       <Suspense fallback={null}>

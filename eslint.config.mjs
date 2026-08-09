@@ -1,3 +1,5 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Lint setup: the Next.js presets plus the exceptions react-three-fiber needs
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -14,12 +16,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
   ]),
   {
-    // Règles "React Compiler" (eslint-plugin-react-hooks v6). Le compiler n'est
-    // pas activé (cf. next.config.ts) et ces règles produisent des faux positifs
-    // massifs sur react-three-fiber, dont le modèle impératif mute volontairement
-    // les objets three.js dans useFrame (caméra, matériaux, géométries) — un
-    // pattern non corrigeable côté code. On les désactive (immutability/purity)
-    // ou on les rétrograde en avertissement (refs/set-state-in-effect).
+    // React Compiler rules flag react-three-fiber's deliberate mutation of
+    // three.js objects inside useFrame. Off where unfixable, warn elsewhere.
     rules: {
       "react-hooks/immutability": "off",
       "react-hooks/purity": "off",

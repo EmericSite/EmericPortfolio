@@ -1,0 +1,591 @@
+{
+  "gentle-mates": [
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still01.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still02.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still03.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still04.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still05.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still06.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still07.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still08.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still09.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still10.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still11.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still12.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still13.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still14.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still15.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still16.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/gentle-mates/stillframes/still17.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "video",
+      "src": "/projects/gentle-mates/scraps-and-research/scrap01.mp4",
+      "width": 400,
+      "height": 224,
+      "category": "SCRAPS & RESEARCH"
+    },
+    {
+      "type": "video",
+      "src": "/projects/gentle-mates/scraps-and-research/scrap02.mp4",
+      "width": 400,
+      "height": 224,
+      "category": "SCRAPS & RESEARCH"
+    },
+    {
+      "type": "video",
+      "src": "/projects/gentle-mates/scraps-and-research/scrap03.mp4",
+      "width": 400,
+      "height": 224,
+      "category": "SCRAPS & RESEARCH"
+    },
+    {
+      "type": "video",
+      "src": "/projects/gentle-mates/scraps-and-research/scrap04.mp4",
+      "width": 400,
+      "height": 224,
+      "category": "SCRAPS & RESEARCH"
+    },
+    {
+      "type": "video",
+      "src": "/projects/gentle-mates/scraps-and-research/scrap05.mp4",
+      "width": 400,
+      "height": 224,
+      "category": "SCRAPS & RESEARCH"
+    }
+  ],
+  "dofus": [
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still01.webp",
+      "width": 802,
+      "height": 803,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still02.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still03.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still04.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still05.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still06.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still07.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still08.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still09.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still10.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still11.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still12.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still13.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still14.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still15.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still16.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still17.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still18.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dofus/stillframes/still19.webp",
+      "width": 1080,
+      "height": 1080,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "video",
+      "src": "/projects/dofus/behind-the-scene/bts01.mp4",
+      "width": 1080,
+      "height": 608,
+      "category": "BEHIND THE SCENE"
+    },
+    {
+      "type": "video",
+      "src": "/projects/dofus/behind-the-scene/bts02.mp4",
+      "width": 1080,
+      "height": 608,
+      "category": "BEHIND THE SCENE"
+    },
+    {
+      "type": "video",
+      "src": "/projects/dofus/behind-the-scene/bts03.mp4",
+      "width": 1080,
+      "height": 608,
+      "category": "BEHIND THE SCENE"
+    },
+    {
+      "type": "video",
+      "src": "/projects/dofus/behind-the-scene/bts04.mp4",
+      "width": 1080,
+      "height": 608,
+      "category": "BEHIND THE SCENE"
+    },
+    {
+      "type": "video",
+      "src": "/projects/dofus/behind-the-scene/bts05.mp4",
+      "width": 1080,
+      "height": 608,
+      "category": "BEHIND THE SCENE"
+    },
+    {
+      "type": "video",
+      "src": "/projects/dofus/behind-the-scene/bts06.mp4",
+      "width": 1080,
+      "height": 608,
+      "category": "BEHIND THE SCENE"
+    },
+    {
+      "type": "video",
+      "src": "/projects/dofus/behind-the-scene/bts07.mp4",
+      "width": 1080,
+      "height": 608,
+      "category": "BEHIND THE SCENE"
+    },
+    {
+      "type": "video",
+      "src": "/projects/dofus/behind-the-scene/bts08.mp4",
+      "width": 1080,
+      "height": 608,
+      "category": "BEHIND THE SCENE"
+    }
+  ],
+  "douce-melancolie": [
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still01.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still02.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still03.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still04.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still05.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still06.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still07.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still08.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still09.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still10.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still11.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still12.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still13.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still14.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still15.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still16.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still17.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/stillframes/still18.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/douce-melancolie/storyboard/board01.webp",
+      "width": 974,
+      "height": 1600,
+      "category": "STORYBOARD"
+    }
+  ],
+  "come-torment": [
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still01.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still02.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still03.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still04.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still05.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still06.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still07.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still08.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still09.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still10.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still11.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still12.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still13.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/stillframes/still14.webp",
+      "width": 1600,
+      "height": 900,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/come-torment/storyboard/board01.webp",
+      "width": 1074,
+      "height": 960,
+      "category": "STORYBOARD"
+    }
+  ]
+}

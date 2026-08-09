@@ -1,3 +1,6 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Flies the 3D camera between the hub, project, about and contact viewpoints
+
 'use client';
 
 import { useFrame, useThree } from '@react-three/fiber';
@@ -6,6 +9,7 @@ import * as THREE from 'three';
 import type { PerspectiveCamera } from 'three';
 import { useHubStore, type HubMode } from '@/store/hub';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
+import { useModeElapsed } from './useModeElapsed';
 
 const TARGETS: Record<HubMode, { pos: THREE.Vector3; fov: number }> = {
   hub: { pos: new THREE.Vector3(0, 0, 4.6), fov: 45 },
@@ -20,30 +24,25 @@ const SETTLE_DURATION_MS = 700;
 const POP_LERP = 0.13;
 const SETTLE_LERP = 0.038;
 
-// ease-out cubic — fast at start, slow at end. Returns 0..1.
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+// The camera always aims at the scene center, whatever the mode.
+const ORIGIN = new THREE.Vector3(0, 0, 0);
 
 export default function CameraRig() {
   const { camera } = useThree();
   const tier = usePerformanceTier();
   const hoverFXEnabled = tierBudget[tier].hoverFX;
 
-  // Stable Vector3 refs hoisted out of useFrame to avoid per-frame allocs
-  const lookAtTarget = useRef(new THREE.Vector3(0, 0, 0));
-  const currentLook = useRef(new THREE.Vector3(0, 0, 0));
+  // Hoisted out of useFrame so no Vector3 is allocated per frame.
   const tmpVec = useRef(new THREE.Vector3());
   const shakeVec = useRef(new THREE.Vector3());
-  const prevMode = useRef<HubMode>('hub');
-  const modeChangedAt = useRef(0);
+  const sinceModeChange = useModeElapsed();
 
   useFrame(({ clock }) => {
     const { mode, hoveredId, activeId } = useHubStore.getState();
-    if (mode !== prevMode.current) {
-      modeChangedAt.current = performance.now();
-      prevMode.current = mode;
-    }
+    const elapsed = sinceModeChange(mode);
 
-    const elapsed = performance.now() - modeChangedAt.current;
     let lerpFactor: number;
     if (elapsed < POP_DURATION_MS) {
       lerpFactor = POP_LERP;
@@ -55,14 +54,10 @@ export default function CameraRig() {
     }
 
     const t = TARGETS[mode];
-    // target.pos is a constant Vector3 from TARGETS — lerp reads it, no alloc.
-    // We still copy into tmpVec to keep a stable target alias for any future math.
     tmpVec.current.copy(t.pos);
     camera.position.lerp(tmpVec.current, lerpFactor);
 
-    // Camera lens shake on hover — high-frequency multi-axis jitter applied
-    // AFTER the lerp so it sits as an oscillation around the target pose.
-    // Disabled on low-tier devices (no hoverFX budget).
+    // Lens shake runs after the lerp so it oscillates around the target pose.
     const isHovering = hoverFXEnabled && hoveredId !== null && !activeId;
     if (isHovering) {
       const ct = clock.elapsedTime;
@@ -70,7 +65,7 @@ export default function CameraRig() {
         Math.sin(ct * 67) * 0.012 + Math.sin(ct * 23) * 0.008;
       const shakeY =
         Math.cos(ct * 53) * 0.01 + Math.sin(ct * 41) * 0.007;
-      // Occasional kick — pseudo-glitch lens punch
+      // Rare punch that breaks the regular oscillation.
       const kick = Math.sin(ct * 3.1) > 0.92 ? 0.04 : 0;
       shakeVec.current.set(
         shakeX + kick * Math.sin(ct * 91),
@@ -83,8 +78,7 @@ export default function CameraRig() {
     const persp = camera as PerspectiveCamera;
     if (persp.isPerspectiveCamera) {
       let nextFov = THREE.MathUtils.lerp(persp.fov, t.fov, lerpFactor);
-      // FOV breathing on hover — tiny push/pull to feel like the lens
-      // is reframing
+      // Tiny breathing so the lens feels like it is reframing.
       if (isHovering) {
         nextFov += Math.sin(clock.elapsedTime * 7) * 0.25;
       }
@@ -94,8 +88,7 @@ export default function CameraRig() {
       }
     }
 
-    currentLook.current.lerp(lookAtTarget.current, lerpFactor);
-    camera.lookAt(currentLook.current);
+    camera.lookAt(ORIGIN);
   });
 
   return null;

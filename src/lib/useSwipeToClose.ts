@@ -1,20 +1,26 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Lets a touch user dismiss an open panel by swiping it off the side
+
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const SWIPE_THRESHOLD = 80;
 
-/**
- * Detects a horizontal swipe gesture on a target element.
- * direction='right' fires onClose when the user swipes right;
- * direction='left' fires when they swipe left.
- */
+/** `direction` is the swipe direction that closes: 'right' closes on a rightward swipe. */
 export function useSwipeToClose(
   ref: React.RefObject<HTMLElement | null>,
   active: boolean,
   direction: 'left' | 'right',
   onClose: () => void,
 ) {
+  // Callers pass an inline arrow: keep it in a ref so a re-render between
+  // touchstart and touchend does not reattach the listeners and lose the gesture.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
   useEffect(() => {
     if (!active) return;
     const el = ref.current;
@@ -37,11 +43,10 @@ export function useSwipeToClose(
       const dy = t.clientY - startY;
       startX = null;
       startY = null;
-      // Only trigger on dominantly horizontal swipes
       if (Math.abs(dx) < SWIPE_THRESHOLD) return;
       if (Math.abs(dx) < Math.abs(dy)) return;
-      if (direction === 'right' && dx > 0) onClose();
-      else if (direction === 'left' && dx < 0) onClose();
+      if (direction === 'right' && dx > 0) onCloseRef.current();
+      else if (direction === 'left' && dx < 0) onCloseRef.current();
     };
 
     el.addEventListener('touchstart', onStart, { passive: true });
@@ -50,5 +55,5 @@ export function useSwipeToClose(
       el.removeEventListener('touchstart', onStart);
       el.removeEventListener('touchend', onEnd);
     };
-  }, [ref, active, direction, onClose]);
+  }, [ref, active, direction]);
 }

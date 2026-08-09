@@ -1,6 +1,10 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Last-resort error page, used when the root layout itself fails to render
 'use client';
 
 import { useEffect } from 'react';
+import { erreur } from '@/content/site';
+import { palette } from '@/lib/palette';
 
 export default function GlobalError({
   error,
@@ -18,8 +22,8 @@ export default function GlobalError({
       <body
         style={{
           minHeight: '100vh',
-          background: '#08070C',
-          color: '#E8E6EC',
+          background: palette.ink,
+          color: palette.chrome,
           fontFamily: 'monospace',
           display: 'flex',
           alignItems: 'center',
@@ -34,31 +38,31 @@ export default function GlobalError({
               fontSize: '10px',
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: '#FF2D9C',
+              color: palette.magenta,
               marginBottom: '1.5rem',
             }}
           >
-            critical · scene crash
+            {erreur.criseSurtitre}
           </p>
           <h1
             style={{
               fontFamily: 'serif',
               fontSize: '2rem',
-              color: '#F4D8E2',
+              color: palette.pearl,
               marginBottom: '1.5rem',
             }}
           >
-            Le portfolio n&rsquo;a pas pu démarrer.
+            {erreur.criseTitre}
           </h1>
           <button
             type="button"
             onClick={() => reset()}
             style={{
-              border: '1px solid #2a2730',
+              border: `1px solid ${palette.fog}`,
               borderRadius: '999px',
               padding: '0.75rem 1.5rem',
               background: 'transparent',
-              color: '#E8E6EC',
+              color: palette.chrome,
               fontFamily: 'monospace',
               fontSize: '10px',
               letterSpacing: '0.25em',
@@ -66,7 +70,7 @@ export default function GlobalError({
               cursor: 'pointer',
             }}
           >
-            Recharger
+            {erreur.bouton}
           </button>
         </div>
       </body>

@@ -1,9 +1,15 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Fullscreen viewer for one gallery image or clip, with previous and next
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import type { GalleryItem } from '@/data/projects';
 import AutoVideo from '@/components/AutoVideo';
+import { useFocusTrap } from '@/lib/useFocusTrap';
+import { useFocusOnOpen } from '@/lib/useFocusOnOpen';
+import { pad2 } from '@/lib/format';
+import { libelles } from '@/content/site';
 
 type LightboxProps = {
   items: GalleryItem[];
@@ -21,6 +27,11 @@ export default function Lightbox({
   onNavigate,
 }: LightboxProps) {
   const open = index !== null && index >= 0 && index < items.length;
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useFocusTrap(dialogRef, open);
+  useFocusOnOpen(closeButtonRef, open);
 
   const go = useCallback(
     (dir: number) => {
@@ -39,7 +50,7 @@ export default function Lightbox({
       else if (e.key === 'ArrowLeft') go(-1);
     };
     window.addEventListener('keydown', onKey);
-    // Bloque le scroll de fond pendant l'ouverture.
+    // Lock the page behind so only the lightbox reacts to scroll.
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
@@ -53,29 +64,28 @@ export default function Lightbox({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label="Aperçu du média"
+      aria-label={libelles.apercuMedia}
       className="fixed inset-0 z-[9998] flex items-center justify-center bg-ink/92 backdrop-blur-xl animate-[fade-in_0.25s_ease-out]"
       onClick={onClose}
     >
-      {/* Compteur + fermeture */}
       <div className="absolute top-[max(1.25rem,env(safe-area-inset-top))] left-0 right-0 flex items-center justify-between px-5 md:px-8">
         <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-mist">
-          {String(index + 1).padStart(2, '0')} /{' '}
-          {String(items.length).padStart(2, '0')}
+          {pad2(index + 1)} / {pad2(items.length)}
         </span>
         <button
+          ref={closeButtonRef}
           type="button"
           onClick={onClose}
-          aria-label="Fermer l'aperçu"
+          aria-label={libelles.fermerApercu}
           className="flex h-11 w-11 items-center justify-center rounded-full border border-chrome/30 bg-ink/60 text-chrome backdrop-blur transition-colors hover:border-magentaglitch hover:text-magentaglitch"
         >
           <span className="text-xl leading-none">×</span>
         </button>
       </div>
 
-      {/* Flèches */}
       {items.length > 1 && (
         <>
           <button
@@ -84,7 +94,7 @@ export default function Lightbox({
               e.stopPropagation();
               go(-1);
             }}
-            aria-label="Média précédent"
+            aria-label={libelles.mediaPrecedent}
             className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full border border-chrome/25 bg-ink/50 text-chrome backdrop-blur transition-all hover:scale-110 hover:border-chrome/70"
           >
             ‹
@@ -95,7 +105,7 @@ export default function Lightbox({
               e.stopPropagation();
               go(1);
             }}
-            aria-label="Média suivant"
+            aria-label={libelles.mediaSuivant}
             className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full border border-chrome/25 bg-ink/50 text-chrome backdrop-blur transition-all hover:scale-110 hover:border-chrome/70"
           >
             ›
@@ -103,7 +113,6 @@ export default function Lightbox({
         </>
       )}
 
-      {/* Média (le clic dessus ne ferme pas) */}
       <div
         className="relative max-h-[82vh] max-w-[90vw] overflow-hidden rounded-sm"
         style={{ boxShadow: `0 0 80px -20px ${accent}` }}

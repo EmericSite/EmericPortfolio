@@ -1,11 +1,12 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Development helper that prints readable details for errors the browser swallows
 'use client';
 
 import { useEffect } from 'react';
 
 /**
- * Dev uniquement : déballe les `unhandledRejection`/`error` opaques (que Next
- * affiche en `[object Error]`) pour exposer le message + la stack réels, afin
- * de pouvoir identifier puis corriger la source. Aucun effet en production.
+ * Dev only: unwraps the opaque `unhandledRejection`/`error` events that Next
+ * logs as `[object Error]`, to get the real message and stack.
  */
 export default function DevErrorReporter() {
   useEffect(() => {

@@ -1,5 +1,7 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// The one and only page: 3D hub, side panels, and the big headline over them
 import HomeHub from '@/components/HomeHub';
-import HubOverlay from '@/components/HubOverlay';
+import ProjectPanel from '@/components/ProjectPanel';
 import NavBar from '@/components/NavBar';
 import AboutPanel from '@/components/AboutPanel';
 import ContactPanel from '@/components/ContactPanel';
@@ -23,7 +25,7 @@ export default function Home() {
       <div className="absolute inset-0 bg-gradient-to-b from-ink/20 via-transparent to-ink/70 pointer-events-none" />
 
       <NavBar />
-      <HubOverlay />
+      <ProjectPanel />
       <AboutPanel />
       <ContactPanel />
       <ScrollNav />

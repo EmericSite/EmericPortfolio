@@ -1,4 +1,9 @@
-const PHRASE = '·EMERIC.RESSY';
+// Emericfolio — created by Tomi-Tom, 2026
+// Decorative wall of repeated text scrolling behind the hub
+
+import { marquee } from '@/content/site';
+
+const PHRASE = marquee;
 const PHRASE_REPEATS = 40;
 const LINE_COUNT = 24;
 const TRACK = PHRASE.repeat(PHRASE_REPEATS);

@@ -1,11 +1,13 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Fullscreen Vimeo player for a project film or for the showreel
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { projects } from '@/data/projects';
+import { showreelCard } from '@/data/showreel';
 import { useHubStore } from '@/store/hub';
-
-const SHOWREEL_VIMEO_ID = '1172501942';
+import { libelles, showreel } from '@/content/site';
 
 type Source = {
   vimeoId: string;
@@ -25,8 +27,8 @@ export default function VideoOverlay() {
         closeShowreel: s.closeShowreel,
       })),
     );
-  // On mémorise quel vimeoId a échoué plutôt que de réinitialiser un booléen
-  // dans un effet quand la source change (dérivation > setState-dans-un-effet).
+  // Store which vimeoId failed rather than resetting a boolean from an effect
+  // when the source changes.
   const [erroredId, setErroredId] = useState<string | null>(null);
 
   const project = activeId
@@ -37,10 +39,11 @@ export default function VideoOverlay() {
   let close: () => void = stopVideo;
   if (showreelOpen) {
     source = {
-      vimeoId: SHOWREEL_VIMEO_ID,
-      title: 'Showreel 2025',
-      shortTitle: 'Showreel · 2025',
-      accent: '#F4D8E2',
+      vimeoId: showreelCard.vimeoId,
+      title: showreelCard.title,
+      // Longer than the card title, which has to fit on the 3D cartouche.
+      shortTitle: showreel.titreCourt,
+      accent: showreelCard.accent,
     };
     close = closeShowreel;
   } else if (videoStarted && project) {
@@ -55,14 +58,18 @@ export default function VideoOverlay() {
 
   const iframeError = source != null && erroredId === source.vimeoId;
 
+  // Depend on the id, not on `source`: that object is rebuilt at every render
+  // and would re-subscribe the listener for nothing.
+  const sourceId = source?.vimeoId ?? null;
+
   useEffect(() => {
-    if (!source) return;
+    if (!sourceId) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [source, close]);
+  }, [sourceId, close]);
 
   if (!source) return null;
 
@@ -70,13 +77,13 @@ export default function VideoOverlay() {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Lecture de ${source.title}`}
+      aria-label={`${libelles.lectureEnCours} ${source.title}`}
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-ink/95 backdrop-blur-md"
     >
       <button
         type="button"
         onClick={close}
-        aria-label="Fermer la lecture"
+        aria-label={libelles.fermerLecture}
         className="absolute top-4 right-4 md:top-6 md:right-6 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-chrome/40 bg-ink/70 text-chrome backdrop-blur transition-colors hover:border-cyanglitch hover:text-cyanglitch"
       >
         <span className="text-lg leading-none">×</span>
@@ -107,7 +114,7 @@ export default function VideoOverlay() {
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-ink/90 px-6 text-center">
             <p className="font-mono text-xs uppercase tracking-[0.25em] text-chrome/80">
-              Lecture impossible ici
+              {libelles.lectureImpossible}
             </p>
             <a
               href={`https://vimeo.com/${source.vimeoId}`}
@@ -115,7 +122,7 @@ export default function VideoOverlay() {
               rel="noopener noreferrer"
               className="rounded-sm border border-chrome/40 bg-ink/60 px-4 py-2 font-mono text-xs uppercase tracking-[0.25em] text-chrome transition-colors hover:border-cyanglitch hover:text-cyanglitch"
             >
-              Ouvrir sur Vimeo ↗
+              {libelles.ouvrirSurVimeo}
             </a>
           </div>
         )}

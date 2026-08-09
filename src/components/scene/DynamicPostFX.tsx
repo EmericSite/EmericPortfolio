@@ -1,3 +1,6 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Full-screen finish on the 3D view: glow, colour fringing, blur and vignette
+
 'use client';
 
 import { useFrame } from '@react-three/fiber';
@@ -15,14 +18,14 @@ import * as THREE from 'three';
 import { usePerformanceTier, tierBudget } from '@/lib/usePerformanceTier';
 import { useHubStore, type HubMode } from '@/store/hub';
 import { TintedGlitchEffect } from './TintedGlitchEffect';
+import { useModeElapsed } from './useModeElapsed';
 
 type BloomLike = { intensity: number };
-type DoFLike = { bokehScale: number };
 type HueSatLike = { hue: number; saturation: number };
 
 const TintedGlitch = wrapEffect(TintedGlitchEffect);
 
-// Pink glitch tint — peak hue shift (rad, toward magenta) and saturation boost
+// Hue shift in radians, negative goes toward magenta.
 const GLITCH_HUE_PEAK = -0.18;
 const GLITCH_SAT_PEAK = 0.22;
 
@@ -34,7 +37,6 @@ const BLOOM_BY_MODE: Record<HubMode, number> = {
   contact: 0.55,
 };
 
-// Hover glitch slightly toned down — was reading a touch too aggressive.
 const CA_BY_MODE: Record<HubMode, number> = {
   hub: 0,
   hover: 0.002,
@@ -46,14 +48,12 @@ const CA_BY_MODE: Record<HubMode, number> = {
 const DOF_BY_MODE: Record<HubMode, number> = {
   hub: 0,
   hover: 0,
-  // Active cartouche must read sharp — DoF blur was washing it out and
-  // creating focus mismatch as the card lerped to its target.
+  // Active cartouche must stay sharp: blur washes it out while it lerps in.
   project: 0,
   about: 1.5,
   contact: 1.5,
 };
 
-// Glitch CA spike envelope — 350ms, ease-out
 const GLITCH_PEAK = 0.0065;
 const GLITCH_DURATION_MS = 350;
 
@@ -65,23 +65,13 @@ export default function DynamicPostFX() {
   const glitchRef = useRef<TintedGlitchEffect>(null);
   const dofRef = useRef<DepthOfFieldEffect>(null);
   const hueSatRef = useRef<HueSatLike>(null);
-  const prevMode = useRef<HubMode>('hub');
-  const modeChangedAt = useRef(0);
+  const sinceModeChange = useModeElapsed();
 
   const postFX = budget.postFX;
   const hoverFX = budget.hoverFX;
 
-  // Les composants issus de wrapEffect (Bloom, HueSaturation, et notre
-  // TintedGlitch) ne sont pas des forwardRef. Sous React 19, `ref` leur arrive
-  // donc comme une prop ordinaire, et wrapEffect la ramasse dans le rest qu'il
-  // passe à `JSON.stringify` pour mémoïser ses args. Une fois la ref peuplée,
-  // cette sérialisation part sur un objet circulaire et fait tomber le canvas
-  // au premier re-rendu venu, typiquement un redimensionnement de fenêtre ou
-  // une rotation d'écran.
-  //
-  // Des callback refs contournent le problème : JSON.stringify ignore les
-  // fonctions. Bug présent jusqu'en 3.0.4 incluse, la dernière version.
-  // DepthOfField, lui, est un vrai forwardRef et n'est pas concerné.
+  // wrapEffect is not forwardRef: under React 19 an object ref lands in the props
+  // it memoizes with JSON.stringify and the cycle kills the canvas. Functions do not.
   const setBloom = useCallback((el: BloomLike | null) => {
     bloomRef.current = el;
   }, []);
@@ -96,25 +86,19 @@ export default function DynamicPostFX() {
     if (postFX === 'off') return;
 
     const mode = useHubStore.getState().mode;
-    if (mode !== prevMode.current) {
-      modeChangedAt.current = performance.now();
-      prevMode.current = mode;
-    }
+    const elapsed = sinceModeChange(mode);
 
     const targetBloom = BLOOM_BY_MODE[mode];
     const baseCA = CA_BY_MODE[mode];
     const targetDoF = DOF_BY_MODE[mode];
 
-    // Glitch spike on mode transition: CA briefly jumps then decays
-    const elapsed = performance.now() - modeChangedAt.current;
+    // Mode change fires a chromatic aberration spike that decays back to base.
     let glitchAdd = 0;
     if (elapsed < GLITCH_DURATION_MS) {
       const t = elapsed / GLITCH_DURATION_MS;
-      // ease-out cubic — peak at start, decays to 0
       glitchAdd = GLITCH_PEAK * Math.pow(1 - t, 3);
     }
-    // Hover-state CA jitter — small high-freq noise on the base level so
-    // chromatic fringing feels alive (lens "looking" at the cartouche)
+    // Noise on top of the base level so the fringing never sits still.
     let hoverJitter = 0;
     if (mode === 'hover' && hoverFX) {
       const ct = clock.elapsedTime;
@@ -133,15 +117,14 @@ export default function DynamicPostFX() {
     }
     if (glitchRef.current?.offset) {
       const cur = glitchRef.current.offset.x;
-      // Faster lerp during the spike so the glitch reads instantly
+      // Faster lerp during the spike so the glitch reads instantly.
       const lerp = elapsed < GLITCH_DURATION_MS ? 0.35 : 0.06;
       const next = THREE.MathUtils.lerp(cur, targetCA, lerp);
       glitchRef.current.offset.set(next, next);
     }
     if (dofRef.current) {
-      const dof = dofRef.current as unknown as DoFLike;
-      dof.bokehScale = THREE.MathUtils.lerp(
-        dof.bokehScale,
+      dofRef.current.bokehScale = THREE.MathUtils.lerp(
+        dofRef.current.bokehScale,
         targetDoF,
         0.06,
       );

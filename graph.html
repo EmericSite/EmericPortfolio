@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%97%B5%3C/text%3E%3C/svg%3E" />
+<title>DepGraph — EmericPortfolio</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #0f1115; color: #e8eaed;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+  #app { display: flex; height: 100vh; }
+  #side { width: 320px; flex: none; border-right: 1px solid #2a2f3a; padding: 18px 18px 0;
+    display: flex; flex-direction: column; overflow: hidden; }
+  h1 { font-size: 17px; margin: 0; letter-spacing: -0.02em; }
+  h1 .accent { background: linear-gradient(135deg, #5b8cff, #7c5bff); -webkit-background-clip: text;
+    background-clip: text; color: transparent; }
+  .project { color: #9aa3b2; font-size: 12.5px; margin: 3px 0 14px; word-break: break-all; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .stat { background: #181b22; border: 1px solid #2a2f3a; border-radius: 10px; padding: 10px; }
+  .stat b { display: block; font-size: 20px; }
+  .stat.bad b { color: #ff5a5a; } .stat.good b { color: #25c2a0; }
+  .stat span { color: #9aa3b2; font-size: 11px; }
+  #search { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #2a2f3a;
+    background: #181b22; color: #e8eaed; font-size: 13px; margin-bottom: 10px; }
+  .cy-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #9aa3b2;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  #reset { background: #1f232c; border: 1px solid #2a2f3a; color: #e8eaed; border-radius: 7px;
+    font-size: 11px; padding: 4px 9px; cursor: pointer; }
+  #cycles { overflow-y: auto; flex: 1; padding-bottom: 14px; }
+  .cycle { background: rgba(255,90,90,0.08); border: 1px solid rgba(255,90,90,0.25);
+    border-radius: 9px; padding: 9px 10px; margin-bottom: 8px; cursor: pointer; }
+  .cycle:hover { background: rgba(255,90,90,0.16); }
+  .cy-badge { display: inline-block; font-size: 10.5px; color: #ff5a5a; font-weight: 700;
+    margin-right: 6px; }
+  .cy-chain { font-family: ui-monospace, monospace; font-size: 12px; word-break: break-word; }
+  .ok { color: #25c2a0; font-size: 13px; padding: 10px 0; }
+  #main { flex: 1; position: relative; }
+  #cv { width: 100%; height: 100%; display: block; cursor: grab; }
+  #cv:active { cursor: grabbing; }
+  .legend { position: absolute; bottom: 14px; left: 14px; font-size: 11.5px; color: #9aa3b2;
+    background: rgba(15,17,21,0.7); padding: 8px 11px; border-radius: 9px; border: 1px solid #2a2f3a; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+  .hint { position: absolute; top: 14px; right: 14px; font-size: 11.5px; color: #6b7280; }
+  .toggle { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #9aa3b2;
+    margin-bottom: 12px; cursor: pointer; user-select: none; }
+  .toggle input { accent-color: #5b8cff; }
+  #detail { display: none; background: #181b22; border: 1px solid #2a2f3a; border-radius: 10px;
+    padding: 12px; margin-bottom: 12px; max-height: 42%; overflow-y: auto; }
+  .d-top { display: flex; justify-content: space-between; align-items: center; }
+  .d-name { font-weight: 700; font-size: 14px; }
+  #d-close { background: none; border: 0; color: #9aa3b2; cursor: pointer; font-size: 14px; }
+  .d-path { color: #6b7280; font-size: 11px; word-break: break-all; margin: 2px 0 8px; }
+  .d-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+  .d-tag { font-size: 10.5px; background: #1f232c; border: 1px solid #2a2f3a; border-radius: 6px;
+    padding: 2px 7px; color: #9aa3b2; }
+  .d-tag.cyc { color: #ff5a5a; border-color: rgba(255,90,90,0.4); }
+  .d-sec { margin-top: 8px; }
+  .d-h { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #9aa3b2; margin-bottom: 4px; }
+  .d-sec ul { list-style: none; margin: 0; padding: 0; }
+  .d-sec li { font-family: ui-monospace, monospace; font-size: 11.5px; color: #cfd6e2; padding: 1px 0;
+    word-break: break-all; }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <h1><span class="accent">◵ DepGraph</span></h1>
+    <div class="project">EmericPortfolio</div>
+    <div class="stats">
+      <div class="stat"><b>41</b><span>files</span></div>
+      <div class="stat"><b>60</b><span>imports</span></div>
+      <div class="stat good"><b>0</b><span>cycles</span></div>
+    </div>
+    <input id="search" placeholder="Filter files…" />
+    <label class="toggle"><input type="checkbox" id="cyclesOnly" /> Show cycles only</label>
+    <div id="detail"></div>
+    <div class="cy-title"><span>Circular dependencies</span><button id="reset">reset</button></div>
+    <div id="cycles"></div>
+  </aside>
+  <main id="main">
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span class="dot" style="background:#5b8cff"></span>normal module &nbsp;
+      <span class="dot" style="background:#ff5a5a"></span>in a cycle
+    </div>
+    <div class="hint">click a node for details · wheel = zoom · drag = pan</div>
+  </main>
+</div>
+<script>window.__DEPGRAPH__ = {"nodes":["eslint.config.mjs","next.config.ts","postcss.config.mjs","src/app/error.tsx","src/app/global-error.tsx","src/app/layout.tsx","src/app/opengraph-image.tsx","src/app/page.tsx","src/app/robots.ts","src/app/sitemap.ts","src/app/twitter-image.tsx","src/components/AboutPanel.tsx","src/components/AccessibleProjectList.tsx","src/components/AutoVideo.tsx","src/components/BackgroundShowreel.tsx","src/components/ContactPanel.tsx","src/components/DevErrorReporter.tsx","src/components/FallbackHub.tsx","src/components/HomeHub.tsx","src/components/HubOverlay.tsx","src/components/HubScene.tsx","src/components/Lightbox.tsx","src/components/Loader.tsx","src/components/MarqueeBackground.tsx","src/components/NavBar.tsx","src/components/ScrollNav.tsx","src/components/VideoOverlay.tsx","src/components/scene/CameraRig.tsx","src/components/scene/CartoucheOrbit.tsx","src/components/scene/DynamicPostFX.tsx","src/components/scene/Fireflies.tsx","src/components/scene/TintedGlitchEffect.ts","src/data/projects.ts","src/lib/useFocusTrap.ts","src/lib/useIsClient.ts","src/lib/usePerformanceTier.ts","src/lib/usePrefersReducedMotion.ts","src/lib/useSwipeToClose.ts","src/lib/useViewportScale.ts","src/store/hub.ts","tools/optimize-assets.mjs"],"edges":[{"from":"src/app/layout.tsx","to":"src/data/projects.ts"},{"from":"src/app/layout.tsx","to":"src/components/BackgroundShowreel.tsx"},{"from":"src/app/layout.tsx","to":"src/components/DevErrorReporter.tsx"},{"from":"src/app/page.tsx","to":"src/components/HomeHub.tsx"},{"from":"src/app/page.tsx","to":"src/components/HubOverlay.tsx"},{"from":"src/app/page.tsx","to":"src/components/NavBar.tsx"},{"from":"src/app/page.tsx","to":"src/components/AboutPanel.tsx"},{"from":"src/app/page.tsx","to":"src/components/ContactPanel.tsx"},{"from":"src/app/page.tsx","to":"src/components/Loader.tsx"},{"from":"src/app/page.tsx","to":"src/components/ScrollNav.tsx"},{"from":"src/app/page.tsx","to":"src/components/AccessibleProjectList.tsx"},{"from":"src/app/page.tsx","to":"src/components/MarqueeBackground.tsx"},{"from":"src/app/page.tsx","to":"src/components/VideoOverlay.tsx"},{"from":"src/app/twitter-image.tsx","to":"src/app/opengraph-image.tsx"},{"from":"src/components/AboutPanel.tsx","to":"src/store/hub.ts"},{"from":"src/components/AboutPanel.tsx","to":"src/lib/useFocusTrap.ts"},{"from":"src/components/AboutPanel.tsx","to":"src/lib/useSwipeToClose.ts"},{"from":"src/components/AccessibleProjectList.tsx","to":"src/data/projects.ts"},{"from":"src/components/AccessibleProjectList.tsx","to":"src/store/hub.ts"},{"from":"src/components/BackgroundShowreel.tsx","to":"src/lib/usePerformanceTier.ts"},{"from":"src/components/BackgroundShowreel.tsx","to":"src/lib/usePrefersReducedMotion.ts"},{"from":"src/components/BackgroundShowreel.tsx","to":"src/lib/useIsClient.ts"},{"from":"src/components/ContactPanel.tsx","to":"src/store/hub.ts"},{"from":"src/components/ContactPanel.tsx","to":"src/lib/useFocusTrap.ts"},{"from":"src/components/ContactPanel.tsx","to":"src/lib/useSwipeToClose.ts"},{"from":"src/components/FallbackHub.tsx","to":"src/data/projects.ts"},{"from":"src/components/FallbackHub.tsx","to":"src/store/hub.ts"},{"from":"src/components/HomeHub.tsx","to":"src/components/FallbackHub.tsx"},{"from":"src/components/HomeHub.tsx","to":"src/lib/usePerformanceTier.ts"},{"from":"src/components/HomeHub.tsx","to":"src/components/HubScene.tsx"},{"from":"src/components/HubOverlay.tsx","to":"src/store/hub.ts"},{"from":"src/components/HubOverlay.tsx","to":"src/data/projects.ts"},{"from":"src/components/HubOverlay.tsx","to":"src/lib/useFocusTrap.ts"},{"from":"src/components/HubOverlay.tsx","to":"src/components/Lightbox.tsx"},{"from":"src/components/HubOverlay.tsx","to":"src/components/AutoVideo.tsx"},{"from":"src/components/HubScene.tsx","to":"src/components/scene/CartoucheOrbit.tsx"},{"from":"src/components/HubScene.tsx","to":"src/components/scene/CameraRig.tsx"},{"from":"src/components/HubScene.tsx","to":"src/components/scene/DynamicPostFX.tsx"},{"from":"src/components/HubScene.tsx","to":"src/components/scene/Fireflies.tsx"},{"from":"src/components/HubScene.tsx","to":"src/store/hub.ts"},{"from":"src/components/HubScene.tsx","to":"src/lib/usePerformanceTier.ts"},{"from":"src/components/HubScene.tsx","to":"src/lib/usePrefersReducedMotion.ts"},{"from":"src/components/HubScene.tsx","to":"src/lib/useViewportScale.ts"},{"from":"src/components/Lightbox.tsx","to":"src/data/projects.ts"},{"from":"src/components/Lightbox.tsx","to":"src/components/AutoVideo.tsx"},{"from":"src/components/NavBar.tsx","to":"src/store/hub.ts"},{"from":"src/components/ScrollNav.tsx","to":"src/store/hub.ts"},{"from":"src/components/VideoOverlay.tsx","to":"src/data/projects.ts"},{"from":"src/components/VideoOverlay.tsx","to":"src/store/hub.ts"},{"from":"src/components/scene/CameraRig.tsx","to":"src/store/hub.ts"},{"from":"src/components/scene/CameraRig.tsx","to":"src/lib/usePerformanceTier.ts"},{"from":"src/components/scene/CartoucheOrbit.tsx","to":"src/data/projects.ts"},{"from":"src/components/scene/CartoucheOrbit.tsx","to":"src/store/hub.ts"},{"from":"src/components/scene/CartoucheOrbit.tsx","to":"src/lib/usePerformanceTier.ts"},{"from":"src/components/scene/CartoucheOrbit.tsx","to":"src/lib/usePrefersReducedMotion.ts"},{"from":"src/components/scene/CartoucheOrbit.tsx","to":"src/lib/useViewportScale.ts"},{"from":"src/components/scene/DynamicPostFX.tsx","to":"src/lib/usePerformanceTier.ts"},{"from":"src/components/scene/DynamicPostFX.tsx","to":"src/store/hub.ts"},{"from":"src/components/scene/DynamicPostFX.tsx","to":"src/components/scene/TintedGlitchEffect.ts"},{"from":"src/store/hub.ts","to":"src/data/projects.ts"}],"cycleGroups":[],"cyclePaths":[],"metrics":[{"id":"eslint.config.mjs","fanIn":0,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":true},{"id":"next.config.ts","fanIn":0,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":true},{"id":"postcss.config.mjs","fanIn":0,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":true},{"id":"src/app/error.tsx","fanIn":0,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":true},{"id":"src/app/global-error.tsx","fanIn":0,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":true},{"id":"src/app/layout.tsx","fanIn":0,"fanOut":3,"inCycle":false,"isEntry":true,"isOrphan":false},{"id":"src/app/opengraph-image.tsx","fanIn":1,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/app/page.tsx","fanIn":0,"fanOut":10,"inCycle":false,"isEntry":true,"isOrphan":false},{"id":"src/app/robots.ts","fanIn":0,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":true},{"id":"src/app/sitemap.ts","fanIn":0,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":true},{"id":"src/app/twitter-image.tsx","fanIn":0,"fanOut":1,"inCycle":false,"isEntry":true,"isOrphan":false},{"id":"src/components/AboutPanel.tsx","fanIn":1,"fanOut":3,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/AccessibleProjectList.tsx","fanIn":1,"fanOut":2,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/AutoVideo.tsx","fanIn":2,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/BackgroundShowreel.tsx","fanIn":1,"fanOut":3,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/ContactPanel.tsx","fanIn":1,"fanOut":3,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/DevErrorReporter.tsx","fanIn":1,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/FallbackHub.tsx","fanIn":1,"fanOut":2,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/HomeHub.tsx","fanIn":1,"fanOut":3,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/HubOverlay.tsx","fanIn":1,"fanOut":5,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/HubScene.tsx","fanIn":1,"fanOut":8,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/Lightbox.tsx","fanIn":1,"fanOut":2,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/Loader.tsx","fanIn":1,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/MarqueeBackground.tsx","fanIn":1,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/NavBar.tsx","fanIn":1,"fanOut":1,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/ScrollNav.tsx","fanIn":1,"fanOut":1,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/VideoOverlay.tsx","fanIn":1,"fanOut":2,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/scene/CameraRig.tsx","fanIn":1,"fanOut":2,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/scene/CartoucheOrbit.tsx","fanIn":1,"fanOut":5,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/scene/DynamicPostFX.tsx","fanIn":1,"fanOut":3,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/scene/Fireflies.tsx","fanIn":1,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/components/scene/TintedGlitchEffect.ts","fanIn":1,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/data/projects.ts","fanIn":8,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/lib/useFocusTrap.ts","fanIn":3,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/lib/useIsClient.ts","fanIn":1,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/lib/usePerformanceTier.ts","fanIn":6,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/lib/usePrefersReducedMotion.ts","fanIn":3,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/lib/useSwipeToClose.ts","fanIn":2,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/lib/useViewportScale.ts","fanIn":2,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"src/store/hub.ts","fanIn":12,"fanOut":1,"inCycle":false,"isEntry":false,"isOrphan":false},{"id":"tools/optimize-assets.mjs","fanIn":0,"fanOut":0,"inCycle":false,"isEntry":false,"isOrphan":true}]};</script>
+<script>
+(function () {
+  var DATA = window.__DEPGRAPH__;
+  var nodes = DATA.nodes.map(function (id, i) {
+    var m = DATA.metrics.find(function (x) { return x.id === id; }) || { fanIn: 0, fanOut: 0, inCycle: false };
+    var angle = (i / DATA.nodes.length) * Math.PI * 2;
+    return {
+      id: id,
+      label: id.split('/').pop(),
+      x: Math.cos(angle) * 300 + (Math.random() - 0.5) * 40,
+      y: Math.sin(angle) * 300 + (Math.random() - 0.5) * 40,
+      vx: 0, vy: 0,
+      fanIn: m.fanIn, fanOut: m.fanOut, inCycle: m.inCycle,
+      pinned: false
+    };
+  });
+  var index = {};
+  nodes.forEach(function (n) { index[n.id] = n; });
+  var edges = DATA.edges
+    .map(function (e) { return { from: index[e.from], to: index[e.to] }; })
+    .filter(function (e) { return e.from && e.to; }); // ignore les arêtes orphelines (données incohérentes)
+  var cycleSet = {};
+  DATA.cycleGroups.forEach(function (g) { g.forEach(function (id) { cycleSet[id] = true; }); });
+  // index importateurs/imports par nœud (pour le panneau de détail)
+  var importsOf = {}, importersOf = {};
+  nodes.forEach(function (n) { importsOf[n.id] = []; importersOf[n.id] = []; });
+  DATA.edges.forEach(function (e) {
+    if (importsOf[e.from]) importsOf[e.from].push(e.to);
+    if (importersOf[e.to]) importersOf[e.to].push(e.from);
+  });
+
+  var canvas = document.getElementById('cv');
+  var ctx = canvas.getContext('2d');
+  var view = { x: 0, y: 0, scale: 1 };
+  var highlight = null;   // Set d'ids à mettre en avant
+  var search = '';
+  var cyclesOnly = false;
+  var selected = null;
+
+  function resize() {
+    canvas.width = canvas.clientWidth * devicePixelRatio;
+    canvas.height = canvas.clientHeight * devicePixelRatio;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  // centre la vue
+  view.x = canvas.clientWidth / 2;
+  view.y = canvas.clientHeight / 2;
+
+  function tick() {
+    // répulsion (O(n^2), suffisant pour des projets de taille raisonnable)
+    for (var i = 0; i < nodes.length; i++) {
+      var a = nodes[i];
+      for (var j = i + 1; j < nodes.length; j++) {
+        var b = nodes[j];
+        var dx = a.x - b.x, dy = a.y - b.y;
+        var d2 = dx * dx + dy * dy + 0.01;
+        var f = 1800 / d2;
+        var d = Math.sqrt(d2);
+        var fx = (dx / d) * f, fy = (dy / d) * f;
+        a.vx += fx; a.vy += fy; b.vx -= fx; b.vy -= fy;
+      }
+    }
+    // ressorts le long des arêtes
+    edges.forEach(function (e) {
+      var dx = e.to.x - e.from.x, dy = e.to.y - e.from.y;
+      var d = Math.sqrt(dx * dx + dy * dy) + 0.01;
+      var f = (d - 90) * 0.01;
+      var fx = (dx / d) * f, fy = (dy / d) * f;
+      e.from.vx += fx; e.from.vy += fy; e.to.vx -= fx; e.to.vy -= fy;
+    });
+    // gravité vers le centre + intégration
+    nodes.forEach(function (n) {
+      if (n.pinned) { n.vx = 0; n.vy = 0; return; }
+      n.vx += -n.x * 0.002;
+      n.vy += -n.y * 0.002;
+      n.vx *= 0.85; n.vy *= 0.85;
+      // clamp anti-divergence (nœuds superposés → forces extrêmes)
+      var MAX_V = 60;
+      n.vx = Math.max(-MAX_V, Math.min(MAX_V, n.vx)) || 0;
+      n.vy = Math.max(-MAX_V, Math.min(MAX_V, n.vy)) || 0;
+      n.x += n.vx; n.y += n.vy;
+    });
+  }
+
+  function nodeRadius(n) { return 4 + Math.min(n.fanIn, 12) * 1.6; }
+  function visible(n) {
+    if (cyclesOnly && !n.inCycle) return false;
+    return !search || n.id.toLowerCase().indexOf(search) !== -1;
+  }
+  function active(n) {
+    if (selected) return n.id === selected || importsOf[selected].indexOf(n.id) !== -1 || importersOf[selected].indexOf(n.id) !== -1;
+    return !highlight || highlight[n.id];
+  }
+
+  function draw() {
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+    if (nodes.length === 0) {
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '14px ui-sans-serif, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No modules to display', canvas.clientWidth / 2, canvas.clientHeight / 2);
+      ctx.textAlign = 'start';
+      return;
+    }
+    ctx.save();
+    ctx.translate(view.x, view.y);
+    ctx.scale(view.scale, view.scale);
+
+    // arêtes
+    edges.forEach(function (e) {
+      var cyc = e.from.inCycle && e.to.inCycle;
+      var on = active(e.from) && active(e.to) && visible(e.from) && visible(e.to);
+      ctx.strokeStyle = cyc ? (on ? 'rgba(255,90,90,0.85)' : 'rgba(255,90,90,0.15)')
+                            : (on ? 'rgba(150,170,200,0.35)' : 'rgba(150,170,200,0.07)');
+      ctx.lineWidth = cyc ? 1.6 : 0.8;
+      ctx.beginPath();
+      ctx.moveTo(e.from.x, e.from.y);
+      ctx.lineTo(e.to.x, e.to.y);
+      ctx.stroke();
+    });
+
+    // nœuds
+    nodes.forEach(function (n) {
+      var on = active(n) && visible(n);
+      var r = nodeRadius(n);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = n.inCycle ? (on ? '#ff5a5a' : 'rgba(255,90,90,0.2)')
+                                : (on ? '#5b8cff' : 'rgba(91,140,255,0.18)');
+      ctx.fill();
+      if (on && (view.scale > 0.7 || n.fanIn > 3 || n.inCycle)) {
+        ctx.fillStyle = 'rgba(232,234,237,0.9)';
+        ctx.font = '10px ui-monospace, monospace';
+        ctx.fillText(n.label, n.x + r + 2, n.y + 3);
+      }
+    });
+    ctx.restore();
+  }
+
+  function loop() { tick(); draw(); requestAnimationFrame(loop); }
+  loop();
+
+  // --- interactions ---
+  var drag = null;
+  function toWorld(px, py) {
+    return { x: (px - view.x) / view.scale, y: (py - view.y) / view.scale };
+  }
+  function pick(px, py) {
+    var w = toWorld(px, py);
+    for (var i = nodes.length - 1; i >= 0; i--) {
+      var n = nodes[i];
+      var dx = n.x - w.x, dy = n.y - w.y;
+      if (dx * dx + dy * dy <= Math.pow(nodeRadius(n) + 4, 2)) return n;
+    }
+    return null;
+  }
+  canvas.addEventListener('mousedown', function (ev) {
+    var n = pick(ev.offsetX, ev.offsetY);
+    if (n) { drag = { node: n, moved: false, hit: n }; n.pinned = true; }
+    else { drag = { pan: true, sx: ev.offsetX, sy: ev.offsetY, vx: view.x, vy: view.y, moved: false, hit: null }; }
+  });
+  window.addEventListener('mousemove', function (ev) {
+    if (!drag) return;
+    drag.moved = true;
+    var rect = canvas.getBoundingClientRect();
+    var ox = ev.clientX - rect.left, oy = ev.clientY - rect.top;
+    if (drag.node) { var w = toWorld(ox, oy); drag.node.x = w.x; drag.node.y = w.y; }
+    else if (drag.pan) { view.x = drag.vx + (ox - drag.sx); view.y = drag.vy + (oy - drag.sy); }
+  });
+  window.addEventListener('mouseup', function () {
+    if (drag && !drag.moved) { selectNode(drag.hit ? drag.hit.id : null); } // clic simple = sélection
+    if (drag && drag.node) drag.node.pinned = false;
+    drag = null;
+  });
+  canvas.addEventListener('wheel', function (ev) {
+    ev.preventDefault();
+    var factor = ev.deltaY < 0 ? 1.1 : 0.9;
+    var w = toWorld(ev.offsetX, ev.offsetY);
+    view.scale *= factor;
+    view.x = ev.offsetX - w.x * view.scale;
+    view.y = ev.offsetY - w.y * view.scale;
+  }, { passive: false });
+
+  // recherche
+  document.getElementById('search').addEventListener('input', function (e) {
+    search = e.target.value.toLowerCase();
+  });
+
+  // toggle "cycles only"
+  document.getElementById('cyclesOnly').addEventListener('change', function (e) {
+    cyclesOnly = e.target.checked;
+  });
+
+  // sélection d'un nœud → panneau de détail (chemin, fan-in/out, imports, importateurs)
+  var detail = document.getElementById('detail');
+  function row(title, ids) {
+    if (!ids.length) return '';
+    var items = ids.slice(0, 40).map(function (id) {
+      return '<li>' + id.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</li>';
+    }).join('');
+    return '<div class="d-sec"><div class="d-h">' + title + ' (' + ids.length + ')</div><ul>' + items + '</ul></div>';
+  }
+  function selectNode(id) {
+    selected = id;
+    if (!id) { detail.style.display = 'none'; highlight = null; return; }
+    var n = index[id];
+    detail.style.display = 'block';
+    detail.innerHTML =
+      '<div class="d-top"><span class="d-name">' + id.split('/').pop() + '</span>' +
+      '<button id="d-close">✕</button></div>' +
+      '<div class="d-path">' + id.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</div>' +
+      '<div class="d-tags">' + (n.inCycle ? '<span class="d-tag cyc">in cycle</span>' : '') +
+        '<span class="d-tag">fan-in ' + n.fanIn + '</span><span class="d-tag">fan-out ' + n.fanOut + '</span></div>' +
+      row('imports', importsOf[id]) + row('imported by', importersOf[id]);
+    document.getElementById('d-close').addEventListener('click', function () { selectNode(null); });
+  }
+
+  // liste des cycles : cliquer surligne et recentre
+  function focusCycle(group) {
+    highlight = {};
+    group.forEach(function (id) { highlight[id] = true; });
+    var xs = group.map(function (id) { return index[id].x; });
+    var ys = group.map(function (id) { return index[id].y; });
+    var cx = xs.reduce(function (a, b) { return a + b; }, 0) / xs.length;
+    var cy = ys.reduce(function (a, b) { return a + b; }, 0) / ys.length;
+    view.scale = 1.3;
+    view.x = canvas.clientWidth / 2 - cx * view.scale;
+    view.y = canvas.clientHeight / 2 - cy * view.scale;
+  }
+  var list = document.getElementById('cycles');
+  if (DATA.cyclePaths.length === 0) {
+    list.innerHTML = '<div class="ok">No circular dependencies detected 🎉</div>';
+  } else {
+    DATA.cyclePaths.forEach(function (path, i) {
+      var labels = path.map(function (id) { return id.split('/').pop(); });
+      if (labels.length > 1 && labels[0] !== labels[labels.length - 1]) labels.push(labels[0]);
+      var chain = labels.join(' → ');
+      var div = document.createElement('div');
+      div.className = 'cycle';
+      var badge = document.createElement('span');
+      badge.className = 'cy-badge';
+      badge.textContent = 'cycle ' + (i + 1);
+      var chainEl = document.createElement('span');
+      chainEl.className = 'cy-chain';
+      chainEl.textContent = chain; // textContent → pas d'injection HTML via un nom de fichier
+      div.appendChild(badge);
+      div.appendChild(chainEl);
+      div.title = path.join('  →  ');
+      div.addEventListener('click', function () { focusCycle(DATA.cycleGroups[i]); });
+      list.appendChild(div);
+    });
+  }
+  document.getElementById('reset').addEventListener('click', function () {
+    highlight = null;
+    selectNode(null);
+    view.scale = 1;
+    view.x = canvas.clientWidth / 2;
+    view.y = canvas.clientHeight / 2;
+  });
+})();
+</script>
+</body>
+</html>

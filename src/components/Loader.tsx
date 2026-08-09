@@ -1,34 +1,46 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Opening screen shown while the 3D assets load, with progress and a way to skip
 'use client';
 
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import { useProgress } from '@react-three/drei';
-import { loader } from '@/content/site';
+import { libelles, loader } from '@/content/site';
+import { isSoftwareRenderer } from '@/lib/usePerformanceTier';
+
+const subscribeToNothing = () => () => {};
 
 function Loader() {
   const { progress, active } = useProgress();
+  // No 3D scene means drei never reports progress, so nothing would lift the
+  // loader before the 25s safety net. Read after hydration, never during.
+  const noScene = useSyncExternalStore(
+    subscribeToNothing,
+    isSoftwareRenderer,
+    () => false,
+  );
   const [hidden, setHidden] = useState(false);
   const [bootProgress, setBootProgress] = useState(8);
   const [showSkip, setShowSkip] = useState(false);
 
-  useEffect(() => {
-    setBootProgress((prev) => Math.max(prev, progress));
-  }, [progress]);
+  // Adjusted during the render, not in an effect: the bar only ever moves
+  // forward, and useProgress ticks often enough for a second commit to show.
+  if (progress > bootProgress) setBootProgress(progress);
 
   useEffect(() => {
-    if (!active && progress >= 100) {
+    if (noScene || (!active && progress >= 100)) {
       const timeout = setTimeout(() => setHidden(true), 900);
       return () => clearTimeout(timeout);
     }
-  }, [active, progress]);
+  }, [noScene, active, progress]);
 
-  // Show "entrer quand même" button after 12s as a safety net
+  // Escape hatch once loading drags on.
   useEffect(() => {
     const timeout = setTimeout(() => setShowSkip(true), 12000);
     return () => clearTimeout(timeout);
   }, []);
 
-  // Hard cap: auto-hide after 25s no matter what
+  // Hard cap so a stuck asset never traps the visitor on the loader.
   useEffect(() => {
     const timeout = setTimeout(() => setHidden(true), 25000);
     return () => clearTimeout(timeout);
@@ -36,7 +48,7 @@ function Loader() {
 
   if (hidden) return null;
 
-  const done = !active && progress >= 100;
+  const done = noScene || (!active && progress >= 100);
 
   return (
     <div
@@ -48,7 +60,7 @@ function Loader() {
         <div className="relative h-20 w-20">
           <Image
             src="/logo-mark.png"
-            alt="Loading"
+            alt={libelles.logoChargement}
             fill
             className="object-contain opacity-90"
             sizes="80px"
@@ -79,7 +91,7 @@ function Loader() {
             showSkip ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          entrer quand même
+          {libelles.entrerQuandMeme}
         </button>
       </div>
     </div>

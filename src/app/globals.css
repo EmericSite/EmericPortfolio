@@ -1,5 +1,9 @@
+/* Emericfolio — created by Tomi-Tom, 2026 */
+/* Site-wide styles: brand colours, fonts and the animations panels reuse */
+
 @import "tailwindcss";
 
+/* Brand colors: mirror of src/lib/palette.ts, change both together. */
 @theme inline {
   --color-ink: #08070c;
   --color-fog: #2a2730;
@@ -45,13 +49,8 @@ body {
   animation: fade-up 1.2s 0.4s ease-out backwards;
 }
 
-.animate-fade-up-slow {
-  animation: fade-up 1.4s 0.7s ease-out backwards;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-up,
-  .animate-fade-up-slow {
+  .animate-fade-up {
     animation: none;
   }
 }
@@ -76,7 +75,6 @@ body {
   to { opacity: 1; }
 }
 
-/* Vignette de galerie : zoom + voile + révélation de la légende au survol. */
 .media-tile {
   position: relative;
   overflow: hidden;
@@ -170,7 +168,7 @@ body {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   animation-direction: normal;
-  /* Compositing GPU + rendu de texte stable pendant l'animation (sub-pixel iOS). */
+  /* GPU compositing keeps text crisp during the scroll (iOS sub-pixel). */
   will-change: transform;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -193,14 +191,12 @@ body {
   animation: eq-bounce 0.8s ease-in-out infinite;
 }
 
-/* Halo pulsé derrière la radio quand le son est actif */
 @keyframes radio-halo {
   0% { transform: scale(1); opacity: 0.45; }
   100% { transform: scale(1.7); opacity: 0; }
 }
 .radio-halo { animation: radio-halo 2.2s ease-out infinite; }
 
-/* Point "live" clignotant + balayage lumineux sur le pill */
 @keyframes live-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.3; transform: scale(0.65); }
@@ -240,5 +236,26 @@ body {
   .play-breathe,
   .play-ring {
     animation: none;
+  }
+}
+
+/* Underline that wipes from left to right, for the studio credit. */
+.credit-link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1px;
+  transition:
+    color 0.35s ease,
+    background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.credit-link:hover,
+.credit-link:focus-visible {
+  color: var(--color-cyanglitch);
+  background-size: 100% 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .credit-link {
+    transition: color 0.2s ease;
   }
 }

@@ -2,12 +2,16 @@
   "name": "emeric-portfolio",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "dev": "next dev",
+    "dev": "node tools/dev.mjs",
+    "prebuild": "node tools/contenu.mjs --textes",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "scan-media": "node tools/scan-media.mjs",
+    "contenu": "node tools/contenu.mjs",
     "build-logos": "node tools/build-logos.mjs"
   },
   "dependencies": {
@@ -18,6 +22,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "three": "^0.184.0",
+    "yaml": "^2.9.0",
     "zustand": "^5.0.12"
   },
   "devDependencies": {

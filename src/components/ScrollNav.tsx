@@ -1,7 +1,10 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Turns wheel, arrow keys and touch swipes into moves from one hub card to the next
 'use client';
 
 import { useEffect } from 'react';
 import { useHubStore } from '@/store/hub';
+import { isSoftwareRenderer } from '@/lib/usePerformanceTier';
 
 const WHEEL_THRESHOLD = 60;
 const COOLDOWN_MS = 350;
@@ -12,6 +15,10 @@ export default function ScrollNav() {
     let lastTime = 0;
     let rAFPending = false;
     let rAFId = 0;
+
+    // Without the 3D carousel there is nothing to advance, and swallowing the
+    // wheel would trap the fallback grid.
+    if (isSoftwareRenderer()) return;
 
     const isHubFlow = () => {
       const { mode, activeId } = useHubStore.getState();
@@ -32,8 +39,7 @@ export default function ScrollNav() {
     const onWheel = (e: WheelEvent) => {
       if (!isHubFlow()) return;
       e.preventDefault();
-      // Molette verticale ou glissement horizontal sur trackpad : on prend
-      // l'axe dominant, cohérent avec le swipe tactile horizontal.
+      // Take the dominant axis so a trackpad swipe works like a mouse wheel.
       acc += Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if (rAFPending) return;
       rAFPending = true;
@@ -57,14 +63,11 @@ export default function ScrollNav() {
       }
     };
 
-    // Tactile : les cartouches suivent le doigt à l'horizontale pendant tout
-    // le geste, puis s'accrochent au cran le plus proche au relâchement.
-    // Auparavant rien ne bougeait pendant le glissement et la carte sautait
-    // d'un cran à la fin, ce qui donnait un défilement très sec.
+    // Cards follow the finger during the whole gesture, then snap on release.
     let touchStart: { x: number; y: number; t: number } | null = null;
-    let axis: 'indetermine' | 'horizontal' | 'vertical' = 'indetermine';
+    let axis: 'undecided' | 'horizontal' | 'vertical' = 'undecided';
 
-    // Distance de doigt correspondant au passage d'un projet au suivant.
+    // Finger distance worth one card.
     const stepDistance = () =>
       Math.max(120, Math.min(window.innerWidth * 0.45, 320));
 
@@ -73,7 +76,7 @@ export default function ScrollNav() {
       if (e.touches.length === 0) return;
       const t = e.touches[0];
       touchStart = { x: t.clientX, y: t.clientY, t: Date.now() };
-      axis = 'indetermine';
+      axis = 'undecided';
     };
 
     const onTouchMove = (e: TouchEvent) => {
@@ -83,15 +86,15 @@ export default function ScrollNav() {
       const dx = t.clientX - touchStart.x;
       const dy = t.clientY - touchStart.y;
 
-      // On décide de l'axe une fois pour toutes, passé un seuil de quelques
-      // pixels : sans ça un geste vertical ferait frémir le carrousel.
-      if (axis === 'indetermine') {
+      // Lock the axis once past a few pixels, else a vertical drag shakes
+      // the carousel.
+      if (axis === 'undecided') {
         if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
         axis = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
       }
       if (axis !== 'horizontal') return;
 
-      // Glisser vers la gauche (dx négatif) fait venir le projet suivant.
+      // Dragging left (negative dx) brings the next project in.
       useHubStore.getState().setDragOffset(-dx / stepDistance());
     };
 
@@ -100,7 +103,7 @@ export default function ScrollNav() {
       const start = touchStart;
       touchStart = null;
       const wasHorizontal = axis === 'horizontal';
-      axis = 'indetermine';
+      axis = 'undecided';
 
       const { dragOffset, commitDrag } = useHubStore.getState();
       if (!wasHorizontal || !isHubFlow()) {
@@ -111,14 +114,13 @@ export default function ScrollNav() {
       const touch = e.changedTouches[0];
       const dx = touch ? touch.clientX - start.x : 0;
       const elapsed = Math.max(1, Date.now() - start.t);
-      // Un geste vif emporte la décision même s'il est court, comme sur un
-      // carrousel natif.
+      // A quick flick wins even if short, like a native carousel.
       const velocity = Math.abs(dx) / elapsed; // px/ms
-      const franchi =
+      const passed =
         Math.abs(dragOffset) > 0.35 ||
         (velocity > 0.4 && Math.abs(dx) > 24);
 
-      commitDrag(franchi ? Math.sign(dragOffset) || 0 : 0);
+      commitDrag(passed ? Math.sign(dragOffset) || 0 : 0);
     };
 
     window.addEventListener('wheel', onWheel, { passive: false });

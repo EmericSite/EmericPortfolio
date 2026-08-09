@@ -1,10 +1,21 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Sliding side sheet with the studio bio and figures, opened from the About nav item
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useHubStore } from '@/store/hub';
 import { useFocusTrap } from '@/lib/useFocusTrap';
+import { useFocusOnOpen } from '@/lib/useFocusOnOpen';
 import { useSwipeToClose } from '@/lib/useSwipeToClose';
-import { about, identite } from '@/content/site';
+import { projects } from '@/data/projects';
+import { pad2 } from '@/lib/format';
+import { about, identite, libelles } from '@/content/site';
+
+// About is always the first sheet, hence the fixed rank; the total follows
+// content/projets/, so both counters of the panel stay in step.
+const ABOUT_RANK = pad2(1);
+// « auto » in site.yml keeps a key figure in step with content/projets/.
+const PROJECT_TOTAL = pad2(projects.length);
 
 export default function AboutPanel() {
   const mode = useHubStore((s) => s.mode);
@@ -14,16 +25,8 @@ export default function AboutPanel() {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useFocusTrap(sectionRef, isOpen);
+  useFocusOnOpen(closeButtonRef, isOpen);
   useSwipeToClose(sectionRef, isOpen, 'right', () => setMode('hub'));
-
-  useEffect(() => {
-    if (isOpen) {
-      const id = window.setTimeout(() => {
-        closeButtonRef.current?.focus({ preventScroll: true });
-      }, 0);
-      return () => window.clearTimeout(id);
-    }
-  }, [isOpen]);
 
   return (
     <section
@@ -32,6 +35,9 @@ export default function AboutPanel() {
       aria-modal={isOpen}
       aria-labelledby="about-title"
       aria-hidden={!isOpen}
+      // The panel stays mounted when closed: inert takes it out of the tab
+      // order, which pointer-events-none does not do.
+      inert={!isOpen}
       style={{ backdropFilter: isOpen ? undefined : 'none' }}
       className={`absolute inset-y-0 right-0 z-25 w-full md:w-[560px] bg-ink/90 backdrop-blur-md border-l border-fog transition-all duration-700 ease-out ${
         isOpen
@@ -39,18 +45,16 @@ export default function AboutPanel() {
           : 'translate-x-full opacity-0 pointer-events-none'
       }`}
     >
-      {/* Decorative vertical rail with section number */}
       <div className="hidden md:flex absolute inset-y-0 left-0 w-10 flex-col items-center justify-between py-10 pointer-events-none border-r border-fog/30">
         <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50 [writing-mode:vertical-rl] rotate-180">
-          Section · About
+          {about.etiquetteSection}
         </span>
         <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
-          01/04
+          {`${ABOUT_RANK}/${PROJECT_TOTAL}`}
         </span>
       </div>
 
       <div className="h-full overflow-y-auto px-6 md:px-14 md:pl-20 py-24 md:py-32">
-        {/* ID CARD */}
         <div className="mb-10 md:mb-12">
           <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.3em] text-mist/70 pb-3 border-b border-fog/40">
             <span>{identite.nom}</span>
@@ -59,12 +63,11 @@ export default function AboutPanel() {
           </div>
           <div className="flex items-center gap-3 pt-3 font-mono text-[9px] uppercase tracking-[0.3em] text-magentaglitch">
             <span className="h-px w-6 bg-magentaglitch" />
-            About
+            {about.etiquetteOnglet}
             <span className="ml-auto text-mist/40">{about.version}</span>
           </div>
         </div>
 
-        {/* HEADING */}
         <h2
           id="about-title"
           className="font-display text-5xl sm:text-6xl md:text-[5.25rem] leading-[0.92] tracking-tight mb-2"
@@ -82,7 +85,6 @@ export default function AboutPanel() {
           {about.sousTitre}
         </div>
 
-        {/* QUOTE — magazine block */}
         <figure className="relative mb-12 md:mb-16 pl-5 md:pl-6">
           <span
             aria-hidden
@@ -104,14 +106,13 @@ export default function AboutPanel() {
           </figcaption>
         </figure>
 
-        {/* APPROACH — numbered editorial blocks */}
         <div className="mb-14 md:mb-16">
           <div className="flex items-center justify-between mb-6">
             <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-cyanglitch">
-              ⎯ Approach
+              {about.titreApproche}
             </span>
             <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
-              {String(about.approche.length).padStart(2, '0')} entrées
+              {pad2(about.approche.length)} {about.uniteApproche}
             </span>
           </div>
           <div className="divide-y divide-fog/40 border-y border-fog/40">
@@ -122,7 +123,8 @@ export default function AboutPanel() {
               >
                 <div className="flex flex-col items-start min-w-[44px]">
                   <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-magentaglitch">
-                    #{String(i + 1).padStart(2, '0')}
+                    {libelles.prefixeNumero}
+                    {pad2(i + 1)}
                   </span>
                   <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.25em] text-mist/60">
                     {p.tag}
@@ -134,11 +136,10 @@ export default function AboutPanel() {
           </div>
         </div>
 
-        {/* INDEX — vertical colophon */}
         <div className="mb-14 md:mb-16">
           <div className="flex items-center justify-between mb-4">
             <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-cyanglitch">
-              ⎯ Index
+              {about.titreIndex}
             </span>
             <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
               {about.indexPeriode}
@@ -155,7 +156,7 @@ export default function AboutPanel() {
                     {s.idx}
                   </span>
                   <span className="font-display text-5xl md:text-6xl text-chrome leading-none tabular-nums transition-colors group-hover:text-pearl">
-                    {s.valeur}
+                    {s.valeur === 'auto' ? PROJECT_TOTAL : s.valeur}
                   </span>
                 </dt>
                 <dd className="font-mono text-[10px] uppercase tracking-[0.25em] text-mist text-right whitespace-pre-line leading-relaxed">
@@ -166,14 +167,13 @@ export default function AboutPanel() {
           </dl>
         </div>
 
-        {/* CLIENTS — editorial table */}
         <div className="mb-14 md:mb-16">
           <div className="flex items-center justify-between mb-4">
             <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-cyanglitch">
-              ⎯ Clients & studios
+              {about.titreClients}
             </span>
             <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
-              Sélection
+              {about.mentionSelection}
             </span>
           </div>
           <ul className="border-t border-fog/60">
@@ -183,7 +183,7 @@ export default function AboutPanel() {
                 className="group flex items-baseline gap-4 border-b border-fog/40 py-3 md:py-4"
               >
                 <span className="font-mono text-[9px] tracking-[0.3em] text-mist/50 tabular-nums w-7">
-                  {String(i + 1).padStart(2, '0')}
+                  {pad2(i + 1)}
                 </span>
                 <span className="font-display text-2xl md:text-3xl text-pearl tracking-tight">
                   {c}
@@ -200,10 +200,9 @@ export default function AboutPanel() {
           </ul>
         </div>
 
-        {/* CTA */}
         <div className="mt-16 md:mt-20 pt-8 border-t border-fog/60">
           <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-mist/50 mb-4">
-            ⎯ Prochaine étape
+            {about.titreCta}
           </div>
           <button
             type="button"
@@ -223,11 +222,10 @@ export default function AboutPanel() {
             </span>
           </button>
 
-          {/* Footer slug */}
           <div className="mt-10 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.3em] text-mist/40">
-            <span>END · About</span>
-            <span aria-hidden>— · — · —</span>
-            <span>01 / 04</span>
+            <span>{libelles.finAbout}</span>
+            <span aria-hidden>{libelles.separateurAbout}</span>
+            <span>{`${ABOUT_RANK} / ${PROJECT_TOTAL}`}</span>
           </div>
         </div>
       </div>
@@ -236,7 +234,7 @@ export default function AboutPanel() {
         ref={closeButtonRef}
         type="button"
         onClick={() => setMode('hub')}
-        aria-label="Fermer"
+        aria-label={libelles.fermer}
         className="absolute top-6 right-6 md:top-10 md:right-10 h-11 w-11 flex items-center justify-center border border-fog rounded-full text-chrome hover:border-magentaglitch hover:text-magentaglitch transition-colors"
       >
         <span className="font-mono text-sm">×</span>

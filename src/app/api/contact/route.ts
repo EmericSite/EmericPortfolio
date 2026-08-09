@@ -1,25 +1,23 @@
-import { NextResponse } from 'next/server';
+// Emericfolio — created by Tomi-Tom, 2026
+// Receives what a visitor writes in the contact form and mails it to Emeric
 
-// Envoi du formulaire de contact par mail, via l'API HTTP de Resend (appel
-// direct en fetch : pas de SDK à installer pour une seule requête).
-//
-// Variables d'environnement attendues (cf. .env.example) :
-//   RESEND_API_KEY      clé API Resend
-//   CONTACT_TO_EMAIL    destinataire réel des messages
-//   CONTACT_FROM_EMAIL  expéditeur, doit appartenir à un domaine vérifié
-//                       chez Resend (sinon onboarding@resend.dev en test)
+// Sent through Resend's HTTP API directly: one request is not worth an SDK.
+// Needs RESEND_API_KEY, CONTACT_TO_EMAIL and CONTACT_FROM_EMAIL, see .env.example.
+
+import { NextResponse } from 'next/server';
+import { formulaire } from '@/content/site';
+
 export const runtime = 'nodejs';
 
-// Surchargeable pour pointer un serveur factice en test local.
+// Overridable to send through another Resend-compatible endpoint.
 const RESEND_ENDPOINT =
   process.env.RESEND_API_URL ?? 'https://api.resend.com/emails';
 
 const MAX_LENGTHS = { name: 120, email: 200, message: 5000 } as const;
 
-// Limite de débit en mémoire. L'instance étant réutilisée entre requêtes sur
-// Vercel, cela freine les envois répétés depuis une même adresse. Ce n'est pas
-// une protection absolue, juste un garde-fou contre le spam basique.
-const RATE_WINDOW_MS = 10 * 60 * 1000; // fenêtre glissante
+// In-memory rate limit. The instance is reused between requests on Vercel, so it
+// slows down repeat senders. A basic spam guard, not real protection.
+const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 3;
 const hits = new Map<string, number[]>();
 
@@ -32,7 +30,7 @@ function isRateLimited(ip: string): boolean {
   }
   recent.push(now);
   hits.set(ip, recent);
-  // Purge opportuniste pour que la Map ne grossisse pas indéfiniment.
+  // Opportunistic purge so the Map does not grow forever.
   if (hits.size > 500) {
     for (const [key, times] of hits) {
       if (times.every((t) => now - t >= RATE_WINDOW_MS)) hits.delete(key);
@@ -43,7 +41,7 @@ function isRateLimited(ip: string): boolean {
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
 
-// Un saut de ligne dans un en-tête permettrait d'en injecter d'autres.
+// A newline inside a header would let other headers be injected.
 const sanitizeHeader = (value: string) => value.replace(/[\r\n]+/g, ' ').trim();
 
 const escapeHtml = (value: string) =>
@@ -58,13 +56,13 @@ export async function POST(request: Request) {
   try {
     payload = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Requête invalide.' }, { status: 400 });
+    return NextResponse.json({ error: formulaire.erreurRequete }, { status: 400 });
   }
 
   const body = (payload ?? {}) as Record<string, unknown>;
 
-  // Honeypot : un vrai visiteur ne remplit jamais ce champ, il est masqué.
-  // On répond 200 pour ne pas renseigner le robot sur la détection.
+  // Honeypot: the field is hidden, a real visitor never fills it. Answer 200 so
+  // the bot learns nothing about the detection.
   if (typeof body.website === 'string' && body.website.trim() !== '') {
     return NextResponse.json({ ok: true });
   }
@@ -75,13 +73,13 @@ export async function POST(request: Request) {
 
   if (!name || !email || !message) {
     return NextResponse.json(
-      { error: 'Merci de remplir le nom, l’email et le message.' },
+      { error: formulaire.erreurChampsManquants },
       { status: 400 },
     );
   }
   if (!isEmail(email)) {
     return NextResponse.json(
-      { error: 'Cette adresse email ne semble pas valide.' },
+      { error: formulaire.erreurEmailInvalide },
       { status: 400 },
     );
   }
@@ -90,14 +88,14 @@ export async function POST(request: Request) {
     email.length > MAX_LENGTHS.email ||
     message.length > MAX_LENGTHS.message
   ) {
-    return NextResponse.json({ error: 'Message trop long.' }, { status: 400 });
+    return NextResponse.json({ error: formulaire.erreurMessageLong }, { status: 400 });
   }
 
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'inconnu';
   if (isRateLimited(ip)) {
     return NextResponse.json(
-      { error: 'Trop de messages envoyés. Réessaie dans quelques minutes.' },
+      { error: formulaire.erreurTropDeMessages },
       { status: 429 },
     );
   }
@@ -111,7 +109,7 @@ export async function POST(request: Request) {
       '[contact] Configuration manquante : RESEND_API_KEY, CONTACT_TO_EMAIL et CONTACT_FROM_EMAIL doivent être définies.',
     );
     return NextResponse.json(
-      { error: "L'envoi est momentanément indisponible." },
+      { error: formulaire.erreurIndisponible },
       { status: 500 },
     );
   }
@@ -129,7 +127,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         from,
         to: [to],
-        // Répondre au message écrit directement au visiteur.
+        // A reply goes straight to the visitor.
         reply_to: safeEmail,
         subject: `Portfolio — message de ${safeName}`,
         text: `Nom: ${name}\nEmail: ${email}\n\n${message}`,
@@ -142,14 +140,14 @@ export async function POST(request: Request) {
     if (!res.ok) {
       console.error('[contact] Resend a répondu', res.status, await res.text());
       return NextResponse.json(
-        { error: "Le message n'a pas pu être envoyé." },
+        { error: formulaire.erreurEnvoi },
         { status: 502 },
       );
     }
   } catch (err) {
     console.error('[contact] Échec de l’appel à Resend', err);
     return NextResponse.json(
-      { error: "Le message n'a pas pu être envoyé." },
+      { error: formulaire.erreurEnvoi },
       { status: 502 },
     );
   }

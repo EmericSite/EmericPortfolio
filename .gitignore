@@ -20,6 +20,9 @@
 # production
 /build
 
+# editors
+.idea/
+
 # misc
 .DS_Store
 *.pem
@@ -43,8 +46,20 @@ next-env.d.ts
 
 # playwright / local screenshots
 .playwright-mcp/
-*.jpeg
-*.png.bak
+
+# sources fournies par Emeric, hors dépôt : seules leurs versions publiées y entrent.
 ASSETS_EMERIC/
-tools/optimize-assets.mjs
-tsconfig.tsbuildinfo
+
+# content: the .yml files are versioned, the source media are not.
+# Only their optimized versions, in public/, go online.
+/content/projets/**/*.png
+/content/projets/**/*.jpg
+/content/projets/**/*.jpeg
+/content/projets/**/*.webp
+/content/projets/**/*.avif
+/content/projets/**/*.tif
+/content/projets/**/*.tiff
+/content/projets/**/*.gif
+/content/projets/**/*.mp4
+/content/projets/**/*.mov
+/content/projets/**/*.webm

@@ -1,3 +1,6 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Follows the system "reduce motion" setting so animations can calm down
+
 'use client';
 
 import { useSyncExternalStore } from 'react';
@@ -20,9 +23,8 @@ function getServerSnapshot(): boolean {
 }
 
 /**
- * `true` si l'utilisateur préfère les animations réduites. Basé sur
- * useSyncExternalStore (pas de setState-dans-un-effet) → SSR-safe et réactif
- * aux changements de préférence.
+ * `true` when the user asks for reduced motion. SSR-safe and reacts live when
+ * the preference changes.
  */
 export function usePrefersReducedMotion(): boolean {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);

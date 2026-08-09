@@ -1,10 +1,8 @@
-// Triangle de lecture en SVG. Le caractère « ▶ » (U+25B6) est rendu comme un
-// emoji couleur par iOS et Android, ce qui cassait la sobriété du bouton sur
-// mobile. Un tracé maison garde la même forme partout et suit currentColor.
-//
-// Le triangle est décalé dans le viewBox pour que son centre de masse tombe au
-// milieu : centré géométriquement, un triangle pointant à droite paraît collé
-// à droite.
+// Emericfolio — created by Tomi-Tom, 2026
+// Play triangle shared by every video button of the site
+
+// Hand-drawn path because iOS and Android render "▶" (U+25B6) as a color emoji.
+// The triangle sits right of the viewBox center so its mass looks centered.
 export default function PlayGlyph({
   className,
   style,

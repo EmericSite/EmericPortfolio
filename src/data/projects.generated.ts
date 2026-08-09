@@ -1,0 +1,111 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// The card of each project: title, client, year and the text shown when it is opened
+
+// GÉNÉRÉ AUTOMATIQUEMENT — NE PAS ÉDITER À LA MAIN.
+// Source : content/projets/*/projet.yml
+// Régénérer avec : npm run contenu
+
+import type { Project } from './projects';
+
+export const generatedProjects: Project[] = [
+  {
+    "id": "gentle-mates",
+    "title": "Gentle Mates × Zenless Zone Zero",
+    "shortTitle": "Gentle Mates × ZZZ",
+    "year": "2026",
+    "tag": "Esport · Anime",
+    "accent": "#FF2D9C",
+    "blurb": "Identité motion pour le team-up Gentle Mates × HoYoverse. Énergie urbaine anime, rythme esport.",
+    "description": "Direction artistique du teaser officiel marquant le partenariat entre Gentle Mates et HoYoverse pour Zenless Zone Zero. La trame visuelle mélange l’agressivité urbaine de l’esport avec la grammaire anime du jeu — chrome, néons, montages saccadés, vitesse.",
+    "role": "Direction artistique · Motion 3D",
+    "kind": "personal",
+    "vimeoId": "1170721004",
+    "posterUrl": "/posters/gentle-mates.webp",
+    "credits": [
+      {
+        "label": "Univers",
+        "value": "Gentle Mates × HoYoverse"
+      },
+      {
+        "label": "Direction artistique",
+        "value": "Emeric Ressy"
+      },
+      {
+        "label": "Motion 3D",
+        "value": "Emeric Ressy"
+      }
+    ]
+  },
+  {
+    "id": "dofus",
+    "title": "DOFUS — C’est ici que tout commence",
+    "shortTitle": "DOFUS",
+    "year": "2025",
+    "tag": "Animation · Ankama",
+    "accent": "#00F0FF",
+    "blurb": "Direction artistique sur le lancement Ankama. Univers chaleureux, narration française.",
+    "description": "Pièce de lancement pour Ankama autour de DOFUS. Le défi : raconter un univers familier à une nouvelle génération, sans trahir ses racines. Le motion s’appuie sur la palette chaude du jeu, les volumes simples et un rythme narratif qui laisse respirer.",
+    "role": "Direction artistique",
+    "kind": "personal",
+    "vimeoId": "1169640652",
+    "posterUrl": "/posters/dofus.webp",
+    "credits": [
+      {
+        "label": "Univers",
+        "value": "Ankama"
+      },
+      {
+        "label": "Direction artistique",
+        "value": "Emeric Ressy"
+      }
+    ]
+  },
+  {
+    "id": "douce-melancolie",
+    "title": "Douce Mélancolie des Choses",
+    "shortTitle": "Douce Mélancolie",
+    "year": "2025",
+    "tag": "Personnel · Poétique",
+    "accent": "#F4D8E2",
+    "blurb": "Pièce personnelle. Atmosphère, lenteur, brouillard. Le silence comme matière.",
+    "description": "Recherche personnelle sur la lenteur. Une pièce qui refuse l’efficacité et préfère le silence, le brouillard, le poids du temps qui passe. Texture, lumière diffuse, presque rien — et pourtant la sensation que quelque chose va arriver.",
+    "role": "Direction · Motion · Édition",
+    "kind": "personal",
+    "vimeoId": "1168061777",
+    "posterUrl": "/posters/douce-melancolie.webp",
+    "credits": [
+      {
+        "label": "Auteur",
+        "value": "Emeric Ressy"
+      },
+      {
+        "label": "Année",
+        "value": "2025"
+      }
+    ]
+  },
+  {
+    "id": "come-torment",
+    "title": "Come, Torment",
+    "shortTitle": "Come, Torment",
+    "year": "2024",
+    "tag": "Personnel · Dark",
+    "accent": "#FF2A2A",
+    "blurb": "Registre dark fantasy. Volumes lourds, lumière dure, tension contenue.",
+    "description": "Étude personnelle dans un registre dark fantasy. Volumes massifs, contre-jour, lumières dures. Une pièce contenue qui flirte avec l’inconfort sans jamais basculer dans le grotesque.",
+    "role": "Direction · Motion · Édition",
+    "kind": "personal",
+    "vimeoId": "932641794",
+    "posterUrl": "/posters/come-torment.webp",
+    "credits": [
+      {
+        "label": "Auteur",
+        "value": "Emeric Ressy"
+      },
+      {
+        "label": "Année",
+        "value": "2024"
+      }
+    ]
+  }
+];

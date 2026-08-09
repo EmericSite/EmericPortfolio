@@ -1,3 +1,5 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Top bar with the logo; switches the hub between work, about and contact
 'use client';
 
 import { memo } from 'react';

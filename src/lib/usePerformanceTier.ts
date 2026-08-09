@@ -1,3 +1,6 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Grades the machine from S to C, and gives the 3D scene a matching quality budget
+
 'use client';
 
 import { useState } from 'react';
@@ -9,15 +12,25 @@ type Nav = Navigator & {
   userAgentData?: { platform?: string };
 };
 
-function probeWebGLRenderer(): {
-  renderer: string;
+type GPUProbe = {
   isWeakGPU: boolean;
   isStrongGPU: boolean;
   isSoftware: boolean;
-} {
+};
+
+// Five components ask for the tier, and each probe spends a WebGL context the
+// browser never reclaims. Probe once, share the answer.
+let probeCache: GPUProbe | null = null;
+
+function probeWebGLRenderer(): GPUProbe {
+  if (probeCache) return probeCache;
+  probeCache = runProbe();
+  return probeCache;
+}
+
+function runProbe(): GPUProbe {
   if (typeof document === 'undefined')
     return {
-      renderer: '',
       isWeakGPU: false,
       isStrongGPU: false,
       isSoftware: false,
@@ -28,7 +41,6 @@ function probeWebGLRenderer(): {
       canvas.getContext('webgl2') || canvas.getContext('webgl');
     if (!gl)
       return {
-        renderer: '',
         isWeakGPU: true,
         isStrongGPU: false,
         isSoftware: true,
@@ -66,10 +78,10 @@ function probeWebGLRenderer(): {
           r.includes('iris') ||
           r.includes('hd graphics') ||
           r.includes('mesa')));
-    return { renderer, isWeakGPU, isStrongGPU, isSoftware };
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    return { isWeakGPU, isStrongGPU, isSoftware };
   } catch {
     return {
-      renderer: '',
       isWeakGPU: false,
       isStrongGPU: false,
       isSoftware: false,
@@ -97,21 +109,18 @@ function detectTier(): PerfTier {
 
   const { isWeakGPU, isStrongGPU, isSoftware } = probeWebGLRenderer();
 
-  // Software renderer (Microsoft Basic Render Driver, SwiftShader, LLVMpipe,
-  // WARP) means the browser fell back to CPU rendering — WebGL won't run at
-  // any usable framerate. Force tier C so we render the 2D fallback hub.
+  // Software renderer means the browser fell back to the CPU: WebGL will never
+  // reach a usable framerate, so cap at tier C, the lightest budget.
   if (isSoftware) return 'C';
 
-  // Real GPU detected (NVIDIA / AMD discrete / Apple Silicon): unlock the full
-  // experience regardless of platform. CPU heuristics are unreliable signals
-  // when the GPU does the heavy lifting.
+  // Real GPU: CPU heuristics say little when the GPU does the heavy lifting.
   if (isStrongGPU) return 'S';
 
-  // Weak GPU (Intel UHD/Iris, Mesa, virtual) caps at tier B regardless of CPU.
+  // Integrated or virtual GPU caps at tier B whatever the CPU reports.
   if (isWeakGPU) return 'B';
 
-  // GPU info masked / unknown: fall back to CPU heuristics with Windows
-  // penalty (many laptops have beefy CPUs but integrated graphics).
+  // GPU masked: fall back to CPU heuristics, with a Windows penalty since many
+  // laptops pair a strong CPU with integrated graphics.
   if (isWindows) {
     if (cores >= 8 && ram >= 8) return 'A';
     if (cores >= 4 && ram >= 4) return 'B';
@@ -125,27 +134,18 @@ function detectTier(): PerfTier {
 }
 
 export function usePerformanceTier(): PerfTier {
-  // Lazy init: detect once, never change. Keeps the EffectComposer tree
-  // structurally stable across renders (mounting/unmounting effects mid-
-  // session was crashing R3F reconciliation in production).
+  // Detect once and never change: swapping effects mid-session kept the
+  // EffectComposer tree unstable and crashed R3F reconciliation in production.
   const [tier] = useState<PerfTier>(() => detectTier());
   return tier;
 }
 
 export const tierBudget = {
-  S: { dpr: [1, 1.75] as [number, number], postFX: 'full', fireflies: 1, sparkles: 1, hoverFX: true },
-  A: { dpr: [1, 1.5] as [number, number], postFX: 'full', fireflies: 0.85, sparkles: 0.85, hoverFX: true },
-  B: { dpr: [0.75, 1] as [number, number], postFX: 'off', fireflies: 0, sparkles: 0.15, hoverFX: false },
-  C: { dpr: [0.5, 0.85] as [number, number], postFX: 'off', fireflies: 0, sparkles: 0, hoverFX: false },
+  S: { dpr: [1, 1.75] as [number, number], postFX: 'full', hoverFX: true },
+  A: { dpr: [1, 1.5] as [number, number], postFX: 'full', hoverFX: true },
+  B: { dpr: [0.75, 1] as [number, number], postFX: 'off', hoverFX: false },
+  C: { dpr: [0.5, 0.85] as [number, number], postFX: 'off', hoverFX: false },
 } as const;
-
-export function getDetectedTier(): PerfTier {
-  return detectTier();
-}
-
-export function getGPURenderer(): string {
-  return probeWebGLRenderer().renderer;
-}
 
 export function isSoftwareRenderer(): boolean {
   return probeWebGLRenderer().isSoftware;

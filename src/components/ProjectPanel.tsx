@@ -1,3 +1,5 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Full sheet of the selected project: story, credits and media gallery
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -12,15 +14,17 @@ import {
   type GalleryItem,
 } from '@/data/projects';
 import { useFocusTrap } from '@/lib/useFocusTrap';
+import { useFocusOnOpen } from '@/lib/useFocusOnOpen';
+import { pad2 } from '@/lib/format';
 import Lightbox from '@/components/Lightbox';
 import AutoVideo from '@/components/AutoVideo';
 import PlayGlyph from '@/components/PlayGlyph';
+import { libelles } from '@/content/site';
 
 const TOTAL = projects.length;
-const pad2 = (n: number) => n.toString().padStart(2, '0');
 
-// Une vignette de galerie : conserve le ratio réel du média, zoom au survol,
-// clic pour agrandir. La hauteur de boîte suit width/height de l'item.
+// Box ratio comes from the item's own width/height so the media is never
+// cropped or stretched.
 function GalleryTile({
   item,
   onOpen,
@@ -34,7 +38,7 @@ function GalleryTile({
     <button
       type="button"
       onClick={onOpen}
-      aria-label="Agrandir le média"
+      aria-label={libelles.agrandirMedia}
       className="media-tile mb-3 block w-full break-inside-avoid border border-fog/50 hover:border-chrome/70"
       style={{ aspectRatio: ratio }}
     >
@@ -65,7 +69,7 @@ function GalleryTile({
   );
 }
 
-export default function HubOverlay() {
+export default function ProjectPanel() {
   const { activeId, scrollIndex, setMode } = useHubStore(
     useShallow((s) => ({
       activeId: s.activeId,
@@ -79,20 +83,18 @@ export default function HubOverlay() {
     : null;
 
   const projectPanelRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  // Lightbox : index dans la galerie complète (ordre d'affichage par sections).
+  // Index into the ordered gallery, not into the section it was clicked from.
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  useFocusTrap(projectPanelRef, !!active);
-
-  // Sections à afficher pour ce projet, dans l'ordre voulu.
   const sections = useMemo(
     () => (active ? categoriesFor(active) : GALLERY_CATEGORIES),
     [active],
   );
 
-  // Galerie ordonnée par sections (= ordre du lightbox), + indices d'origine.
+  // Section order also defines the lightbox navigation order.
   const orderedGallery = useMemo<GalleryItem[]>(() => {
     if (!active) return [];
     const media = galleryFor(active);
@@ -108,34 +110,78 @@ export default function HubOverlay() {
     return [...sorted, ...unknown];
   }, [active, sections]);
 
-  // Pas de projet actif => pas de lightbox (dérivation, sans setState en effet).
+  // Same media, grouped for display: `index` is the position in orderedGallery,
+  // which is what the lightbox navigates by.
+  const gallerySections = useMemo(() => {
+    const groups = new Map<
+      string | null,
+      { item: GalleryItem; index: number }[]
+    >();
+    orderedGallery.forEach((item, index) => {
+      const key =
+        item.category && sections.includes(item.category) ? item.category : null;
+      const group = groups.get(key);
+      if (group) group.push({ item, index });
+      else groups.set(key, [{ item, index }]);
+    });
+    // A null key means the media has no category, or one the project dropped.
+    return [...groups].map(([key, items]) => ({
+      key: key ?? '',
+      title: key ?? libelles.galerie,
+      items,
+    }));
+  }, [orderedGallery, sections]);
+
+  // Derived rather than reset in an effect when the project closes.
   const effectiveLightboxIndex = active ? lightboxIndex : null;
+
+  // Released while the lightbox is open: it renders outside the panel, so the
+  // trap would keep the Tab key from ever reaching it.
+  useFocusTrap(projectPanelRef, !!active && effectiveLightboxIndex === null);
+  useFocusOnOpen(closeButtonRef, active);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      // Esc ferme d'abord la lightbox (gérée dans Lightbox), sinon le panneau.
+      // Lightbox handles Escape itself, so only close the panel when it is shut.
       if (e.key === 'Escape' && effectiveLightboxIndex === null) setMode('hub');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [setMode, effectiveLightboxIndex]);
 
+  // The panel only covers the right half, so a wheel over the 3D scene would
+  // do nothing and the sheet would look frozen.
   useEffect(() => {
-    if (!active) return;
-    const id = window.setTimeout(() => {
-      closeButtonRef.current?.focus({ preventScroll: true });
-    }, 0);
-    return () => window.clearTimeout(id);
-  }, [active]);
+    if (!active || effectiveLightboxIndex !== null) return;
+
+    const onWheel = (e: WheelEvent) => {
+      const zone = scrollRef.current;
+      if (!zone) return;
+      // Cursor already over the panel: let the browser scroll it natively.
+      if (e.target instanceof Node && zone.contains(e.target)) return;
+
+      // Forward the raw delta and let the browser clamp scrollTop, but convert
+      // first: some wheels report lines (Firefox) or pages instead of pixels.
+      let pixels = e.deltaY;
+      if (e.deltaMode === 1) {
+        const lineHeight = parseFloat(getComputedStyle(zone).lineHeight);
+        pixels *= Number.isFinite(lineHeight) ? lineHeight : 16;
+      } else if (e.deltaMode === 2) {
+        pixels *= zone.clientHeight;
+      }
+      zone.scrollTop += pixels;
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: true });
+    return () => window.removeEventListener('wheel', onWheel);
+  }, [active, effectiveLightboxIndex]);
 
   return (
     <>
-      {/* Project full content (when active) — panneau large (~45% de l'écran) */}
+      {/* The outer shell carries the slide transition, so it stays mounted; the
+          dialog role goes on the inner node, which only exists with a project. */}
       <div
         ref={projectPanelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="project-title"
         className={`absolute inset-y-0 right-0 z-20 w-full md:w-[46vw] md:min-w-[560px] md:max-w-[860px] transition-all duration-700 ease-out ${
           active
             ? 'translate-x-0 opacity-100'
@@ -143,8 +189,13 @@ export default function HubOverlay() {
         }`}
       >
         {active && (
-          <div className="relative h-full overflow-y-auto bg-ink/85 backdrop-blur-md border-l border-fog">
-            {/* Sticky header — back to hub + close */}
+          <div
+            ref={scrollRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="project-title"
+            className="relative h-full overflow-y-auto bg-ink/85 backdrop-blur-md border-l border-fog"
+          >
             <div className="sticky top-0 z-30 flex items-center justify-between gap-3 px-6 md:px-12 py-4 bg-ink/85 backdrop-blur-md border-b border-fog/50">
               <button
                 type="button"
@@ -154,7 +205,7 @@ export default function HubOverlay() {
                 <span className="transition-transform group-hover:-translate-x-1">
                   ←
                 </span>
-                retour
+                {libelles.retour}
               </button>
               <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-mist/70">
                 <span
@@ -169,7 +220,7 @@ export default function HubOverlay() {
                 ref={closeButtonRef}
                 type="button"
                 onClick={() => setMode('hub')}
-                aria-label="Fermer"
+                aria-label={libelles.fermer}
                 className="h-11 w-11 flex items-center justify-center rounded-full border border-fog text-chrome hover:border-magentaglitch hover:text-magentaglitch transition-colors"
               >
                 <span className="font-mono text-xs">×</span>
@@ -196,11 +247,19 @@ export default function HubOverlay() {
 
               <div className="grid sm:grid-cols-[160px_1fr] gap-x-8 gap-y-3 mb-12 border-t border-fog/40 pt-6">
                 <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch pt-1">
-                  Rôle
+                  {libelles.role}
                 </div>
                 <div className="text-chrome">{active.role}</div>
                 <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch pt-1">
-                  Description
+                  {libelles.natureProjet}
+                </div>
+                <div className="text-chrome">
+                  {active.kind === 'client'
+                    ? libelles.projetClient
+                    : libelles.projetPersonnel}
+                </div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch pt-1">
+                  {libelles.description}
                 </div>
                 <p className="text-mist leading-relaxed">
                   {active.description}
@@ -209,70 +268,31 @@ export default function HubOverlay() {
 
               {orderedGallery.length > 0 && (
                 <div className="mb-14 space-y-12">
-                  {sections.map((category) => {
-                    const items = orderedGallery.filter(
-                      (it) => it.category === category,
-                    );
-                    if (items.length === 0) return null;
-                    return (
-                      <section key={category}>
-                        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-5 flex items-center justify-between border-b border-fog/40 pb-2">
-                          <span>{category}</span>
-                          <span className="text-mist/50">
-                            {pad2(items.length)}
-                          </span>
-                        </div>
-                        {/* Grille maçonnée : chaque média garde son ratio. */}
-                        <div className="columns-2 gap-3 [&>*]:mb-3">
-                          {items.map((item) => {
-                            const idx = orderedGallery.indexOf(item);
-                            return (
-                              <GalleryTile
-                                key={item.src}
-                                item={item}
-                                onOpen={() => setLightboxIndex(idx)}
-                              />
-                            );
-                          })}
-                        </div>
-                      </section>
-                    );
-                  })}
-
-                  {/* Médias sans catégorie connue — filet de sécurité */}
-                  {(() => {
-                    const uncategorized = orderedGallery.filter(
-                      (it) => !it.category || !sections.includes(it.category),
-                    );
-                    if (uncategorized.length === 0) return null;
-                    return (
-                      <section>
-                        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-5 flex items-center justify-between border-b border-fog/40 pb-2">
-                          <span>Galerie</span>
-                          <span className="text-mist/50">
-                            {pad2(uncategorized.length)}
-                          </span>
-                        </div>
-                        <div className="columns-2 gap-3 [&>*]:mb-3">
-                          {uncategorized.map((item) => {
-                            const idx = orderedGallery.indexOf(item);
-                            return (
-                              <GalleryTile
-                                key={item.src}
-                                item={item}
-                                onOpen={() => setLightboxIndex(idx)}
-                              />
-                            );
-                          })}
-                        </div>
-                      </section>
-                    );
-                  })()}
+                  {gallerySections.map((section) => (
+                    <section key={section.key}>
+                      <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-5 flex items-center justify-between border-b border-fog/40 pb-2">
+                        <span>{section.title}</span>
+                        <span className="text-mist/50">
+                          {pad2(section.items.length)}
+                        </span>
+                      </div>
+                      {/* Masonry columns so each media keeps its own ratio. */}
+                      <div className="columns-2 gap-3 [&>*]:mb-3">
+                        {section.items.map(({ item, index }) => (
+                          <GalleryTile
+                            key={item.src}
+                            item={item}
+                            onOpen={() => setLightboxIndex(index)}
+                          />
+                        ))}
+                      </div>
+                    </section>
+                  ))}
                 </div>
               )}
 
               <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyanglitch mb-4">
-                Crédits
+                {libelles.credits}
               </div>
               <div className="space-y-2 mb-12">
                 {active.credits.map((c) => (

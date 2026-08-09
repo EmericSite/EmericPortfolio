@@ -1,7 +1,11 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Draws the 1200x630 preview picture shown when the site is shared on social media
 import { ImageResponse } from "next/og";
+import { accueil, identite, partage } from "@/content/site";
+import { palette } from "@/lib/palette";
 
 export const runtime = "edge";
-export const alt = "Emeric Ressy — Motion Designer";
+export const alt = partage.titre;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -16,7 +20,7 @@ export default function Image() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#08070C",
+          backgroundColor: palette.ink,
           position: "relative",
           padding: "80px",
         }}
@@ -39,19 +43,19 @@ export default function Image() {
               letterSpacing: "-0.02em",
             }}
           >
-            Emeric Ressy
+            {identite.nom}
           </div>
           <div
             style={{
               fontFamily: "serif",
               fontStyle: "italic",
               fontSize: 88,
-              color: "#F4D8E2",
+              color: palette.pearl,
               marginTop: 32,
               lineHeight: 1,
             }}
           >
-            Mélancolie électrique
+            {accueil.surtitre}
           </div>
         </div>
         <div
@@ -62,12 +66,12 @@ export default function Image() {
             display: "flex",
             fontFamily: "monospace",
             fontSize: 22,
-            color: "#FF2D9C",
+            color: palette.magenta,
             textTransform: "uppercase",
             letterSpacing: "0.25em",
           }}
         >
-          MOTION · 3D · PARIS
+          {partage.vignetteMention}
         </div>
       </div>
     ),

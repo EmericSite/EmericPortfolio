@@ -1,3 +1,6 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Keeps the Tab key cycling inside an open panel instead of the page behind it
+
 'use client';
 
 import { useEffect } from 'react';

@@ -1,15 +1,19 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Showreel video backdrop sitting behind every page, with its sound toggle
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { usePerformanceTier } from '@/lib/usePerformanceTier';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import { useIsClient } from '@/lib/useIsClient';
+import { showreelAccent, showreelAccentRgba } from '@/data/showreel';
+import { libelles, showreel } from '@/content/site';
 
-const SHOWREEL_VIMEO_ID = '1172501942';
+const SHOWREEL_VIMEO_ID = showreel.vimeoId;
 const VIMEO_ORIGIN = 'https://player.vimeo.com';
 const SHOWREEL_VOLUME = 0.5;
 
-// Barres d'égaliseur — durées/délais variés pour un mouvement organique.
+// Varied durations and delays so the bars never move in sync.
 const EQ_BARS = [
   { duration: '0.72s', delay: '0ms' },
   { duration: '1.05s', delay: '180ms' },
@@ -17,17 +21,15 @@ const EQ_BARS = [
   { duration: '0.92s', delay: '300ms' },
 ];
 
-// Calque statique sobre — rendu identique côté serveur et au premier rendu
-// client, donc aucune divergence d'hydratation. Sert aussi de fallback sur
-// mobile / tier faible / reduced-motion.
+// Rendered on the server and on the first client render, so hydration matches.
+// Also the fallback for mobile, low tier and reduced motion.
 function StaticBackdrop() {
   return (
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
       style={{
-        background:
-          'radial-gradient(120% 80% at 50% 30%, rgba(244,216,226,0.06) 0%, rgba(8,7,12,0) 60%)',
+        background: `radial-gradient(120% 80% at 50% 30%, ${showreelAccentRgba(0.06)} 0%, rgba(8,7,12,0) 60%)`,
       }}
     />
   );
@@ -40,15 +42,13 @@ export default function BackgroundShowreel() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [soundOn, setSoundOn] = useState(false);
 
-  // La vidéo de fond décode en continu et concurrence le canvas WebGL : on ne
-  // la charge que sur les machines confortables (tier S/A) et hors reduced-motion.
-  // `isClient` garantit que SSR + 1er rendu client produisent le même HTML
-  // (StaticBackdrop) — la décision dépendante du device n'a lieu qu'après hydratation.
+  // The video decodes non stop and competes with the WebGL canvas, so it only
+  // loads on fast devices; `isClient` delays that choice until after hydration.
   const playVideo =
     isClient && (tier === 'S' || tier === 'A') && !reducedMotion;
 
-  // Pilotage du player Vimeo (mute/volume) par postMessage — pas de dépendance.
-  // Le clic utilisateur sert de "gesture" autorisant la lecture audio.
+  // The Vimeo player is driven by postMessage, and the click on the button is
+  // the user gesture that lets the browser unmute.
   useEffect(() => {
     const win = iframeRef.current?.contentWindow;
     if (!win) return;
@@ -60,6 +60,7 @@ export default function BackgroundShowreel() {
     } else {
       post('setMuted', true);
     }
+    // playVideo is a dep because the iframe only exists once it flips true.
   }, [soundOn, playVideo]);
 
   if (!playVideo) return <StaticBackdrop />;
@@ -79,7 +80,7 @@ export default function BackgroundShowreel() {
           title=""
           tabIndex={-1}
           onLoad={() => {
-            // Ré-applique l'état son si l'iframe (re)charge alors que le son est actif.
+            // The iframe may reload while sound is on, so push the state again.
             const win = iframeRef.current?.contentWindow;
             if (win && soundOn) {
               win.postMessage({ method: 'setVolume', value: SHOWREEL_VOLUME }, VIMEO_ORIGIN);
@@ -88,8 +89,8 @@ export default function BackgroundShowreel() {
           }}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-0"
           style={{
-            // cover plein écran sans déformation ; unités relatives au conteneur
-            // fixed inset-0 (100% au lieu de 100vw) → pas de scrollbar parasite.
+            // Full cover without distortion; sized from the fixed container
+            // (100% instead of 100vw) to avoid a stray scrollbar.
             width: '177.78dvh',
             height: '100dvh',
             minWidth: '100%',
@@ -98,15 +99,13 @@ export default function BackgroundShowreel() {
         />
       </div>
 
-      {/* Petite "radio" flottante — muette par défaut, clic = son du showreel en fond. */}
       <div className="pointer-events-none fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-[max(1.25rem,env(safe-area-inset-right))] z-50">
         <div className="relative">
-          {/* Halo pulsé quand on air */}
           {soundOn && (
             <span
               aria-hidden
               className="radio-halo absolute inset-0 rounded-full"
-              style={{ boxShadow: '0 0 0 1px #F4D8E2' }}
+              style={{ boxShadow: `0 0 0 1px ${showreelAccent}` }}
             />
           )}
 
@@ -114,32 +113,29 @@ export default function BackgroundShowreel() {
             type="button"
             onClick={() => setSoundOn((v) => !v)}
             aria-label={
-              soundOn ? 'Couper le son du showreel' : 'Activer le son du showreel'
+              soundOn ? libelles.couperSon : libelles.activerSon
             }
             aria-pressed={soundOn}
             className="group pointer-events-auto relative flex min-h-[44px] items-center gap-2.5 overflow-hidden rounded-full border bg-ink/70 px-3.5 py-2 backdrop-blur-md transition-all duration-300 hover:scale-[1.04] active:scale-95"
             style={{
               borderColor: soundOn
-                ? 'rgba(244,216,226,0.8)'
+                ? showreelAccentRgba(0.8)
                 : 'rgba(232,230,236,0.22)',
               boxShadow: soundOn
-                ? '0 0 32px -6px #F4D8E2, inset 0 0 18px -12px #F4D8E2'
+                ? `0 0 32px -6px ${showreelAccent}, inset 0 0 18px -12px ${showreelAccent}`
                 : '0 6px 20px -10px rgba(0,0,0,0.8)',
             }}
           >
-            {/* Balayage lumineux qui traverse le pill quand on air */}
             {soundOn && (
               <span
                 aria-hidden
                 className="radio-sheen pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12"
                 style={{
-                  background:
-                    'linear-gradient(90deg, transparent, rgba(244,216,226,0.28), transparent)',
+                  background: `linear-gradient(90deg, transparent, ${showreelAccentRgba(0.28)}, transparent)`,
                 }}
               />
             )}
 
-            {/* Icône : égaliseur animé (on) ou haut-parleur coupé (off) */}
             <span
               className="relative flex h-4 w-[18px] items-end justify-center gap-[2px]"
               aria-hidden
@@ -173,7 +169,6 @@ export default function BackgroundShowreel() {
               )}
             </span>
 
-            {/* Libellé + point live */}
             <span className="relative flex items-center gap-1.5">
               {soundOn && (
                 <span
@@ -184,9 +179,11 @@ export default function BackgroundShowreel() {
               )}
               <span
                 className="font-mono text-[9px] uppercase tracking-[0.28em] transition-colors"
-                style={{ color: soundOn ? '#F4D8E2' : 'rgba(232,230,236,0.7)' }}
+                style={{
+                  color: soundOn ? showreelAccent : 'rgba(232,230,236,0.7)',
+                }}
               >
-                {soundOn ? 'on air' : 'showreel'}
+                {soundOn ? libelles.sonActif : libelles.sonCoupe}
               </span>
             </span>
           </button>

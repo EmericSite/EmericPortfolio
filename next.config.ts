@@ -1,10 +1,11 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Next.js build settings: image formats, cache headers for media, bundle tuning
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
-  // TODO: install babel-plugin-react-compiler then enable
   // reactCompiler: true,
   experimental: {
     optimizePackageImports: [
@@ -17,27 +18,25 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 31536000,
+    // Published names are stable, so a replaced image keeps its URL: caching it
+    // for a year would serve the old one until the visitor clears his cache.
+    minimumCacheTTL: 86400,
     deviceSizes: [360, 640, 828, 1080, 1280, 1600, 1920, 2560],
     imageSizes: [16, 32, 64, 96, 128, 256, 384],
   },
   async headers() {
-    const immutableCache = [
+    // Published media keep their file name when Emeric replaces them, so they
+    // must never be cached as immutable or returning visitors keep the old one.
+    const revalide = [
       {
         key: "Cache-Control",
-        value: "public, max-age=31536000, immutable",
+        value: "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
       },
     ];
 
     return [
-      {
-        source: "/posters/:path*",
-        headers: immutableCache,
-      },
-      {
-        source: "/:all*(png|jpg|jpeg|webp|avif|svg|woff2)",
-        headers: immutableCache,
-      },
+      { source: "/posters/:path*", headers: revalide },
+      { source: "/projects/:path*", headers: revalide },
     ];
   },
 };

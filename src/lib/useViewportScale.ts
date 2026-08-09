@@ -1,3 +1,6 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// Fits the 3D hub to the window: card size, orbit radius, camera distance, layout
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -9,7 +12,6 @@ export type ViewportScale = {
   orbitRadius: number;
   cartoucheScale: number;
   cameraZ: number;
-  isCompact: boolean;
   layout: CartoucheLayout;
 };
 
@@ -18,10 +20,11 @@ const DEFAULT_SCALE: ViewportScale = {
   orbitRadius: 2.3,
   cartoucheScale: 1,
   cameraZ: 4.6,
-  isCompact: false,
   layout: 'orbit',
 };
 
+// Compact widths keep cartoucheScale under 1 so the neighbours stay visible
+// around the centered card.
 function computeScale(width: number, height: number): ViewportScale {
   const aspect = width / Math.max(height, 1);
   const isPortrait = aspect < 1;
@@ -30,11 +33,8 @@ function computeScale(width: number, height: number): ViewportScale {
     return {
       hubScale: 0.45,
       orbitRadius: 1.55,
-      // Cartouches rétrécies : la carte centrale mangeait tout l'écran et ses
-      // voisines n'étaient plus lisibles.
       cartoucheScale: 0.78,
       cameraZ: 5.1,
-      isCompact: true,
       layout: 'stack',
     };
   }
@@ -44,7 +44,6 @@ function computeScale(width: number, height: number): ViewportScale {
       orbitRadius: 1.75,
       cartoucheScale: 0.82,
       cameraZ: 4.9,
-      isCompact: true,
       layout: 'stack',
     };
   }
@@ -54,7 +53,6 @@ function computeScale(width: number, height: number): ViewportScale {
       orbitRadius: isPortrait ? 1.95 : 2.05,
       cartoucheScale: 0.9,
       cameraZ: 4.7,
-      isCompact: false,
       layout: 'orbit',
     };
   }
@@ -64,7 +62,6 @@ function computeScale(width: number, height: number): ViewportScale {
       orbitRadius: 1.95,
       cartoucheScale: 0.92,
       cameraZ: 4.7,
-      isCompact: false,
       layout: 'orbit',
     };
   }

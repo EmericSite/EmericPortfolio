@@ -1,7 +1,10 @@
+// Emericfolio — created by Tomi-Tom, 2026
+// HTML shell of every page: fonts, site metadata, search-engine data and skip link
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { projects } from "@/data/projects";
+import { contact, identite, libelles, partage } from "@/content/site";
 import BackgroundShowreel from "@/components/BackgroundShowreel";
 import DevErrorReporter from "@/components/DevErrorReporter";
 
@@ -31,43 +34,33 @@ const instrumentSerif = Instrument_Serif({
   adjustFontFallback: true,
 });
 
-const SITE_URL = "https://emericressy.com";
-const TITLE = "Emeric Ressy — Motion Designer 3D & Art Direction";
-const DESCRIPTION =
-  "Portfolio motion design, 3D et direction artistique. Paris. Gaming, anime, pièces narratives.";
+const SITE_URL = partage.url;
+const TITLE = partage.titre;
+const DESCRIPTION = partage.description;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: TITLE,
-    template: "%s · Emeric Ressy",
+    template: `%s · ${identite.nom}`,
   },
   description: DESCRIPTION,
-  keywords: [
-    "motion design",
-    "3D",
-    "art direction",
-    "Paris",
-    "Emeric Ressy",
-    "Three.js portfolio",
-    "anime",
-    "esport",
-  ],
-  authors: [{ name: "Emeric Ressy" }],
-  creator: "Emeric Ressy",
+  keywords: partage.motsCles,
+  authors: [{ name: identite.nom }],
+  creator: identite.nom,
   openGraph: {
     type: "website",
     locale: "fr_FR",
     url: SITE_URL,
     title: TITLE,
     description: DESCRIPTION,
-    siteName: "Emeric Ressy",
+    siteName: identite.nom,
     images: [
       {
         url: "/logo.png",
         width: 1024,
         height: 1024,
-        alt: "Emeric Ressy",
+        alt: identite.nom,
       },
     ],
   },
@@ -76,7 +69,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     images: ["/logo.png"],
-    creator: "@emericressy",
+    creator: partage.compteX,
   },
   robots: {
     index: true,
@@ -99,6 +92,8 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
+      // Extensions such as Dark Reader or password managers add attributes to
+      // <html> before React boots, which would report as a hydration mismatch.
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
@@ -107,30 +102,27 @@ export default function RootLayout({
           href="#main"
           className="sr-only focus:not-sr-only fixed top-4 left-4 z-[100] bg-ink text-chrome border border-cyanglitch rounded-full px-4 py-2 font-mono text-xs uppercase tracking-[0.25em]"
         >
-          Aller au contenu
+          {libelles.allerAuContenu}
         </a>
-        <DevErrorReporter />
+        {process.env.NODE_ENV !== "production" && <DevErrorReporter />}
         <BackgroundShowreel />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
+            // `<` is escaped so a description holding "</script>" cannot close the tag.
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@graph": [
                 {
                   "@type": "Person",
-                  name: "Emeric Ressy",
-                  jobTitle: "Motion Designer 3D & Art Direction",
+                  name: identite.nom,
+                  jobTitle: partage.metier,
                   address: {
                     "@type": "PostalAddress",
-                    addressLocality: "Paris",
+                    addressLocality: partage.ville,
                   },
-                  email: "hello@emericressy.com",
-                  sameAs: [
-                    "https://www.instagram.com/fumir._o/?hl=fr",
-                    "https://x.com/fumir_o",
-                    "https://www.linkedin.com/in/emeric-ressy-a05b0a194/",
-                  ],
+                  email: contact.email,
+                  sameAs: contact.reseaux.map((r) => r.href),
                   image: `${SITE_URL}/logo.png`,
                   url: SITE_URL,
                 },
@@ -140,13 +132,13 @@ export default function RootLayout({
                   dateCreated: p.year,
                   creator: {
                     "@type": "Person",
-                    name: "Emeric Ressy",
+                    name: identite.nom,
                   },
                   image: `${SITE_URL}${p.posterUrl}`,
                   description: p.description,
                 })),
               ],
-            }),
+            }).replace(/</g, "\\u003c"),
           }}
         />
         {children}
