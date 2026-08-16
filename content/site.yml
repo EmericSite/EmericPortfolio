@@ -153,6 +153,7 @@ formulaire:
   labelEmail: Email
   labelMessage: Message
   confirmation: Envoyé. Merci.
+  champPiege: Site web
 
 # ---------------------------------------------------------------------------
 # CE QUI SUIT SE MODIFIE RAREMENT
