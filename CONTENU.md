@@ -361,6 +361,10 @@ visiteur, et un champ invisible qui piège les robots.
 Ces fichiers ne doivent jamais être édités à la main : ils sont réécrits à
 chaque publication.
 
-Les médias déposés dans `content/` ne sont pas envoyés sur le dépôt : ils
-peuvent donc être aussi lourds que nécessaire. Ce sont leurs versions allégées,
-dans `public/`, qui partent en ligne.
+Les médias déposés dans `content/` sont eux aussi envoyés sur le dépôt : un
+clone suffit ainsi à tout republier, rien ne vit uniquement sur une machine. Ce
+sont leurs versions allégées, dans `public/`, qui sont affichées en ligne.
+
+Mieux vaut donc y déposer des fichiers déjà raisonnables, quelques mégaoctets
+au plus. Les rushes bruts, eux, n'ont pas leur place ici : ils restent en
+dehors du dépôt.

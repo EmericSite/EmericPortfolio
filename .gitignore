@@ -50,16 +50,6 @@ next-env.d.ts
 # sources fournies par Emeric, hors dépôt : seules leurs versions publiées y entrent.
 ASSETS_EMERIC/
 
-# content: the .yml files are versioned, the source media are not.
-# Only their optimized versions, in public/, go online.
-/content/projets/**/*.png
-/content/projets/**/*.jpg
-/content/projets/**/*.jpeg
-/content/projets/**/*.webp
-/content/projets/**/*.avif
-/content/projets/**/*.tif
-/content/projets/**/*.tiff
-/content/projets/**/*.gif
-/content/projets/**/*.mp4
-/content/projets/**/*.mov
-/content/projets/**/*.webm
+# content/ est versionné en entier, médias compris : c'est la source de vérité
+# du site, et un clone doit suffire à republier. Les rushes bruts, eux, restent
+# dans ASSETS_EMERIC/ ci-dessus.
