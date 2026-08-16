@@ -11,16 +11,13 @@ identite:
   metier: Motion Designer · Paris
 
 loader:
-  # Texte affiché pendant le chargement du site.
   texte: Loading visual memory
 
 accueil:
   surtitre: Mélancolie électrique
-  # Le titre est sur deux lignes, la seconde est en italique.
   titreLigne1: Motion · 3D ·
   titreLigne2: Direction artistique.
 
-# La vidéo qui tourne en fond et qui se lance depuis le centre du hub.
 showreel:
   vimeoId: 1172501942
   titre: Showreel 2025
@@ -28,7 +25,6 @@ showreel:
   annee: 2025
   accent: "#F4D8E2"
 
-# Le texte répété en fond d'écran, en très grand.
 marquee: ·EMERIC.RESSY
 
 # Les trois onglets en haut du site. Le « mode » est technique : il indique
@@ -43,24 +39,20 @@ navigation:
     mode: contact
 
 about:
-  # Bandeau d'en-tête du panneau
   lieuEtAnnee: Paris · 2026
   reference: ST# 01
   version: v.04 — rev.26
 
-  # Grand titre, sur trois lignes
   titreLigne1: Motion
   titreLigne2: Designer,
   titreLigne3: based in Paris.
   sousTitre: ⎯⎯ 3D · Direction Artistique · Motion
 
-  # Citation mise en avant
   citation: >
     Through motion design, I explore narrative, atmosphere, and visual identity
     to create striking and memorable imagery.
   citationLegende: — Statement / EN
 
-  # Blocs « Approach ». Ajouter ou retirer un bloc met à jour la numérotation.
   approche:
     - tag: Méthode
       texte: >
@@ -102,7 +94,6 @@ about:
   ctaSurtitre: /Contact
   ctaTexte: Discuter d'un projet
 
-  # Petits titres des sections du panneau
   etiquetteSection: Section · About
   etiquetteOnglet: About
   titreApproche: ⎯ Approach
@@ -116,7 +107,6 @@ contact:
   email: hello@emericressy.com
   disponibilite: Disponible · 2026
 
-  # Titre sur deux lignes, la seconde est en italique.
   titreLigne1: Parlons d'un
   titreLigne2: projet.
 
@@ -124,7 +114,6 @@ contact:
     Direction artistique, motion 3D, identité visuelle. Pour les briefs
     gaming/esport, anime, ou les pièces plus narratives — écris-moi directement.
 
-  # Signature discrète en pied de panneau.
   signature: website made by
   signatureAuteur: Tomi-Tom
   signatureLien: https://www.tombp.fr
@@ -132,11 +121,9 @@ contact:
   formulaireIntro: Ou écris-moi ici
   fuseau: Paris · UTC+1
 
-  # Petits titres des sections du panneau
   etiquetteSection: Contact
   etiquetteEmail: Email
 
-  # Réseaux sociaux. Retirer un bloc le fait disparaître du site.
   reseaux:
     - label: Instagram
       handle: "@fumir._o"
@@ -148,7 +135,6 @@ contact:
       handle: emeric-ressy
       href: https://www.linkedin.com/in/emeric-ressy-a05b0a194/
 
-# Les textes du formulaire de contact.
 formulaire:
   nom: Ton nom
   email: toi@exemple.com
@@ -157,7 +143,6 @@ formulaire:
   envoiEnCours: Envoi…
   erreurEnvoi: Le message n'a pas pu être envoyé.
   erreurConnexion: Connexion impossible. Réessaie ou écris-moi directement.
-  # Réponses du serveur, réaffichées telles quelles sous le formulaire.
   erreurRequete: Requête invalide.
   erreurChampsManquants: Merci de remplir le nom, l'email et le message.
   erreurEmailInvalide: Cette adresse email ne semble pas valide.
@@ -168,8 +153,6 @@ formulaire:
   labelEmail: Email
   labelMessage: Message
   confirmation: Envoyé. Merci.
-  # Champ invisible qui piège les robots. Son nom n'apparaît jamais à l'écran.
-  champPiege: Site web
 
 # ---------------------------------------------------------------------------
 # CE QUI SUIT SE MODIFIE RAREMENT
