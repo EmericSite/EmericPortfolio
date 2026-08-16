@@ -34,6 +34,10 @@ export const generatedProjects: Project[] = [
         "label": "Motion 3D",
         "value": "Emeric Ressy"
       }
+    ],
+    "categories": [
+      "STILLFRAMES",
+      "SCRAPS & RESEARCH"
     ]
   },
   {
@@ -58,6 +62,10 @@ export const generatedProjects: Project[] = [
         "label": "Direction artistique",
         "value": "Emeric Ressy"
       }
+    ],
+    "categories": [
+      "STILLFRAMES",
+      "BEHIND THE SCENE"
     ]
   },
   {
@@ -82,6 +90,10 @@ export const generatedProjects: Project[] = [
         "label": "Année",
         "value": "2025"
       }
+    ],
+    "categories": [
+      "STILLFRAMES",
+      "STORYBOARD"
     ]
   },
   {
@@ -106,6 +118,10 @@ export const generatedProjects: Project[] = [
         "label": "Année",
         "value": "2024"
       }
+    ],
+    "categories": [
+      "STILLFRAMES",
+      "STORYBOARD"
     ]
   }
 ];

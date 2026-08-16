@@ -86,17 +86,23 @@ Field names are in English, values are whatever should appear on screen.
 ```
 05_my-project/
 ├── projet.yml
-├── poster.png              ← cover image, any size
-├── motion/
-├── stillframes/
-├── storyboard/
-├── behind-the-scene/
-└── scraps-and-research/
+├── poster.png                 ← cover image, any size
+├── 01_motion/                 → section MOTION
+├── 02_stillframes/            → section STILLFRAMES
+├── 03_storyboard/             → section STORYBOARD
+├── 04_behind-the-scene/       → section BEHIND THE SCENE
+└── 05_scraps-and-research/    → section SCRAPS & RESEARCH
 ```
 
-These five names are the only ones recognised, and a missing section simply is
-not rendered. Files can be full resolution: they are resized and compressed
-automatically, and the originals are left untouched.
+Every folder becomes a section, named after it: dashes turn into spaces, `and`
+into `&`, and the whole thing is uppercased. Like project folders, the leading
+number sets the order and never reaches the published path, so renumbering moves
+nothing on disk. Renaming a folder renames the section; deleting it removes the
+section from the site. A `categories` line in `projet.yml` overrides that order,
+and drops whatever it leaves out.
+
+Files can be full resolution: they are resized and compressed automatically, and
+the originals are left untouched.
 
 **4. Publish**: `npm run contenu`, then commit and push.
 

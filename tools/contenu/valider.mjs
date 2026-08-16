@@ -6,7 +6,7 @@ import path from 'node:path';
 import { PROJETS, SITE_YML, relatif } from './chemins.mjs';
 import { aDesErreurs, erreur } from './rapport.mjs';
 import { ouvrirYaml, typographier } from './yaml.mjs';
-import { CATEGORIES, slugFichier } from './medias.mjs';
+import { sectionsDuProjet, slugFichier } from './medias.mjs';
 
 const MODES_NAV = ['hub', 'about', 'contact'];
 
@@ -290,23 +290,37 @@ function lireProjet(dossier) {
     }
   }
 
+  // Sections are the folders of the project, ordered by their numbers. A
+  // `categories` line in the sheet overrides that order, and drops what it omits.
+  projet.sections = sectionsDuProjet(dossier);
+  projet.categories = projet.sections.map((s) => s.libelle);
+
   if (v.categories !== undefined) {
     const liste = Array.isArray(v.categories) ? v.categories : [v.categories];
     const resolues = [];
     for (const brute of liste) {
       const cle = String(brute).trim().toLowerCase();
-      const libelle =
-        CATEGORIES[cle] ??
-        Object.values(CATEGORIES).find((l) => l.toLowerCase() === cle);
-      if (!libelle) {
+      const section = projet.sections.find(
+        (s) => s.dossier === cle || s.nom.toLowerCase() === cle || s.libelle.toLowerCase() === cle,
+      );
+      if (!section) {
         erreur(
           fiche.fichier,
           fiche.ligne('categories'),
-          `« ${brute} » n’est pas une section connue`,
-          `les sections possibles sont : ${Object.keys(CATEGORIES).join(', ')}.`,
+          `« ${brute} » n’est pas une section de ce projet`,
+          projet.sections.length > 0
+            ? `ses sections sont : ${projet.sections.map((s) => s.dossier).join(', ')}.`
+            : 'ce projet n’a aucun dossier de section : retire cette ligne, ou dépose les médias.',
+        );
+      } else if (resolues.includes(section.libelle)) {
+        erreur(
+          fiche.fichier,
+          fiche.ligne('categories'),
+          `« ${brute} » est cité deux fois`,
+          'une section ne peut apparaître qu’une fois dans la liste.',
         );
       } else {
-        resolues.push(libelle);
+        resolues.push(section.libelle);
       }
     }
     if (resolues.length > 0) projet.categories = resolues;

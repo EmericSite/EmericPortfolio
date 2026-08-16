@@ -23,6 +23,8 @@ content/
 | ajouter un projet | je duplique un dossier de projet |
 | enlever un projet | je jette son dossier à la corbeille |
 | changer l'ordre des projets | je renomme les numéros `01_`, `02_`… |
+| renommer une section d'un projet | je renomme son dossier d'images |
+| changer l'ordre des sections | je renomme leurs numéros `01_`, `02_`… |
 
 Il n'y a **aucun texte ailleurs**. Tout ce qui s'affiche vient de ces fichiers,
 jusqu'au titre de l'onglet du navigateur et aux messages d'erreur.
@@ -184,21 +186,38 @@ tout seul. Le nom doit rester `poster`.
 
 ### Étape D — les médias
 
-Glisser les fichiers dans les sous-dossiers, par catégorie :
+Ranger les fichiers dans des sous-dossiers. **Chaque dossier devient une section
+du projet sur le site**, et son nom devient le titre de la section :
 
 ```
 content/projets/05_mon-nouveau-projet/
 ├── projet.yml
 ├── poster.png
-├── motion/
-├── stillframes/
-├── storyboard/
-├── behind-the-scene/
-└── scraps-and-research/
+├── 01_motion/              → section MOTION
+├── 02_stillframes/         → section STILLFRAMES
+├── 03_storyboard/          → section STORYBOARD
+├── 04_behind-the-scene/    → section BEHIND THE SCENE
+└── 05_scraps-and-research/ → section SCRAPS & RESEARCH
 ```
 
-Ces cinq noms de dossiers sont les seuls reconnus. Un dossier vide ou absent
-n'affiche simplement pas de section.
+Les noms ne sont pas imposés : un dossier `06_essais-de-couleur` crée une
+section ESSAIS DE COULEUR. Comme pour les projets, **le numéro donne l'ordre**
+et disparaît du titre. Un dossier sans numéro passe après les autres.
+
+Trois règles de nommage, et c'est tout :
+
+- les tirets et les underscores deviennent des espaces ;
+- le mot `et` ou `and` devient `&` : `scraps-and-research` donne
+  SCRAPS & RESEARCH ;
+- le titre s'affiche toujours en majuscules.
+
+Renommer un dossier renomme donc la section, et la déplacer dans l'ordre est
+une affaire de numéro. Un dossier vide, ou jeté à la corbeille, fait disparaître
+sa section du site à la publication suivante.
+
+> Deux dossiers ne peuvent pas porter le même nom une fois le numéro retiré :
+> `02_motion` et `07_motion` sont en conflit. Le Terminal le dit et ne publie
+> rien tant que ce n'est pas corrigé.
 
 Formats acceptés : `.png`, `.jpg`, `.jpeg`, `.webp`, `.avif`, `.tif` pour les
 images, `.mp4`, `.mov`, `.webm` pour les vidéos, et `.gif`. Un fichier dans un
@@ -220,15 +239,21 @@ Voir la section 5.
 
 ### Changer l'ordre des sections d'un projet
 
-Par défaut : MOTION, STILLFRAMES, STORYBOARD, BEHIND THE SCENE,
-SCRAPS & RESEARCH. Pour un projet en particulier, ajouter une ligne
-`categories` dans sa fiche :
+Le plus simple est de renuméroter les dossiers : `03_storyboard` devient
+`01_storyboard` et sa section passe en premier. Les fichiers publiés ne bougent
+pas, seul l'ordre change.
+
+L'autre façon, sans rien renommer, est une ligne `categories` dans la fiche du
+projet :
 
 ```yaml
 categories: [storyboard, stillframes, motion]
 ```
 
-Seules les sections listées seront affichées, dans cet ordre.
+Les noms s'écrivent sans le numéro. Seules les sections listées sont affichées,
+dans cet ordre : c'est aussi le moyen de masquer une section sans la supprimer.
+Un nom qui ne correspond à aucun dossier du projet arrête la publication, et le
+Terminal rappelle les sections existantes.
 
 ---
 

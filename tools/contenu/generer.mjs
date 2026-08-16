@@ -9,7 +9,6 @@ import {
   SORTIE_PROJETS,
   SORTIE_SITE,
 } from './chemins.mjs';
-import { CATEGORIES } from './medias.mjs';
 
 // Head of every generated file: the same two-line header as the hand-written code,
 // then the warning addressed to whoever opens it. Written here because a header
@@ -45,8 +44,9 @@ export function ecrireSite(site) {
   );
 }
 
-// Script-only fields, kept out of the generated site data.
-const CHAMPS_INTERNES = ['rang', 'dossier'];
+// Script-only fields, kept out of the generated site data. `sections` holds the
+// folders on disk; the site only needs their titles, which `categories` carries.
+const CHAMPS_INTERNES = ['rang', 'dossier', 'sections'];
 
 export function ecrireProjets(projets) {
   const liste = projets.map((projet) =>
@@ -90,14 +90,24 @@ export const generatedGallery = donnees as Record<string, GalleryItem[]>;
   );
 }
 
-/** Section names and order, so src/ never redeclares them. */
-export function ecrireCategories() {
-  const corps = bloc('GALLERY_CATEGORIES', Object.values(CATEGORIES), ' as const');
+/**
+ * Every section title the site knows, in first-seen order across the projects.
+ * Each project carries its own ordered list; this one is the fallback, and what
+ * a component reads when it has no project in hand.
+ */
+export function ecrireCategories(projets) {
+  const titres = [];
+  for (const projet of projets) {
+    for (const titre of projet.categories ?? []) {
+      if (!titres.includes(titre)) titres.push(titre);
+    }
+  }
+  const corps = bloc('GALLERY_CATEGORIES', titres, ' as const');
   writeFileSync(
     SORTIE_CATEGORIES,
     `${ENTETE(
       'The names of the gallery sections, in the order a project panel lays them out',
-      'tools/contenu/medias.mjs',
+      'les dossiers rangés dans content/projets/',
     )}\n${corps}`,
   );
 }

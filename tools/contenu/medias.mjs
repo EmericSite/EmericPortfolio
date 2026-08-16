@@ -18,21 +18,19 @@ import {
   CACHE,
   PUBLIC_POSTERS,
   PUBLIC_PROJECTS,
-  RACINE,
   SORTIE_GALERIE_JSON,
   relatif,
 } from './chemins.mjs';
 import { aDesErreurs, avertir, erreur, ko, signalerPublicTouche } from './rapport.mjs';
 
-// Folder on disk -> section label on the site; this order is the display order.
-// Sole declaration: src/data/categories.generated.ts is written from it.
-export const CATEGORIES = {
-  motion: 'MOTION',
-  stillframes: 'STILLFRAMES',
-  storyboard: 'STORYBOARD',
-  'behind-the-scene': 'BEHIND THE SCENE',
-  'scraps-and-research': 'SCRAPS & RESEARCH',
-};
+// Sections are not a fixed list: every folder dropped in a project becomes one.
+// `03_behind-the-scene` publishes to behind-the-scene/ and is titled BEHIND THE
+// SCENE, third. The number orders, the rest names, exactly like a project folder.
+const PREFIXE_SECTION = /^(\d+)[_-](.+)$/;
+// Sections without a number come last, in alphabetical order.
+const SANS_NUMERO = Number.MAX_SAFE_INTEGER;
+// Written out as an ampersand, the way a title reads: SCRAPS & RESEARCH.
+const LIAISONS = new Set(['and', 'et', '&']);
 
 const EXT_IMAGE = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.tif', '.tiff']);
 const EXT_ANIMEE = new Set(['.gif']);
@@ -44,10 +42,8 @@ const FORMATS_GERES = `images : ${lister(EXT_IMAGE)} — animations : ${lister(
   EXT_ANIMEE,
 )} — vidéos : ${lister(EXT_VIDEO)}`;
 
-// A published media is always at /projects/<id>/<category>/<file>. Both helpers
-// stay side by side: the second reads back the segment the first wrote.
+// A published media is always at /projects/<id>/<section>/<file>.
 const cheminMedia = (id, dossier, nom) => `/projects/${id}/${dossier}/${nom}`;
-const dossierDepuisSrc = (src) => src.split('/')[3] ?? null;
 
 const LARGEUR_MAX = 1400;
 const QUALITE = 82;
@@ -75,15 +71,78 @@ export const ffmpegDispo = (() => {
   }
 })();
 
-/** Filename usable in a URL: no accent, space or uppercase. */
-export function slugFichier(nom) {
-  const base = path.basename(nom, path.extname(nom));
-  return base
+/** Name usable in a URL: no accent, space or uppercase. */
+function slugSegment(nom, defaut) {
+  return nom
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'media';
+    .replace(/^-+|-+$/g, '') || defaut;
+}
+
+/** Filename usable in a URL: no accent, space or uppercase. */
+export function slugFichier(nom) {
+  return slugSegment(path.basename(nom, path.extname(nom)), 'media');
+}
+
+/** Section title as the site shows it: `behind-the-scene` -> `BEHIND THE SCENE`. */
+function libelleSection(nom) {
+  return nom
+    .split(/[\s_-]+/)
+    .filter(Boolean)
+    .map((mot) => (LIAISONS.has(mot.toLowerCase()) ? '&' : mot.toUpperCase()))
+    .join(' ');
+}
+
+/**
+ * Reads a section folder name: the leading number orders it, the rest gives both
+ * the folder published under public/ and the title shown on the site. The number
+ * stays out of the published path, so renumbering never moves a single file.
+ */
+export function lireNomSection(nom) {
+  const m = nom.match(PREFIXE_SECTION);
+  const reste = m ? m[2] : nom;
+  return {
+    nom,
+    rang: m ? Number(m[1]) : SANS_NUMERO,
+    dossier: slugSegment(reste, 'section'),
+    libelle: libelleSection(reste) || slugSegment(reste, 'section').toUpperCase(),
+  };
+}
+
+/**
+ * The sections of a project, in display order. Two folders that publish to the
+ * same place are refused: one would silently overwrite the other.
+ */
+export function sectionsDuProjet(dossierProjet) {
+  const sections = readdirSync(dossierProjet)
+    .filter((d) => !d.startsWith('.'))
+    .filter((d) => statSync(path.join(dossierProjet, d)).isDirectory())
+    .map(lireNomSection)
+    .sort(
+      (a, b) =>
+        a.rang - b.rang || a.dossier.localeCompare(b.dossier, 'fr', { numeric: true }),
+    );
+
+  const vus = new Map();
+  const gardees = [];
+  for (const section of sections) {
+    const jumelle = vus.get(section.dossier);
+    if (jumelle) {
+      erreur(
+        relatif(path.join(dossierProjet, section.nom)),
+        null,
+        `\u00ab ${jumelle} \u00bb et \u00ab ${section.nom} \u00bb d\u00e9signent la m\u00eame section`,
+        'le num\u00e9ro mis \u00e0 part, deux dossiers de sections ne peuvent pas porter le ' +
+          'm\u00eame nom : renomme l\u2019un des deux, ou fusionne-les.',
+      );
+      continue;
+    }
+    vus.set(section.dossier, section.nom);
+    gardees.push(section);
+  }
+  return gardees;
 }
 
 function dimensionsVideo(fichier) {
@@ -243,14 +302,10 @@ export async function traiterPoster(projet) {
 export async function traiterMedias(projet) {
   const items = [];
   const produits = new Set();
-  // Sources are gitignored, so a fresh clone has empty category folders. Only
-  // touch what we can rebuild, category by category.
-  const categoriesRefaites = new Set();
-  const dejaEnLigne = (galerieExistante() ?? {})[projet.id] ?? [];
   let sourcesTrouvees = 0;
 
-  for (const [dossier, libelle] of Object.entries(CATEGORIES)) {
-    const repertoire = path.join(projet.dossier, dossier);
+  for (const section of projet.sections) {
+    const repertoire = path.join(projet.dossier, section.nom);
     if (!existsSync(repertoire)) continue;
 
     const fichiers = readdirSync(repertoire)
@@ -286,16 +341,15 @@ export async function traiterMedias(projet) {
       nomsPris.set(nomSortie, fichier);
 
       sourcesTrouvees += 1;
-      categoriesRefaites.add(dossier);
 
-      const sortie = path.join(PUBLIC_PROJECTS, projet.id, dossier, nomSortie);
-      const srcWeb = cheminMedia(projet.id, dossier, nomSortie);
+      const sortie = path.join(PUBLIC_PROJECTS, projet.id, section.dossier, nomSortie);
+      const srcWeb = cheminMedia(projet.id, section.dossier, nomSortie);
 
       try {
         const item = await traiterMedia(path.join(repertoire, fichier), sortie, srcWeb);
         if (!item) continue;
         produits.add(path.relative(PUBLIC_PROJECTS, sortie));
-        items.push({ ...item, category: libelle });
+        items.push({ ...item, category: section.libelle });
       } catch (e) {
         erreur(
           relatif(path.join(repertoire, fichier)),
@@ -314,35 +368,21 @@ export async function traiterMedias(projet) {
     return null;
   }
 
-  // Prune only the categories we just rebuilt, and only when every conversion
-  // went through: a file that failed is absent from `produits` while its
-  // published version is the only copy left, so pruning would destroy it.
+  // What content/ no longer holds leaves public/, renamed section folders
+  // included. Only when every conversion went through: a file that failed is
+  // absent from `produits` while its published version is the only copy left,
+  // so pruning would destroy it.
   const publie = path.join(PUBLIC_PROJECTS, projet.id);
   if (!aDesErreurs()) {
-    for (const dossier of categoriesRefaites) {
-      const cible = path.join(publie, dossier);
-      if (!existsSync(cible)) continue;
-      for (const ancien of listerFichiers(cible)) {
-        if (produits.has(path.relative(PUBLIC_PROJECTS, ancien))) continue;
-        rmSync(ancien);
-        signalerPublicTouche();
-      }
+    for (const ancien of listerFichiers(publie)) {
+      if (produits.has(path.relative(PUBLIC_PROJECTS, ancien))) continue;
+      rmSync(ancien);
+      signalerPublicTouche();
     }
     if (existsSync(publie)) supprimerDossiersVides(publie);
   }
 
-  const intactes = dejaEnLigne.filter((item) => {
-    // Unknown category: keep the media rather than drop it on a path we cannot read.
-    const dossier = dossierDepuisSrc(item.src);
-    return !categoriesRefaites.has(dossier) && existsSync(path.join(RACINE, 'public', item.src));
-  });
-  if (intactes.length > 0) {
-    avertir(
-      `${projet.id} : ${intactes.length} média(s) conservé(s) dans des sections dont les fichiers d’origine sont absents.`,
-    );
-  }
-
-  return [...items, ...intactes];
+  return items;
 }
 
 export function listerFichiers(racine) {

@@ -8,10 +8,10 @@ import { GALLERY_CATEGORIES } from './categories.generated';
 import { generatedGallery } from './gallery.generated';
 import { generatedProjects } from './projects.generated';
 
-// Sections and their order come from tools/contenu/medias.mjs, which names the
-// folders content/ is filled with.
+// A section is a folder of a project, so its title is only known once content/
+// has been read: the type stays open, and each project carries its own list.
 export { GALLERY_CATEGORIES };
-export type GalleryCategory = (typeof GALLERY_CATEGORIES)[number];
+export type GalleryCategory = string;
 
 export type GalleryItem =
   | {
@@ -46,7 +46,7 @@ export type Project = {
   credits: { label: string; value: string }[];
   posterUrl: string;
   vimeoId: string;
-  /** Per-project section order from its `categories` field; defaults to GALLERY_CATEGORIES. */
+  /** Section titles in display order, from the project folders or its `categories` field. */
   categories?: readonly GalleryCategory[];
 };
 

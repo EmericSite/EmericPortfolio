@@ -2,13 +2,12 @@
 // The names of the gallery sections, in the order a project panel lays them out
 
 // GÉNÉRÉ AUTOMATIQUEMENT — NE PAS ÉDITER À LA MAIN.
-// Source : tools/contenu/medias.mjs
+// Source : les dossiers rangés dans content/projets/
 // Régénérer avec : npm run contenu
 
 export const GALLERY_CATEGORIES = [
-  "MOTION",
   "STILLFRAMES",
-  "STORYBOARD",
+  "SCRAPS & RESEARCH",
   "BEHIND THE SCENE",
-  "SCRAPS & RESEARCH"
+  "STORYBOARD"
 ] as const;

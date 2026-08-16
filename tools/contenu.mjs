@@ -106,7 +106,7 @@ async function publier({ silencieux = false } = {}) {
 
   ecrireSite(site);
   ecrireProjets(projets);
-  ecrireCategories();
+  ecrireCategories(projets);
   // --textes never sees the source media, so it must leave the gallery alone.
   if (!MODE_TEXTES) ecrireGalerie(galerie);
 
