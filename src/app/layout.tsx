@@ -98,6 +98,13 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ink text-chrome">
+        {/* Without JS the loading screen never lifts, and the visitor faces a
+            black page stuck at 008% instead of the site behind it. */}
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html: '<style>[data-loader]{display:none !important}</style>',
+          }}
+        />
         <a
           href="#main"
           className="sr-only focus:not-sr-only fixed top-4 left-4 z-[100] bg-ink text-chrome border border-cyanglitch rounded-full px-4 py-2 font-mono text-xs uppercase tracking-[0.25em]"

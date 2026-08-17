@@ -12,7 +12,7 @@ const subscribeToNothing = () => () => {};
 
 
 function Loader() {
-  const { progress, active } = useProgress();
+  const { progress, active, errors } = useProgress();
   // No 3D scene means drei never reports progress, so nothing would lift the
   // loader before the 25s safety net. Read after hydration, never during.
   const noScene = useSyncExternalStore(
@@ -24,16 +24,21 @@ function Loader() {
   const [bootProgress, setBootProgress] = useState(8);
   const [showSkip, setShowSkip] = useState(false);
 
+  // A failed asset never raises `loaded`, so the bar tops out short of 100 and
+  // the visitor would stare at a frozen percentage until the 25s net. The scene
+  // itself copes with a missing asset, so a broken load still means "come in".
+  const stalled = errors.length > 0 && !active;
+
   // Adjusted during the render, not in an effect: the bar only ever moves
   // forward, and useProgress ticks often enough for a second commit to show.
   if (progress > bootProgress) setBootProgress(progress);
 
   useEffect(() => {
-    if (noScene || (!active && progress >= 100)) {
+    if (noScene || stalled || (!active && progress >= 100)) {
       const timeout = setTimeout(() => setHidden(true), 900);
       return () => clearTimeout(timeout);
     }
-  }, [noScene, active, progress]);
+  }, [noScene, stalled, active, progress]);
 
   // Escape hatch once loading drags on.
   useEffect(() => {
@@ -49,10 +54,13 @@ function Loader() {
 
   if (hidden) return null;
 
-  const done = noScene || (!active && progress >= 100);
+  const done = noScene || stalled || (!active && progress >= 100);
 
   return (
     <div
+      // Hooks for the two CSS safety nets in globals.css: this layer is opaque
+      // and server-rendered, so without JS it would be the whole site.
+      data-loader
       className={`fixed inset-0 z-50 bg-ink flex items-center justify-center transition-opacity duration-700 ${
         done ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}

@@ -7,7 +7,6 @@ import { erreur } from '@/content/site';
 
 export default function Error({
   error,
-  reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
@@ -27,9 +26,13 @@ export default function Error({
       <p className="text-mist text-sm max-w-md mb-8">
         {erreur.texte}
       </p>
+      {/* Next's reset() only clears the boundary state and re-renders the same
+          tree. Every failed asset is still in the loader cache, so it throws
+          again on the spot and the button reads as dead. A hard reload is the
+          only gesture that can actually recover. */}
       <button
         type="button"
-        onClick={() => reset()}
+        onClick={() => window.location.reload()}
         className="border border-fog rounded-full px-6 py-3 text-[10px] uppercase tracking-[0.25em] hover:border-cyanglitch hover:text-cyanglitch transition-colors"
       >
         {erreur.bouton}

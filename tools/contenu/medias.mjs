@@ -167,8 +167,9 @@ function verifierPoids(source, sortie) {
 
   if (path.extname(source).toLowerCase() === '.webp') {
     avertir(
-      `${path.basename(source)} pèse ${ko(taille)}. Les WebP sont publiés tels quels : ` +
-        'pour qu’il soit allégé automatiquement, dépose-le en PNG ou en JPG.',
+      `${path.basename(source)} pèse ${ko(taille)}. Les WebP qui tiennent déjà sous ` +
+        `${LARGEUR_MAX} px sont publiés tels quels : pour qu’il soit allégé ` +
+        'automatiquement, dépose-le en PNG ou en JPG.',
     );
     return;
   }
@@ -199,12 +200,16 @@ async function traiterMedia(source, sortie, srcWeb) {
   const ext = path.extname(source).toLowerCase();
   let item;
 
-  if (ext === '.webp') {
+  const metaWebp = ext === '.webp' ? await sharp(source).metadata() : null;
+
+  if (metaWebp && (metaWebp.width ?? Infinity) <= LARGEUR_MAX) {
     // WebP is already a delivery format; recompressing would only degrade it.
-    const meta = await sharp(source).metadata();
     copyFileSync(source, sortie);
-    item = { type: 'image', src: srcWeb, width: meta.width, height: meta.height };
+    item = { type: 'image', src: srcWeb, width: metaWebp.width, height: metaWebp.height };
   } else if (EXT_IMAGE.has(ext)) {
+    // A WebP wider than the cap lands here too: passing it straight through was
+    // letting posters ship at full width, and a poster is a 3D texture before
+    // it is an image. hohlstrasse.webp weighed 816 Ko against 111 for dofus.
     const meta = await sharp(source).metadata();
     const largeur = Math.min(meta.width ?? LARGEUR_MAX, LARGEUR_MAX);
     const info = await sharp(source)
@@ -251,6 +256,25 @@ function extensionSortie(ext) {
   if (EXT_ANIMEE.has(ext)) return ffmpegDispo ? '.mp4' : '.webp';
   if (ext === '.mov') return ffmpegDispo ? '.mp4' : '.mov';
   return ext;
+}
+
+/**
+ * The site data is rewritten in every mode, `posterUrl` included, but the media
+ * pass only runs outside --textes. A project added and pushed without that pass
+ * therefore ships a card pointing at a poster that public/ does not hold, and
+ * useTexture throws on the 404: the entire hub goes down, not just one card.
+ * Checked here so the build fails loudly instead of the site failing silently.
+ */
+export function verifierPostersPublies(projets) {
+  for (const projet of projets) {
+    if (existsSync(path.join(PUBLIC_POSTERS, `${projet.id}.webp`))) continue;
+    erreur(
+      relatif(projet.dossier),
+      null,
+      `l’image de couverture n’est pas publiée (public/posters/${projet.id}.webp est absent)`,
+      'lance `npm run contenu` puis versionne le dossier public/ : sans ce fichier, le site ne s’affiche plus du tout.',
+    );
+  }
 }
 
 export async function traiterPoster(projet) {

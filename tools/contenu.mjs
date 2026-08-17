@@ -17,6 +17,7 @@ import {
   retirerProjetsSupprimes,
   traiterMedias,
   traiterPoster,
+  verifierPostersPublies,
 } from './contenu/medias.mjs';
 import { aDesErreurs, gris, ko, rapporter, reinitialiser, rouge, vert } from './contenu/rapport.mjs';
 import { surveillerContenu } from './contenu/surveillance.mjs';
@@ -102,6 +103,9 @@ async function publier({ silencieux = false } = {}) {
     enregistrerCache();
   }
 
+  // Runs in every mode, --textes included: that is precisely the mode the
+  // Vercel build uses, and the one that can publish a card without its poster.
+  verifierPostersPublies(projets);
   if (!verifier()) return false;
 
   ecrireSite(site);

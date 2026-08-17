@@ -3,8 +3,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useSyncExternalStore } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import FallbackHub from '@/components/FallbackHub';
+import HubBoundary from '@/components/HubBoundary';
 import ShowreelPlayButton from '@/components/ShowreelPlayButton';
 import { isSoftwareRenderer } from '@/lib/usePerformanceTier';
 
@@ -29,13 +30,15 @@ export default function HomeHub() {
   // 'pending' on SSR and first hydration keeps the markup empty, then it
   // switches to the client value.
   const mode = useSyncExternalStore(subscribe, getClientMode, getServerMode);
+  // The WebGL probe can pass and the renderer still fail to be created.
+  const [glFailed, setGlFailed] = useState(false);
 
   if (mode === 'pending') return null;
-  if (mode === 'fallback') return <FallbackHub />;
+  if (mode === 'fallback' || glFailed) return <FallbackHub />;
   return (
-    <>
-      <HubScene />
+    <HubBoundary fallback={<FallbackHub />}>
+      <HubScene onGlError={() => setGlFailed(true)} />
       <ShowreelPlayButton />
-    </>
+    </HubBoundary>
   );
 }

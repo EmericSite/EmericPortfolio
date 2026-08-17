@@ -259,3 +259,19 @@ body {
     transition: color 0.2s ease;
   }
 }
+
+/* The loader is server-rendered and opaque: only JS ever takes it down. If the
+   JS never arrives, this hands the site back on its own. `visibility` is used
+   rather than `opacity` so the animation leaves the JS fade-out untouched. */
+[data-loader] {
+  animation: loader-safety 22s forwards;
+}
+@keyframes loader-safety {
+  0%,
+  99% {
+    visibility: visible;
+  }
+  100% {
+    visibility: hidden;
+  }
+}

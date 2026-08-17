@@ -34,9 +34,19 @@ const nextConfig: NextConfig = {
       },
     ];
 
+    // The lighting HDRI is a fixed asset of the scene, never edited by Emeric:
+    // it can be cached hard, and a returning visitor never pays its 1.6 MB twice.
+    const fige = [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=31536000, immutable",
+      },
+    ];
+
     return [
       { source: "/posters/:path*", headers: revalide },
       { source: "/projects/:path*", headers: revalide },
+      { source: "/hdri/:path*", headers: fige },
     ];
   },
 };
