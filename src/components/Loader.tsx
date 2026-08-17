@@ -10,6 +10,7 @@ import { isSoftwareRenderer } from '@/lib/usePerformanceTier';
 
 const subscribeToNothing = () => () => {};
 
+
 function Loader() {
   const { progress, active } = useProgress();
   // No 3D scene means drei never reports progress, so nothing would lift the
