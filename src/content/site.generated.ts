@@ -15,7 +15,7 @@ export const loader = {
 };
 
 export const accueil = {
-  "surtitre": "Mélancolie électrique",
+  "surtitre": "Motion Design & Art Direction",
   "titreLigne1": "Motion · 3D ·",
   "titreLigne2": "Direction artistique."
 };
