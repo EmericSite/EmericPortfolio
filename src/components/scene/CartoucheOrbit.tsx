@@ -47,6 +47,12 @@ import {
   targetCardScale,
 } from './cartouche/layout';
 
+// Without this prop, troika resolves its default font through a hardcoded
+// jsdelivr URL. A blocked CDN there leaves the promise pending forever, the
+// whole hub stays suspended and empty, and nothing reports it. Same file as the
+// one it used to fetch, so the lettering is unchanged.
+const CARTOUCHE_FONT = '/fonts/sans-serif.normal.400.woff';
+
 function Cartouche({
   project,
   index,
@@ -290,6 +296,7 @@ function Cartouche({
               <Text
                 position={[-0.3, 0.5, Z_TEXT]}
                 renderOrder={6}
+                font={CARTOUCHE_FONT}
                 fontSize={0.06}
                 color={palette.chrome}
                 anchorX="center"
@@ -318,6 +325,7 @@ function Cartouche({
               <Text
                 position={[0.3, 0.5, Z_TEXT]}
                 renderOrder={6}
+                font={CARTOUCHE_FONT}
                 fontSize={0.05}
                 color={palette.chrome}
                 anchorX="center"
@@ -349,7 +357,7 @@ function Cartouche({
               <Text
                 position={[0, -0.22, Z_TEXT]}
                 renderOrder={6}
-                font="/fonts/Inter-Regular.ttf"
+font={typeof CARTOUCHE_FONT !== 'undefined' ? CARTOUCHE_FONT : "/fonts/Inter-Regular.ttf"}
                 fontSize={0.105}
                 color={palette.pearl}
                 anchorX="center"
@@ -368,6 +376,7 @@ function Cartouche({
               <Text
                 position={[0, -0.4, Z_TEXT]}
                 renderOrder={6}
+                font={CARTOUCHE_FONT}
                 fontSize={0.038}
                 color={palette.mist}
                 anchorX="center"

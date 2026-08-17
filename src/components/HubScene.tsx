@@ -6,7 +6,6 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   AdaptiveDpr,
   AdaptiveEvents,
-  Environment,
   Float,
   useTexture,
 } from '@react-three/drei';
@@ -16,6 +15,7 @@ import type { Mesh, Group, MeshStandardMaterial } from 'three';
 import CartoucheOrbit from './scene/CartoucheOrbit';
 import CameraRig from './scene/CameraRig';
 import DynamicPostFX from './scene/DynamicPostFX';
+import SceneEnvironment from './scene/SceneEnvironment';
 import { fadeOpacity, preparePosterTexture } from './scene/materials';
 import { useCachedMaterials } from './scene/useCachedMaterials';
 import { useHubStore } from '@/store/hub';
@@ -195,7 +195,7 @@ function Relic() {
   );
 }
 
-export default function HubScene() {
+export default function HubScene({ onGlError }: { onGlError?: () => void }) {
   const tier = usePerformanceTier();
   const budget = tierBudget[tier];
   const { cameraZ, orbitRadius, cartoucheScale, layout } = useViewportScale();
@@ -204,12 +204,26 @@ export default function HubScene() {
     <Canvas
       camera={{ position: [0, 0, cameraZ], fov: 45 }}
       dpr={budget.dpr}
-      gl={{
-        antialias: true,
-        powerPreference: 'high-performance',
-        alpha: true,
-        stencil: false,
-        depth: true,
+      gl={(defaults) => {
+        try {
+          return new THREE.WebGLRenderer({
+            ...defaults,
+            antialias: true,
+            powerPreference: 'high-performance',
+            alpha: true,
+            stencil: false,
+            depth: true,
+          });
+        } catch (err) {
+          // The probe in usePerformanceTier got a context, so the visitor was
+          // routed to the 3D hub, but the real renderer still failed: out of
+          // memory, or too many live contexts in the tab. Left alone this only
+          // surfaces as an unhandled rejection, and the loader hangs to its cap
+          // in front of a page that will never draw.
+          console.error('[hub] WebGL renderer creation failed:', err);
+          queueMicrotask(() => onGlError?.());
+          throw err;
+        }
       }}
       performance={{ min: 0.5 }}
       onPointerMissed={() => {
@@ -235,9 +249,7 @@ export default function HubScene() {
         />
       </Suspense>
 
-      <Suspense fallback={null}>
-        <Environment preset="warehouse" />
-      </Suspense>
+      <SceneEnvironment />
 
       <CameraRig />
       <DynamicPostFX />
