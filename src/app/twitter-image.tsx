@@ -3,7 +3,6 @@
 import OpengraphImage from "./opengraph-image";
 import { partage } from "@/content/site";
 
-export const runtime = "edge";
 export const alt = partage.titre;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
