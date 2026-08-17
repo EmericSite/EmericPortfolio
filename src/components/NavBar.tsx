@@ -24,7 +24,7 @@ function NavBar() {
         onClick={() => setMode('hub')}
         className="pointer-events-auto flex items-center gap-3 group"
       >
-        <div className="relative h-10 w-10 md:h-14 md:w-14 transition-transform group-hover:rotate-12">
+        <div className="relative h-10 w-10 md:h-10 md:w-10 transition-transform group-hover:rotate-12">
           <Image
             src="/logo-mark.png"
             alt={identite.nom}

@@ -709,13 +709,120 @@
       "width": 1400,
       "height": 788,
       "category": "STILLFRAMES"
+    }
+  ],
+  "dandielum": [
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still00.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
     },
     {
       "type": "image",
-      "src": "/projects/hohlstrasse/storyboard/board01.webp",
-      "width": 1074,
-      "height": 960,
-      "category": "STORYBOARD"
+      "src": "/projects/dandielum/stillframes/still01.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still02.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still03.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still04.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still05.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still06.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still07.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still08.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still09.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still10.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/stillframes/still11.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/making-of/correct-ezgif-com-video-to-gif-converter.webp",
+      "width": 800,
+      "height": 450,
+      "category": "MAKING OF"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/making-of/timelapse01-ezgif-com-video-to-gif-converter.webp",
+      "width": 800,
+      "height": 450,
+      "category": "MAKING OF"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/making-of/timelapse02-ezgif-com-video-to-gif-converter.webp",
+      "width": 800,
+      "height": 450,
+      "category": "MAKING OF"
+    },
+    {
+      "type": "image",
+      "src": "/projects/dandielum/making-of/timelapse03-ezgif-com-video-to-gif-converter.webp",
+      "width": 800,
+      "height": 450,
+      "category": "MAKING OF"
     }
   ]
 }

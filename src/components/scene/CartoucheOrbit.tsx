@@ -349,6 +349,7 @@ function Cartouche({
               <Text
                 position={[0, -0.22, Z_TEXT]}
                 renderOrder={6}
+                font="/fonts/Inter-Regular.ttf"
                 fontSize={0.105}
                 color={palette.pearl}
                 anchorX="center"

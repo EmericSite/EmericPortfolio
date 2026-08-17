@@ -12,8 +12,8 @@ const ORBIT_CENTER_Z = 0.8;
 // and stays a constant share of the radius at every breakpoint.
 const ORBIT_DEPTH_RATIO = 0.15;
 // Horizontal gap in the mobile stack, wide enough that neighbours do not overlap.
-const STACK_GAP_X = 0.66;
-const STACK_SCALE_RATIO = 1.333;
+const STACK_GAP_X = 1.15;
+const STACK_SCALE_RATIO = 1.33;
 
 /** Golden angle: desyncs each card's breathing, angular spacing stays even. */
 export const GOLDEN_ANGLE = 2.399963229728653; // 137.5078° in radians
@@ -56,7 +56,9 @@ function setOrbitTarget(
   elapsed: number,
   orbitRadius: number,
 ): THREE.Vector3 {
-  const angle = angleOffset + elapsed * ORBIT_SPEED;
+  const rawAngle = angleOffset + elapsed * ORBIT_SPEED;
+  const SPREAD = 0.15;
+  const angle = rawAngle + SPREAD * Math.sin(2 * rawAngle);
   return target.set(
     Math.cos(angle) * orbitRadius,
     Math.sin(angle) * orbitRadius * ORBIT_TILT,

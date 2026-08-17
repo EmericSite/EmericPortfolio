@@ -1,17 +1,16 @@
 # Fiche projet. Voir CONTENU.md pour le mode d'emploi.
 
-title: HOHLSTRASSE - Urban Renewal
-shortTitle: Architectural film
+title: Urban Renewal 
+shortTitle: Urban Renewal
 year: 2026
 tag: Client Work · Architectural
-accent: "#FF2A2A"
+accent: "#FFDA91"
 vimeoId: 1209474896
-role: Direction Artistique · Motion 
+role: Art Direction · Motion 
 kind: client            # personal ou client
 
 blurb: >
-  Registre dark fantasy. Volumes lourds, lumière dure,
-  tension contenue.
+  Client Work, Architectural, CoCoCo space, Motion, Visualization.
 
 description: >
   Mojo Studio, based in Paris, contacted me to direct and produce an architectural film 
@@ -20,5 +19,6 @@ description: >
   The whole project was completed in two weeks, resulting in a 1mn30 motion video.
 
 credits:
-  Auteur: Emeric Ressy
-  Année: 2026
+  Author: Emeric Ressy
+  Client: Mojo Studio
+  Year: 2026

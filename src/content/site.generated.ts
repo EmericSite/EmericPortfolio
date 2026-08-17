@@ -11,13 +11,13 @@ export const identite = {
 };
 
 export const loader = {
-  "texte": "Loading . . ."
+  "texte": "LOADING VISUAL MEMORY"
 };
 
 export const accueil = {
   "surtitre": "Motion Design & Art Direction",
-  "titreLigne1": "Motion · 3D ·",
-  "titreLigne2": "Direction artistique."
+  "titreLigne1": "Motion · 3D",
+  "titreLigne2": "Art Direction."
 };
 
 export const showreel = {
@@ -58,39 +58,39 @@ export const about = {
   "approche": [
     {
       "tag": "Méthode",
-      "texte": "Je construis des images qui ne s’oublient pas. Chaque pièce part d’une atmosphère, d’un grain, d’une intuition narrative — la 3D n’est qu’un moyen."
+      "texte": "I turn products and services into memorable motion experiences, combining design, motion, and 3D to create work that communicates, connects, and resonates emotionally."
     },
     {
       "tag": "Direction",
-      "texte": "Je travaille en direction artistique sur le motion : composition, lumière, rythme, sound design. La technique sert le sentiment, jamais l’inverse."
+      "texte": "I approach motion through art direction, composition, lighting, rhythm, and sound. Every technical choice serves the emotion, never the other way around."
     }
   ],
   "index": [
     {
       "idx": "01",
-      "valeur": "auto",
-      "label": "Projets phares\n2024 — 2026"
+      "valeur": "01",
+      "label": "Client Work & Personal Projects\n2024 — 2026"
     },
     {
       "idx": "02",
       "valeur": "02",
-      "label": "Registres\nGaming · Poétique"
+      "label": "Themes\nCommercial · Cosmetic · Gaming"
     },
     {
       "idx": "03",
-      "valeur": "01",
-      "label": "Studio\nParis"
+      "valeur": "03",
+      "label": "French Freelancer\nBased in Paris"
     }
   ],
   "indexPeriode": "2024 / 2026",
   "clients": [
     "Ankama",
-    "Gentle Mates",
-    "HoYoverse"
+    "Mojo Studio",
+    "Zorba"
   ],
   "clientsMention": "Direction · Motion",
   "ctaSurtitre": "/Contact",
-  "ctaTexte": "Discuter d’un projet",
+  "ctaTexte": "Discuss a project",
   "etiquetteSection": "Section · About",
   "etiquetteOnglet": "About",
   "titreApproche": "⎯ Approach",
@@ -102,62 +102,62 @@ export const about = {
 };
 
 export const contact = {
-  "email": "hello@emericressy.com",
-  "disponibilite": "Disponible · 2026",
-  "titreLigne1": "Parlons d’un",
-  "titreLigne2": "projet.",
-  "accroche": "Direction artistique, motion 3D, identité visuelle. Pour les briefs gaming/esport, anime, ou les pièces plus narratives — écris-moi directement.",
+  "email": "emericressy@gmail.com",
+  "disponibilite": "Available · 2026",
+  "titreLigne1": "Let’s talk about",
+  "titreLigne2": "your project.",
+  "accroche": "Have a project in mind? Feel free to get in touch!",
   "signature": "website made by",
   "signatureAuteur": "Tomi-Tom",
   "signatureLien": "https://www.tombp.fr",
-  "formulaireIntro": "Ou écris-moi ici",
+  "formulaireIntro": "Or write to me here.",
   "fuseau": "Paris · UTC+1",
   "etiquetteSection": "Contact",
   "etiquetteEmail": "Email",
   "reseaux": [
     {
       "label": "Instagram",
-      "handle": "@fumir._o",
-      "href": "https://www.instagram.com/fumir._o/?hl=fr"
-    },
-    {
-      "label": "X",
-      "handle": "@fumir_o",
-      "href": "https://x.com/fumir_o"
+      "handle": "@emeric_rsy",
+      "href": "https://www.instagram.com/emeric_rsy/?hl=fr"
     },
     {
       "label": "LinkedIn",
       "handle": "emeric-ressy",
       "href": "https://www.linkedin.com/in/emeric-ressy-a05b0a194/"
+    },
+    {
+      "label": "X",
+      "handle": "@fumir_o",
+      "href": "https://x.com/fumir_o"
     }
   ]
 };
 
 export const formulaire = {
-  "nom": "Ton nom",
-  "email": "toi@exemple.com",
-  "message": "Parle-moi de ton projet…",
-  "envoyer": "Envoyer",
-  "envoiEnCours": "Envoi…",
-  "erreurEnvoi": "Le message n’a pas pu être envoyé.",
-  "erreurConnexion": "Connexion impossible. Réessaie ou écris-moi directement.",
-  "erreurRequete": "Requête invalide.",
-  "erreurChampsManquants": "Merci de remplir le nom, l’email et le message.",
-  "erreurEmailInvalide": "Cette adresse email ne semble pas valide.",
-  "erreurMessageLong": "Message trop long.",
-  "erreurTropDeMessages": "Trop de messages envoyés. Réessaie dans quelques minutes.",
-  "erreurIndisponible": "L’envoi est momentanément indisponible.",
-  "labelNom": "Nom",
+  "nom": "Your name",
+  "email": "you@exemple.com",
+  "message": "Tell me about your project…",
+  "envoyer": "Send",
+  "envoiEnCours": "Send…",
+  "erreurEnvoi": "Message could not be sent.",
+  "erreurConnexion": "Connection failed. Please try again or email me directly.",
+  "erreurRequete": "Invalid request.",
+  "erreurChampsManquants": "Please fill in your name, email, and message.",
+  "erreurEmailInvalide": "This email address doesn’t seem to be valid.",
+  "erreurMessageLong": "Message is too long.",
+  "erreurTropDeMessages": "Too many messages sent. Please try again in a few minutes.",
+  "erreurIndisponible": "Sending is temporarily unavailable.",
+  "labelNom": "Name",
   "labelEmail": "Email",
   "labelMessage": "Message",
-  "confirmation": "Envoyé. Merci.",
-  "champPiege": "Site web"
+  "confirmation": "Sent. Thank you !",
+  "champPiege": "Website"
 };
 
 export const partage = {
   "url": "https://emericressy.com",
-  "titre": "Emeric Ressy — Motion Designer 3D & Art Direction",
-  "description": "Portfolio motion design, 3D et direction artistique. Paris. Gaming, anime, pièces narratives.",
+  "titre": "Emeric Ressy - Motion Designer 3D & Art Direction",
+  "description": "Emeric Ressy, Motion Designer & Art Direction based in Paris.",
   "metier": "Motion Designer 3D & Art Direction",
   "ville": "Paris",
   "compteX": "@emericressy",
@@ -167,7 +167,7 @@ export const partage = {
     "art direction",
     "Paris",
     "Emeric Ressy",
-    "Three.js portfolio",
+    "Portfolio",
     "anime",
     "esport"
   ],
@@ -175,37 +175,37 @@ export const partage = {
 };
 
 export const libelles = {
-  "allerAuContenu": "Aller au contenu",
-  "logoChargement": "Chargement du site",
-  "galerie": "Galerie",
-  "projets": "Projets",
-  "listeProjets": "Liste des projets",
-  "ouvrirProjet": "Ouvrir",
+  "allerAuContenu": "Skip to content",
+  "logoChargement": "Loading site",
+  "galerie": "Gallery",
+  "projets": "Projects",
+  "listeProjets": "Project list",
+  "ouvrirProjet": "Open",
   "finAbout": "END · About",
-  "fermer": "Fermer",
-  "agrandirMedia": "Agrandir le média",
-  "apercuMedia": "Aperçu du média",
-  "fermerApercu": "Fermer l’aperçu",
-  "mediaPrecedent": "Média précédent",
-  "mediaSuivant": "Média suivant",
-  "fermerLecture": "Fermer la lecture",
-  "lirePrefixe": "Lire le",
-  "lireProjet": "Lire",
-  "natureProjet": "Nature",
-  "projetPersonnel": "Projet personnel",
-  "projetClient": "Projet client",
-  "lectureEnCours": "Lecture de",
-  "activerSon": "Activer le son du showreel",
-  "couperSon": "Couper le son du showreel",
-  "lectureImpossible": "Lecture impossible ici",
-  "ouvrirSurVimeo": "Ouvrir sur Vimeo ↗",
-  "retour": "retour",
-  "role": "Rôle",
+  "fermer": "Close",
+  "agrandirMedia": "Expand media",
+  "apercuMedia": "Media preview",
+  "fermerApercu": "Close preview",
+  "mediaPrecedent": "Previous media",
+  "mediaSuivant": "Next media",
+  "fermerLecture": "Close playback",
+  "lirePrefixe": "Play the",
+  "lireProjet": "Play",
+  "natureProjet": "Type",
+  "projetPersonnel": "Personal project",
+  "projetClient": "Client project",
+  "lectureEnCours": "Playing",
+  "activerSon": "Turn on showreel sound",
+  "couperSon": "Mute showreel sound",
+  "lectureImpossible": "Playback unavailable here",
+  "ouvrirSurVimeo": "Open on Vimeo ↗",
+  "retour": "back",
+  "role": "Role",
   "description": "Description",
-  "credits": "Crédits",
-  "entrerQuandMeme": "entrer quand même",
+  "credits": "Credits",
+  "entrerQuandMeme": "enter anyway",
   "lire": "play",
-  "modeAllege": "mode allégé · ton GPU ne supporte pas la scène 3D",
+  "modeAllege": "lite mode · your GPU doesn’t support the 3D scene",
   "sonActif": "on air",
   "sonCoupe": "showreel",
   "separateurAbout": "— · — · —",
@@ -213,11 +213,11 @@ export const libelles = {
 };
 
 export const erreur = {
-  "surtitre": "scène hors-orbite",
-  "titre": "Le hub n’a pas pu se charger.",
-  "texte": "Recharge la page. Si le souci persiste, ouvre la console pour copier l’erreur ou essaie en navigation privée.",
-  "bouton": "Recharger",
+  "surtitre": "off-orbit scene",
+  "titre": "The hub failed to load.",
+  "texte": "Reload the page. If the issue persists, open the console to copy the error, or try in a private window.",
+  "bouton": "Reload",
   "criseSurtitre": "critical · scene crash",
-  "criseTitre": "Le portfolio n’a pas pu démarrer.",
+  "criseTitre": "The portfolio failed to start.",
   "reference": "ref ·"
 };

@@ -18,7 +18,7 @@ export type ViewportScale = {
 const DEFAULT_SCALE: ViewportScale = {
   hubScale: 1,
   orbitRadius: 2.3,
-  cartoucheScale: 1,
+  cartoucheScale: 0.95,
   cameraZ: 4.6,
   layout: 'orbit',
 };

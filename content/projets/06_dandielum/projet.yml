@@ -1,0 +1,22 @@
+# Fiche projet. Voir CONTENU.md pour le mode d'emploi.
+
+title: Dandelium
+shortTitle: Dandelium
+year: 2026
+tag: Personal · Experimental
+accent: "#FF3D81"
+vimeoId: 1197416907
+role: Art Direction · Motion · Simulation
+kind: personal            # personal ou client
+
+blurb: >
+  Marathon fan project, ASCII, Procedural, Simulation, Houdini
+
+description: >
+  An experimental motion piece inspired by the universe of Marathon, created as part of my ongoing journey learning Houdini.
+  This project was an opportunity to explore procedural workflows, simulation tools, and organic forms through the creation of a dandelion-like structure inspired by the game's visual identity.
+  A personal study driven by experimentation, learning, and a deep appreciation for Marathon's unique art direction.
+
+credits:
+  Author: Emeric Ressy
+  Year: 2026

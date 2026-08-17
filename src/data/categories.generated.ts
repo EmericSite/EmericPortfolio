@@ -9,5 +9,6 @@ export const GALLERY_CATEGORIES = [
   "STILLFRAMES",
   "SCRAPS & RESEARCH",
   "BEHIND THE SCENE",
-  "STORYBOARD"
+  "STORYBOARD",
+  "MAKING OF"
 ] as const;
