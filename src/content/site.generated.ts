@@ -11,7 +11,7 @@ export const identite = {
 };
 
 export const loader = {
-  "texte": "Loading visual memory"
+  "texte": "Loading . . ."
 };
 
 export const accueil = {
