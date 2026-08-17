@@ -122,36 +122,26 @@
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap01.mp4",
-      "width": 400,
-      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap02.mp4",
-      "width": 400,
-      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap03.mp4",
-      "width": 400,
-      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap04.mp4",
-      "width": 400,
-      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap05.mp4",
-      "width": 400,
-      "height": 224,
       "category": "SCRAPS & RESEARCH"
     }
   ],
@@ -292,57 +282,41 @@
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts01.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts02.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts03.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts04.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts05.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts06.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts07.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts08.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     }
   ],
@@ -583,6 +557,162 @@
     {
       "type": "image",
       "src": "/projects/come-torment/storyboard/board01.webp",
+      "width": 1074,
+      "height": 960,
+      "category": "STORYBOARD"
+    }
+  ],
+  "hohlstrasse": [
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-01.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-02.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-03.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-04.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-05.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-06.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-07.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-08.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-09.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-10.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-11.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-12.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-13.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-14.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-15.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-16.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-17.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-18.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-19.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-20.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/stillframes/hohlstrasse-21.webp",
+      "width": 1400,
+      "height": 788,
+      "category": "STILLFRAMES"
+    },
+    {
+      "type": "image",
+      "src": "/projects/hohlstrasse/storyboard/board01.webp",
       "width": 1074,
       "height": 960,
       "category": "STORYBOARD"

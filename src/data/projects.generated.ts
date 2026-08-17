@@ -123,5 +123,33 @@ export const generatedProjects: Project[] = [
       "STILLFRAMES",
       "STORYBOARD"
     ]
+  },
+  {
+    "id": "hohlstrasse",
+    "title": "HOHLSTRASSE - Urban Renewal",
+    "shortTitle": "Architectural film",
+    "year": "2026",
+    "tag": "Client Work · Architectural",
+    "accent": "#FF2A2A",
+    "blurb": "Registre dark fantasy. Volumes lourds, lumière dure, tension contenue.",
+    "description": "Mojo Studio, based in Paris, contacted me to direct and produce an architectural film  about a former Swiss factory that has been completely renovated and  transformed into a warm and welcoming CoCoCo space.  The whole project was completed in two weeks, resulting in a 1mn30 motion video.",
+    "role": "Direction Artistique · Motion",
+    "kind": "client",
+    "vimeoId": "1209474896",
+    "posterUrl": "/posters/hohlstrasse.webp",
+    "credits": [
+      {
+        "label": "Auteur",
+        "value": "Emeric Ressy"
+      },
+      {
+        "label": "Année",
+        "value": "2026"
+      }
+    ],
+    "categories": [
+      "STILLFRAMES",
+      "STORYBOARD"
+    ]
   }
 ];
