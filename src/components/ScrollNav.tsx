@@ -72,18 +72,12 @@ export default function ScrollNav() {
       Math.max(120, Math.min(window.innerWidth * 0.45, 320));
 
     const onTouchStart = (e: TouchEvent) => {
-  if (!isHubFlow()) return;
-  if (e.touches.length === 0) return;
-  // A tap on a button (play buttons, etc.) must never be hijacked into a
-  // swipe: a few pixels of finger jitter would lock the axis to
-  // 'horizontal' and move the card (and its button) out from under the
-  // finger before the click can register.
-  const target = e.target as HTMLElement | null;
-  if (target?.closest('button, a')) return;
-  const t = e.touches[0];
-  touchStart = { x: t.clientX, y: t.clientY, t: Date.now() };
-  axis = 'undecided';
-};
+      if (!isHubFlow()) return;
+      if (e.touches.length === 0) return;
+      const t = e.touches[0];
+      touchStart = { x: t.clientX, y: t.clientY, t: Date.now() };
+      axis = 'undecided';
+    };
 
     const onTouchMove = (e: TouchEvent) => {
       if (touchStart === null || !isHubFlow()) return;
