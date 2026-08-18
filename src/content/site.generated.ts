@@ -157,7 +157,7 @@ export const formulaire = {
 export const partage = {
   "url": "https://emericressy.com",
   "titre": "Emeric Ressy - Motion Designer 3D & Art Direction",
-  "description": "Emeric Ressy, Motion Designer & Art Direction based in Paris.",
+  "description": "Hey ! I’m Emeric Ressy, a Paris based Motion Designer specialized in 3D & Art Direction.",
   "metier": "Motion Designer 3D & Art Direction",
   "ville": "Paris",
   "compteX": "@emericressy",

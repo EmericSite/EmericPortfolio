@@ -1,6 +1,11 @@
 // Emericfolio — created by Tomi-Tom, 2026
 // Home stage: loads the 3D hub, or the flat grid when the machine cannot render it
+
 'use client';
+import { useTexture } from '@react-three/drei';
+import { projects } from '@/data/projects'; // adapte le chemin exact chez toi
+
+useTexture.preload(projects.map((p) => p.posterUrl));
 
 import dynamic from 'next/dynamic';
 import { useState, useSyncExternalStore } from 'react';

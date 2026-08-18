@@ -86,9 +86,16 @@ function Cartouche({
   const setHovered = useHubStore((s) => s.setHovered);
   const setActive = useHubStore((s) => s.setActive);
   const openShowreel = useHubStore((s) => s.openShowreel);
-  const showPlayOverlay = useHubStore(
-    (s) => !showreel && s.activeId === project.id,
+  const showPlayOverlay = useHubStore((s) => {
+  if (showreel) return false;
+  if (s.activeId === project.id) return true;
+  return (
+    layout === 'stack' &&
+    (s.mode === 'hub' || s.mode === 'hover') &&
+    s.scrollIndex === index &&
+    s.activeId === null
   );
+});
   const videoStarted = useHubStore((s) => s.videoStarted);
 
   const angleOffset = orbitAngleOffset(index, total);
