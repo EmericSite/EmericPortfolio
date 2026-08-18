@@ -2,7 +2,7 @@
 // Full sheet of the selected project: story, credits and media gallery
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useShallow } from 'zustand/react/shallow';
 import { useHubStore } from '@/store/hub';
@@ -27,96 +27,45 @@ const TOTAL = projects.length;
 // cropped or stretched.
 function GalleryTile({
   item,
-  accent,
   onOpen,
 }: {
   item: GalleryItem;
-  accent: string;
   onOpen: () => void;
 }) {
   const ratio =
     item.width && item.height ? `${item.width} / ${item.height}` : '16 / 9';
-  const tileRef = useRef<HTMLDivElement | null>(null);
-
-  const playInline = (e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    const video = tileRef.current?.querySelector('video');
-    if (!video) return;
-
-    video.play().catch(() => {
-      // Some mobile browsers reject playback when the media has audio.
-      // Falling back to muted keeps the interaction reliable after a tap.
-      video.muted = true;
-      void video.play();
-    });
-  };
-
   return (
-    <div
-      ref={tileRef}
-      className="media-tile relative mb-3 block w-full break-inside-avoid border border-fog/50 hover:border-chrome/70"
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={libelles.agrandirMedia}
+      className="media-tile mb-3 block w-full break-inside-avoid border border-fog/50 hover:border-chrome/70"
       style={{ aspectRatio: ratio }}
     >
-      <button
-        type="button"
-        onClick={onOpen}
-        aria-label={libelles.agrandirMedia}
-        className="absolute inset-0 z-0 h-full w-full"
-      >
-        {item.type === 'video' ? (
-          <AutoVideo src={item.src} poster={item.poster} />
-        ) : (
-          <Image
-            src={item.src}
-            alt={item.alt ?? ''}
-            width={item.width ?? 1600}
-            height={item.height ?? 900}
-            sizes="(max-width: 768px) 90vw, 30vw"
-            className="object-cover"
-          />
-        )}
-      </button>
-
-      <span className="media-tile__zoom pointer-events-none relative z-10" aria-hidden>
+      {item.type === 'video' ? (
+        <AutoVideo src={item.src} poster={item.poster} />
+      ) : (
+        <Image
+          src={item.src}
+          alt={item.alt ?? ''}
+          width={item.width ?? 1600}
+          height={item.height ?? 900}
+          sizes="(max-width: 768px) 90vw, 30vw"
+          className="object-cover"
+        />
+      )}
+      <span className="media-tile__zoom" aria-hidden>
         ⤢
       </span>
-
-      {item.type === 'video' && (
-        <button
-          type="button"
-          onClick={playInline}
-          aria-label={`${libelles.lireProjet} ${item.alt ?? item.category ?? ''}`}
-          className="play-breathe absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 flex h-16 w-16 items-center justify-center rounded-full border-2 bg-ink/75 backdrop-blur-md md:hidden"
-          style={{
-            borderColor: accent,
-            boxShadow: `0 0 32px -2px rgba(255,255,255,0.35), 0 0 28px -4px ${accent}, inset 0 0 16px -10px ${accent}`,
-          }}
-        >
-          <PlayGlyph
-            className="h-6 w-6"
-            style={{
-              color: accent,
-              filter: `drop-shadow(0 0 10px ${accent})`,
-            }}
-          />
-          <span
-            className="absolute -bottom-5 font-mono text-[8px] uppercase tracking-[0.25em] whitespace-nowrap"
-            style={{ color: accent, opacity: 0.9 }}
-          >
-            {libelles.lire}
-          </span>
-        </button>
-      )}
-
       {item.category && (
-        <span className="media-tile__cap pointer-events-none relative z-10" aria-hidden>
+        <span className="media-tile__cap" aria-hidden>
           <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-chrome/90 inline-flex items-center gap-1.5">
             {item.type === 'video' && <PlayGlyph className="h-2.5 w-2.5" />}
             {item.category}
           </span>
         </span>
       )}
-    </div>
+    </button>
   );
 }
 
@@ -333,7 +282,6 @@ export default function ProjectPanel() {
                           <GalleryTile
                             key={item.src}
                             item={item}
-                            accent={active.accent}
                             onOpen={() => setLightboxIndex(index)}
                           />
                         ))}
