@@ -47,6 +47,7 @@ const cheminMedia = (id, dossier, nom) => `/projects/${id}/${dossier}/${nom}`;
 
 const LARGEUR_MAX = 1400;
 const QUALITE = 82;
+const CACHE_VERSION = 2;
 // Above this, warn about a heavy file published in a versioned folder.
 const POIDS_ALERTE = 1_500_000;
 
@@ -69,6 +70,20 @@ export const ffmpegDispo = (() => {
   } catch {
     return false;
   }
+})();
+
+const h264Encoder = (() => {
+  if (!ffmpegDispo) return null;
+  try {
+    const encodeurs = execFileSync('ffmpeg', ['-hide_banner', '-encoders'], {
+      encoding: 'utf8',
+    });
+    if (encodeurs.includes('libx264')) return 'libx264';
+    if (encodeurs.includes('libopenh264')) return 'libopenh264';
+  } catch {
+    // Animated WebP remains the browser-compatible fallback.
+  }
+  return null;
 })();
 
 /** Name usable in a URL: no accent, space or uppercase. */
@@ -187,6 +202,7 @@ async function traiterMedia(source, sortie, srcWeb) {
 
   if (
     memo &&
+    memo.version === CACHE_VERSION &&
     memo.mtimeMs === stat.mtimeMs &&
     memo.taille === stat.size &&
     memo.item?.src === srcWeb &&
@@ -221,6 +237,7 @@ async function traiterMedia(source, sortie, srcWeb) {
     if (sortie.endsWith('.mp4')) {
       execFileSync('ffmpeg', [
         '-y', '-loglevel', 'error', '-i', source,
+        '-c:v', h264Encoder,
         '-movflags', '+faststart', '-pix_fmt', 'yuv420p',
         '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-an', sortie,
       ]);
@@ -247,13 +264,13 @@ async function traiterMedia(source, sortie, srcWeb) {
 
   signalerPublicTouche();
   verifierPoids(source, sortie);
-  cache[cle] = { mtimeMs: stat.mtimeMs, taille: stat.size, item };
+  cache[cle] = { version: CACHE_VERSION, mtimeMs: stat.mtimeMs, taille: stat.size, item };
   return item;
 }
 
 function extensionSortie(ext) {
   if (EXT_IMAGE.has(ext)) return '.webp';
-  if (EXT_ANIMEE.has(ext)) return ffmpegDispo ? '.mp4' : '.webp';
+  if (EXT_ANIMEE.has(ext)) return h264Encoder ? '.mp4' : '.webp';
   if (ext === '.mov') return ffmpegDispo ? '.mp4' : '.mov';
   return ext;
 }

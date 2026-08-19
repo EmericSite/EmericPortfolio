@@ -38,6 +38,13 @@ export default function AutoVideo({
     const stop = () => {
       if (!el.paused) el.pause();
     };
+    const retryPlay = () => {
+      if (!el.paused) return;
+      const p = el.play();
+      if (p && typeof p.then === 'function') {
+        p.catch(() => {});
+      }
+    };
 
     // Opening a project mounts every thumbnail at once, next to the WebGL
     // canvas: only the ones actually in view are worth downloading and decoding.
@@ -53,9 +60,11 @@ export default function AutoVideo({
 
     if (observer) observer.observe(el);
     else play();
+    el.addEventListener('canplay', retryPlay);
 
     return () => {
       observer?.disconnect();
+      el.removeEventListener('canplay', retryPlay);
       stop();
     };
   }, [src]);
@@ -68,7 +77,8 @@ export default function AutoVideo({
       loop
       muted
       playsInline
-      preload="metadata"
+      autoPlay
+      preload="auto"
       controls={controls}
       className={className}
       aria-hidden={!controls}
