@@ -19,7 +19,7 @@ export default function Home() {
 
       <MarqueeBackground />
 
-      <div className="absolute inset-0 z-10">
+      <div className="absolute inset-0">
         <HomeHub />
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-ink/20 via-transparent to-ink/70 pointer-events-none" />
