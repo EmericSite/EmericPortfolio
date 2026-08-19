@@ -122,36 +122,26 @@
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap01.mp4",
-      "width": 400,
-      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap02.mp4",
-      "width": 400,
-      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap03.mp4",
-      "width": 400,
-      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap04.mp4",
-      "width": 400,
-      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap05.mp4",
-      "width": 400,
-      "height": 224,
       "category": "SCRAPS & RESEARCH"
     }
   ],
@@ -292,57 +282,41 @@
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts01.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts02.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts03.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts04.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts05.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts06.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts07.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts08.mp4",
-      "width": 1080,
-      "height": 608,
       "category": "BEHIND THE SCENE"
     }
   ],
@@ -823,29 +797,29 @@
       "category": "STILLFRAMES"
     },
     {
-      "type": "video",
-      "src": "/projects/dandielum/making-of/correct-ezgif-com-video-to-gif-converter.mp4",
+      "type": "image",
+      "src": "/projects/dandielum/making-of/correct-ezgif-com-video-to-gif-converter.webp",
       "width": 800,
       "height": 450,
       "category": "MAKING OF"
     },
     {
-      "type": "video",
-      "src": "/projects/dandielum/making-of/timelapse01-ezgif-com-video-to-gif-converter.mp4",
+      "type": "image",
+      "src": "/projects/dandielum/making-of/timelapse01-ezgif-com-video-to-gif-converter.webp",
       "width": 800,
       "height": 450,
       "category": "MAKING OF"
     },
     {
-      "type": "video",
-      "src": "/projects/dandielum/making-of/timelapse02-ezgif-com-video-to-gif-converter.mp4",
+      "type": "image",
+      "src": "/projects/dandielum/making-of/timelapse02-ezgif-com-video-to-gif-converter.webp",
       "width": 800,
       "height": 450,
       "category": "MAKING OF"
     },
     {
-      "type": "video",
-      "src": "/projects/dandielum/making-of/timelapse03-ezgif-com-video-to-gif-converter.mp4",
+      "type": "image",
+      "src": "/projects/dandielum/making-of/timelapse03-ezgif-com-video-to-gif-converter.webp",
       "width": 800,
       "height": 450,
       "category": "MAKING OF"

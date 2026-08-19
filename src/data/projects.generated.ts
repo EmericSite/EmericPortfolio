@@ -46,13 +46,21 @@ export const generatedProjects: Project[] = [
     "blurb": "Motion created in celebration of Ankama’s 25th anniversary and the world of Dofus.",
     "description": "What matters to Dofus players isn’t just the big quests, but also the little fragments of their experience: drops, battles, chilling afternoons at the Zaap. These fragments awaken memories and emotions, creating intimate and unique recollections. The video captures these sensory moments so that veterans can recognize themselves and newcomers will want to discover this world.",
     "role": "Motion Design · Art Direction",
-    "kind": "personal",
+    "kind": "client",
     "vimeoId": "1169640652",
     "posterUrl": "/posters/dofus.webp",
     "credits": [
       {
         "label": "Author",
         "value": "Emeric Ressy"
+      },
+      {
+        "label": "Sound designer",
+        "value": "Maxime Host"
+      },
+      {
+        "label": "Voice Actress",
+        "value": "Geneviève Doang"
       },
       {
         "label": "Client",
@@ -126,8 +134,8 @@ export const generatedProjects: Project[] = [
   },
   {
     "id": "hohlstrasse",
-    "title": "Urban Renewal",
-    "shortTitle": "Urban Renewal",
+    "title": "Hohlstrasse - Urban Renewal",
+    "shortTitle": "Hohlstrasse",
     "year": "2026",
     "tag": "Client Work · Architectural",
     "accent": "#FFDA91",

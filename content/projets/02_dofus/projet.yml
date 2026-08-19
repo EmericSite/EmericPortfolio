@@ -7,7 +7,7 @@ tag: 2D MOTION · Ankama
 accent: "#00F0FF"
 vimeoId: 1169640652
 role: Motion Design · Art Direction
-kind: personal            # personal ou client
+kind: client          # personal ou client
 
 blurb: >
   Motion created in celebration of Ankama’s 25th anniversary and the world of Dofus.
@@ -19,5 +19,7 @@ description: >
 
 credits:
   Author: Emeric Ressy
+  Sound designer : Maxime Host
+  Voice Actress : Geneviève Doang
   Client: Ankama
   Year: 2026

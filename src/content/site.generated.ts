@@ -150,7 +150,7 @@ export const formulaire = {
   "labelNom": "Name",
   "labelEmail": "Email",
   "labelMessage": "Message",
-  "confirmation": "Sent. Thank you !",
+  "confirmation": "Message Sent! I’ll get back to you soon.",
   "champPiege": "Website"
 };
 
