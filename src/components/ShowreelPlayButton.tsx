@@ -74,7 +74,10 @@ export default function ShowreelPlayButton() {
           className={`play-breathe relative flex h-full w-full items-center justify-center rounded-full border border-chrome/40 bg-ink/20 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-chrome/80 hover:bg-ink/50 ${
             clickable ? 'pointer-events-auto' : 'pointer-events-none'
           }`}
-          style={{ boxShadow: `0 0 44px -6px ${showreelAccent}` }}
+          style={{
+            boxShadow: `0 0 44px -6px ${showreelAccent}`,
+            touchAction: 'pan-y',
+          }}
         >
           <PlayGlyph
             className="h-9 w-9 md:h-11 md:w-11"

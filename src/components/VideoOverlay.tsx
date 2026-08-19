@@ -78,7 +78,7 @@ export default function VideoOverlay() {
       role="dialog"
       aria-modal="true"
       aria-label={`${libelles.lectureEnCours} ${source.title}`}
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-ink/95 backdrop-blur-md"
+      className="fixed inset-0 z-[9999] flex min-h-[100svh] items-center justify-center overflow-auto bg-ink/95 p-0 backdrop-blur-md"
     >
       <button
         type="button"
@@ -100,11 +100,11 @@ export default function VideoOverlay() {
         <span>{source.shortTitle}</span>
       </div>
 
-      <div className="relative w-full h-full md:h-auto md:max-h-[90vh] md:w-[min(90vw,1600px)] aspect-video md:rounded-sm overflow-hidden bg-ink border-0 md:border md:border-fog">
+      <div className="relative aspect-video w-full max-w-[1600px] overflow-hidden bg-ink border-0 md:max-h-[90vh] md:w-[min(90vw,1600px)] md:rounded-sm md:border md:border-fog">
         {!iframeError ? (
           <iframe
             key={source.vimeoId}
-            src={`https://player.vimeo.com/video/${source.vimeoId}?autoplay=1&title=0&byline=0&portrait=0&controls=1&dnt=1`}
+            src={`https://player.vimeo.com/video/${source.vimeoId}?autoplay=1&playsinline=1&title=0&byline=0&portrait=0&controls=1&dnt=1`}
             allow="autoplay; fullscreen; picture-in-picture"
             allowFullScreen
             onError={() => setErroredId(source.vimeoId)}

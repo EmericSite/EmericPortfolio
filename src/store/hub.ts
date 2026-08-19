@@ -37,6 +37,7 @@ type HubStore = {
   scrollNext: () => void;
   scrollPrev: () => void;
   startVideo: () => void;
+  startProjectVideo: (id: string) => void;
   stopVideo: () => void;
   openShowreel: () => void;
   closeShowreel: () => void;
@@ -46,7 +47,7 @@ export const useHubStore = create<HubStore>((set, get) => ({
   mode: 'hub',
   hoveredId: null,
   activeId: null,
-  scrollIndex: 0,
+  scrollIndex: projects.length,
   dragOffset: 0,
   cardCount: projects.length,
   videoStarted: false,
@@ -108,6 +109,18 @@ export const useHubStore = create<HubStore>((set, get) => ({
   scrollNext: () => get().commitDrag(1),
   scrollPrev: () => get().commitDrag(-1),
   startVideo: () => set({ videoStarted: true }),
+  startProjectVideo: (id) =>
+    set((s) => {
+      if (!inProjectFlow(s.mode)) return {};
+      const idx = projects.findIndex((project) => project.id === id);
+      return {
+        activeId: id,
+        hoveredId: null,
+        videoStarted: true,
+        mode: 'project',
+        scrollIndex: idx >= 0 ? idx : s.scrollIndex,
+      };
+    }),
   stopVideo: () => set({ videoStarted: false }),
   openShowreel: () => set({ showreelOpen: true }),
   closeShowreel: () => set({ showreelOpen: false }),

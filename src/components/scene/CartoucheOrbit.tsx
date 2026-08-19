@@ -85,6 +85,7 @@ function Cartouche({
 
   const setHovered = useHubStore((s) => s.setHovered);
   const setActive = useHubStore((s) => s.setActive);
+  const startProjectVideo = useHubStore((s) => s.startProjectVideo);
   const openShowreel = useHubStore((s) => s.openShowreel);
   const showPlayOverlay = useHubStore((s) => {
   if (showreel) return false;
@@ -220,7 +221,19 @@ function Cartouche({
             e.stopPropagation();
             // The showreel plays straight away, it opens no project panel.
             if (showreel) openShowreel();
-            else setActive(project.id);
+            else {
+              if (layout !== 'stack') {
+                setActive(project.id);
+                return;
+              }
+
+              const localPoint = e.point.clone();
+              innerRef.current?.worldToLocal(localPoint);
+              const isCenter =
+                Math.abs(localPoint.x) < 0.25 && Math.abs(localPoint.y) < 0.36;
+              if (isCenter) startProjectVideo(project.id);
+              else setActive(project.id);
+            }
           }}
         >
           <RoundedBox
@@ -423,7 +436,11 @@ font={typeof CARTOUCHE_FONT !== 'undefined' ? CARTOUCHE_FONT : "/fonts/Inter-Reg
           </mesh>
         </group>
         {showPlayOverlay && !videoStarted && (
-          <PlayOverlay accent={project.accent} title={project.title} />
+          <PlayOverlay
+            accent={project.accent}
+            title={project.title}
+            projectId={project.id}
+          />
         )}
       </Float>
     </group>

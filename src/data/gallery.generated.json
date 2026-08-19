@@ -3,145 +3,155 @@
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still01.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still02.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still03.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still04.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still05.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still06.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still07.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still08.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still09.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still10.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still11.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still12.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still13.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still14.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still15.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still16.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/gentle-mates/stillframes/still17.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap01.mp4",
+      "width": 400,
+      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap02.mp4",
+      "width": 400,
+      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap03.mp4",
+      "width": 400,
+      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap04.mp4",
+      "width": 400,
+      "height": 224,
       "category": "SCRAPS & RESEARCH"
     },
     {
       "type": "video",
       "src": "/projects/gentle-mates/scraps-and-research/scrap05.mp4",
+      "width": 400,
+      "height": 224,
       "category": "SCRAPS & RESEARCH"
     }
   ],
@@ -282,41 +292,57 @@
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts01.mp4",
+      "width": 1080,
+      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts02.mp4",
+      "width": 1080,
+      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts03.mp4",
+      "width": 1080,
+      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts04.mp4",
+      "width": 1080,
+      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts05.mp4",
+      "width": 1080,
+      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts06.mp4",
+      "width": 1080,
+      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts07.mp4",
+      "width": 1080,
+      "height": 608,
       "category": "BEHIND THE SCENE"
     },
     {
       "type": "video",
       "src": "/projects/dofus/behind-the-scene/bts08.mp4",
+      "width": 1080,
+      "height": 608,
       "category": "BEHIND THE SCENE"
     }
   ],
@@ -324,127 +350,127 @@
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still01.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still02.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still03.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still04.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still05.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still06.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still07.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still08.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still09.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still10.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still11.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still12.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still13.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still14.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still15.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still16.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still17.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/douce-melancolie/stillframes/still18.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
@@ -459,99 +485,99 @@
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still01.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still02.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still03.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still04.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still05.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still06.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still07.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still08.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still09.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still10.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still11.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still12.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still13.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
       "type": "image",
       "src": "/projects/come-torment/stillframes/still14.webp",
-      "width": 1600,
-      "height": 900,
+      "width": 1400,
+      "height": 788,
       "category": "STILLFRAMES"
     },
     {
@@ -797,29 +823,29 @@
       "category": "STILLFRAMES"
     },
     {
-      "type": "image",
-      "src": "/projects/dandielum/making-of/correct-ezgif-com-video-to-gif-converter.webp",
+      "type": "video",
+      "src": "/projects/dandielum/making-of/correct-ezgif-com-video-to-gif-converter.mp4",
       "width": 800,
       "height": 450,
       "category": "MAKING OF"
     },
     {
-      "type": "image",
-      "src": "/projects/dandielum/making-of/timelapse01-ezgif-com-video-to-gif-converter.webp",
+      "type": "video",
+      "src": "/projects/dandielum/making-of/timelapse01-ezgif-com-video-to-gif-converter.mp4",
       "width": 800,
       "height": 450,
       "category": "MAKING OF"
     },
     {
-      "type": "image",
-      "src": "/projects/dandielum/making-of/timelapse02-ezgif-com-video-to-gif-converter.webp",
+      "type": "video",
+      "src": "/projects/dandielum/making-of/timelapse02-ezgif-com-video-to-gif-converter.mp4",
       "width": 800,
       "height": 450,
       "category": "MAKING OF"
     },
     {
-      "type": "image",
-      "src": "/projects/dandielum/making-of/timelapse03-ezgif-com-video-to-gif-converter.webp",
+      "type": "video",
+      "src": "/projects/dandielum/making-of/timelapse03-ezgif-com-video-to-gif-converter.mp4",
       "width": 800,
       "height": 450,
       "category": "MAKING OF"

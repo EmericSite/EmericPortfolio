@@ -88,7 +88,20 @@ export default function FallbackHub() {
               <li key={project.id}>
                 <button
                   type="button"
-                  onClick={() => setActive(project.id)}
+                  onClick={(e) => {
+                    const bounds = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX - bounds.left;
+                    const y = e.clientY - bounds.top;
+                    const isCenter =
+                      window.matchMedia('(max-width: 767px)').matches &&
+                      Math.abs(x - bounds.width / 2) < bounds.width * 0.27 &&
+                      Math.abs(y - bounds.height / 2) < bounds.height * 0.27;
+                    if (isCenter) {
+                      useHubStore.getState().startProjectVideo(project.id);
+                    } else {
+                      setActive(project.id);
+                    }
+                  }}
                   onMouseEnter={() => setHovered(project.id)}
                   onMouseLeave={() => setHovered(null)}
                   onFocus={() => setHovered(project.id)}

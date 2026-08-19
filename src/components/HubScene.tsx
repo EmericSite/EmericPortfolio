@@ -226,6 +226,7 @@ export default function HubScene({ onGlError }: { onGlError?: () => void }) {
         }
       }}
       performance={{ min: 0.5 }}
+      style={{ touchAction: 'pan-y' }}
       onPointerMissed={() => {
         const { activeId, setMode } = useHubStore.getState();
         if (activeId) setMode('hub');

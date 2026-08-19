@@ -125,17 +125,29 @@ export default function ScrollNav() {
 
     window.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('keydown', onKey);
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
-    window.addEventListener('touchend', endTouch, { passive: true });
-    window.addEventListener('touchcancel', endTouch, { passive: true });
+    window.addEventListener('touchstart', onTouchStart, {
+      passive: true,
+      capture: true,
+    });
+    window.addEventListener('touchmove', onTouchMove, {
+      passive: true,
+      capture: true,
+    });
+    window.addEventListener('touchend', endTouch, {
+      passive: true,
+      capture: true,
+    });
+    window.addEventListener('touchcancel', endTouch, {
+      passive: true,
+      capture: true,
+    });
     return () => {
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('keydown', onKey);
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', endTouch);
-      window.removeEventListener('touchcancel', endTouch);
+      window.removeEventListener('touchstart', onTouchStart, true);
+      window.removeEventListener('touchmove', onTouchMove, true);
+      window.removeEventListener('touchend', endTouch, true);
+      window.removeEventListener('touchcancel', endTouch, true);
       if (rAFId) cancelAnimationFrame(rAFId);
     };
   }, []);

@@ -12,11 +12,13 @@ import PlayGlyph from '@/components/PlayGlyph';
 export default function PlayOverlay({
   accent,
   title,
+  projectId,
 }: {
   accent: string;
   title: string;
+  projectId: string;
 }) {
-  const startVideo = useHubStore((s) => s.startVideo);
+  const startProjectVideo = useHubStore((s) => s.startProjectVideo);
 
   return (
     <Html
@@ -54,7 +56,7 @@ export default function PlayOverlay({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            startVideo();
+            startProjectVideo(projectId);
           }}
           aria-label={`${libelles.lireProjet} ${title}`}
           className="play-breathe relative flex h-28 w-28 items-center justify-center rounded-full border-2 bg-ink/75 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-ink/90"
